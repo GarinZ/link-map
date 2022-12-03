@@ -1,0 +1,31 @@
+{
+    "typescript.tsdk": "./node_modules/typescript/lib",
+    // stylelint 扩展自身的校验就够了
+    "stylelint.validate": ["css", "less", "scss"],
+    "css.validate": false,
+    "less.validate": false,
+    "scss.validate": false,
+    "json.schemas": [
+        {
+            "fileMatch": ["/**/src/manifest.dev.json", "/**/src/manifest.prod.json"],
+            "url": "http://json.schemastore.org/chrome-manifest"
+        }
+    ],
+    "search.exclude": {
+        "**/node_modules": true,
+        "extension": true,
+        "yarn.lock": true
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/extension/**": true
+    },
+    "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html][css][less][scss][markdown][xml][yaml][svg]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+}
