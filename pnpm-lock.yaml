@@ -17,6 +17,7 @@ specifiers:
   '@types/html-minifier': 4.0.2
   '@types/html-webpack-plugin': 3.2.6
   '@types/jquery': 3.5.14
+  '@types/jquery.fancytree': 0.0.7
   '@types/lodash': 4.14.190
   '@types/node': 18.11.9
   '@types/react': 18.0.25
@@ -58,6 +59,7 @@ specifiers:
   http-proxy-middleware: 2.0.6
   husky: 8.0.2
   jquery: 3.6.1
+  jquery.fancytree: 2.38.2
   less: 4.1.3
   less-loader: 11.1.0
   lightningcss: 1.16.1
@@ -88,7 +90,7 @@ specifiers:
   ts-node: 10.9.1
   typescript: 4.9.3
   wait-on: 6.0.1
-  webext-bridge: 5.0.5
+  webext-bridge: ../webext-bridge
   webextension-polyfill: 0.10.0
   webpack: 5.75.0
   webpack-bundle-analyzer: 4.7.0
@@ -102,6 +104,7 @@ dependencies:
   antd: 5.0.1_biqbaboplfbrettd7655fr4n2y
   dayjs: 1.11.6
   jquery: 3.6.1
+  jquery.fancytree: 2.38.2_jquery@3.6.1
   lodash: 4.17.21
   normalize.css: 8.0.1
   react: 18.2.0
@@ -126,6 +129,7 @@ devDependencies:
   '@types/html-minifier': 4.0.2
   '@types/html-webpack-plugin': 3.2.6
   '@types/jquery': 3.5.14
+  '@types/jquery.fancytree': 0.0.7
   '@types/lodash': 4.14.190
   '@types/node': 18.11.9
   '@types/react': 18.0.25
@@ -189,7 +193,7 @@ devDependencies:
   ts-node: 10.9.1_cpvkfpwjzivxrhdradu2nwslwq
   typescript: 4.9.3
   wait-on: 6.0.1
-  webext-bridge: 5.0.5
+  webext-bridge: link:../webext-bridge
   webpack: 5.75.0_@swc+core@1.3.19
   webpack-bundle-analyzer: 4.7.0
   webpack-dev-middleware: 6.0.0_webpack@5.75.0
@@ -2184,10 +2188,23 @@ packages:
       '@types/istanbul-lib-report': 3.0.0
     dev: true
 
+  /@types/jquery.fancytree/0.0.7:
+    resolution: {integrity: sha512-nV0sG7t4LLkFC+3S7Ln/do6sOHMYUI3BGU3Nca9ZB4gsmc8LY5RtObvCwmQsYDervDnispV+9bS7jrN6nEOHRA==}
+    dependencies:
+      '@types/jquery': 3.5.14
+      '@types/jqueryui': 1.12.16
+    dev: true
+
   /@types/jquery/3.5.14:
     resolution: {integrity: sha512-X1gtMRMbziVQkErhTQmSe2jFwwENA/Zr+PprCkF63vFq+Yt5PZ4AlKqgmeNlwgn7dhsXEK888eIW2520EpC+xg==}
     dependencies:
       '@types/sizzle': 2.3.3
+    dev: true
+
+  /@types/jqueryui/1.12.16:
+    resolution: {integrity: sha512-6huAQDpNlso9ayaUT9amBOA3kj02OCeUWs+UvDmbaJmwkHSg/HLsQOoap/D5uveN9ePwl72N45Bl+Frp5xyG1Q==}
+    dependencies:
+      '@types/jquery': 3.5.14
     dev: true
 
   /@types/json-schema/7.0.9:
@@ -2330,10 +2347,6 @@ packages:
     resolution: {integrity: sha512-2FFOKCF/YydrMUaqg+fkk49qf0e5rDgwt6aQsMzFQzbS419h2gNOXyiwp/o2yYy27bi/C1z+HgfncryjGzlvgQ==}
     dependencies:
       '@types/node': 18.11.9
-    dev: true
-
-  /@types/webextension-polyfill/0.8.3:
-    resolution: {integrity: sha512-GN+Hjzy9mXjWoXKmaicTegv3FJ0WFZ3aYz77Wk8TMp1IY3vEzvzj1vnsa0ggV7vMI1i+PUxe4qqnIJKCzf9aTg==}
     dev: true
 
   /@types/webextension-polyfill/0.9.1:
@@ -5811,6 +5824,14 @@ packages:
       '@sideway/pinpoint': 2.0.0
     dev: true
 
+  /jquery.fancytree/2.38.2_jquery@3.6.1:
+    resolution: {integrity: sha512-+7+rro6Lr1OsfwkxNZYXUEHQgvY9g91IDsNCosvegA0zraTuZjPjLjF/n0y0TLbp8OKlhSHzcflTrAhERV3SQA==}
+    peerDependencies:
+      jquery: '>=1.9'
+    dependencies:
+      jquery: 3.6.1
+    dev: false
+
   /jquery/3.6.1:
     resolution: {integrity: sha512-opJeO4nCucVnsjiXOE+/PcCgYw9Gwpvs/a6B1LL/lQhwWwpbVEVYDZ1FokFr8PRc7ghYlrFPuyHuiiDNTQxmcw==}
     dev: false
@@ -6499,11 +6520,6 @@ packages:
 
   /ms/2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
-    dev: true
-
-  /nanoevents/6.0.2:
-    resolution: {integrity: sha512-FRS2otuFcPPYDPYViNWQ42+1iZqbXydinkRHTHFxrF4a1CpBfmydR9zkI44WSXAXCyPrkcGtPk5CnpW6Y3lFKQ==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     dev: true
 
   /nanoid/3.3.4:
@@ -8506,13 +8522,6 @@ packages:
     dev: true
     optional: true
 
-  /serialize-error/9.1.1:
-    resolution: {integrity: sha512-6uZQLGyUkNA4N+Zii9fYukmNu9PEA1F5rqcwXzN/3LtBjwl2dFBbVZ1Zyn08/CGkB4H440PIemdOQBt1Wvjbrg==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    dependencies:
-      type-fest: 2.19.0
-    dev: true
-
   /serialize-javascript/6.0.0:
     resolution: {integrity: sha512-Qr3TosvguFt8ePWqsvRfrKyQXIiW+nGbYpy8XK24NQHE83caxWt+mIymTT19DGFbNWNLfEwsrkSmN64lVWB9ag==}
     dependencies:
@@ -9103,10 +9112,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /tiny-uid/1.1.2:
-    resolution: {integrity: sha512-0beRFXR+fv4C40ND2PqgNjq6iyB1dKXciKJjslLw0kPYCcR82aNd2b+Tt2yy06LimIlvtoehgvrm/fUZCutSfg==}
-    dev: true
-
   /tmp/0.2.1:
     resolution: {integrity: sha512-76SUhtfqR2Ijn+xllcI5P1oyannHNHByD80W1q447gU3mp9G9PSpGdWmjUOHRDPiHYacIk66W7ubDTuPF3BEtQ==}
     engines: {node: '>=8.17.0'}
@@ -9251,11 +9256,6 @@ packages:
   /type-fest/0.8.1:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
     engines: {node: '>=8'}
-    dev: true
-
-  /type-fest/2.19.0:
-    resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
-    engines: {node: '>=12.20'}
     dev: true
 
   /type-is/1.6.18:
@@ -9448,23 +9448,9 @@ packages:
       graceful-fs: 4.2.9
     dev: true
 
-  /webext-bridge/5.0.5:
-    resolution: {integrity: sha512-STCv6pLfQtUHmZQ96Tmov+CrdGjjc08xG6o/VH7TlDvchAPmXEG7faPdHfIzkcs0qp0sedDkq7oDzXAei19vtw==}
-    dependencies:
-      '@types/webextension-polyfill': 0.8.3
-      nanoevents: 6.0.2
-      serialize-error: 9.1.1
-      tiny-uid: 1.1.2
-      webextension-polyfill: 0.9.0
-    dev: true
-
   /webextension-polyfill/0.10.0:
     resolution: {integrity: sha512-c5s35LgVa5tFaHhrZDnr3FpQpjj1BB+RXhLTYUxGqBVN460HkbM8TBtEqdXWbpTKfzwCcjAZVF7zXCYSKtcp9g==}
     dev: false
-
-  /webextension-polyfill/0.9.0:
-    resolution: {integrity: sha512-LTtHb0yR49xa9irkstDxba4GATDAcDw3ncnFH9RImoFwDlW47U95ME5sn5IiQX2ghfaECaf6xyXM8yvClIBkkw==}
-    dev: true
 
   /webpack-bundle-analyzer/4.7.0:
     resolution: {integrity: sha512-j9b8ynpJS4K+zfO5GGwsAcQX4ZHpWV+yRiHDiL+bE0XHJ8NiPYLTNVQdlFYWxtpg9lfAQNlwJg16J9AJtFSXRg==}

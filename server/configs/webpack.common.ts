@@ -79,6 +79,11 @@ const commonConfig: Configuration = {
             title: 'popup page',
             template: resolvePublic('popup.html'),
         }),
+        new HtmlWebpackPlugin({
+            chunks: ['tree'],
+            filename: 'index.html',
+            template: resolveSrc('tree/index.html'),
+        }),
         new MiniCssExtractPlugin({
             filename: `css/[name].css`,
             ignoreOrder: false,
