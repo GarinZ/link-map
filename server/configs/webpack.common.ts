@@ -8,7 +8,7 @@ import WebpackBar from 'webpackbar';
 
 import { __DEV__, ENABLE_DEVTOOLS, PROJECT_ROOT } from '../utils/constants';
 import entry from '../utils/entry';
-import { resolveExtension, resolvePublic, resolveSrc } from '../utils/path';
+import { resolveExtension, resolveLib, resolvePublic, resolveSrc } from '../utils/path';
 
 function getCssLoaders(importLoaders: number) {
     return [
@@ -61,6 +61,10 @@ const commonConfig: Configuration = {
                         ignore: ['**/public/*.html'],
                     },
                 },
+                {
+                    from: resolveLib(),
+                    to: resolveExtension('lib'),
+                },
             ],
         }),
         new WebpackBar({
@@ -81,8 +85,8 @@ const commonConfig: Configuration = {
         }),
         new HtmlWebpackPlugin({
             chunks: ['tree'],
-            filename: 'index.html',
-            template: resolveSrc('tree/index.html'),
+            filename: 'tree.html',
+            template: resolveSrc('tree/tree.html'),
         }),
         new MiniCssExtractPlugin({
             filename: `css/[name].css`,
@@ -99,7 +103,7 @@ const commonConfig: Configuration = {
                 test: /\.(js|ts|tsx)$/,
                 loader: 'babel-loader',
                 options: { cacheDirectory: true },
-                exclude: /node_modules/,
+                exclude: [/node_modules/, /lib/],
             },
             {
                 test: /\.css$/,

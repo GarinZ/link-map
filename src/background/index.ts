@@ -28,7 +28,7 @@ browser.action.onClicked.addListener(async () => {
         return;
     }
     const extWindow = await browser.windows.create({
-        url: '/dist/popup/index.html',
+        url: 'tree.html',
         type: 'popup',
         width: 358,
         height: 896,
@@ -89,8 +89,9 @@ browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
     sendMessageToExt('remove-tab', { windowId: removeInfo.windowId, tabId });
 });
 
-browser.tabs.onUpdated.addListener(async (tab) => {
-    sendMessageToExt('update-tab', tab);
+browser.tabs.onUpdated.addListener(async (tabId) => {
+    console.log('[bg]: tab updated!', tabId);
+    sendMessageToExt('update-tab', tabId);
 });
 
 browser.tabs.onMoved.addListener((tabId, { windowId, fromIndex, toIndex }) => {

@@ -32,7 +32,8 @@
         "baseUrl": "./",
         "paths": {
             "@/*": ["src/*"]
-        }
+        },
+        "types": ["jquery.fancytree", "jquery", "webext-bridge"]
     },
     "exclude": ["manifest.ts"]
 }

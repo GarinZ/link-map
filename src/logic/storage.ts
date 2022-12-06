@@ -1,5 +1,5 @@
 import { isEmpty } from 'lodash';
-import browser from 'webextension-polyfill';
+import { storage } from 'webextension-polyfill';
 
 export interface ExtIdPair {
     windowId: number;
@@ -7,13 +7,14 @@ export interface ExtIdPair {
 }
 
 export const setExtIdPair = (extIdPair: ExtIdPair): Promise<void> => {
-    return browser.storage.local.set(extIdPair);
+    return storage.local.set(extIdPair);
 };
 
 export const getExtIdPair = async (): Promise<ExtIdPair | null> => {
+    console.log(storage);
     const [windowIdObj, tabIdObj] = await Promise.all([
-        browser.storage.local.get('windowId'),
-        browser.storage.local.get('tabId'),
+        storage.local.get('windowId'),
+        storage.local.get('tabId'),
     ]);
     // 如果key不存在，返回的localStorage为空对象
     return isEmpty(windowIdObj) || isEmpty(tabIdObj)

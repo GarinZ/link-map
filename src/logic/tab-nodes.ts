@@ -1,7 +1,6 @@
 import { merge } from 'lodash';
 import type { Tabs } from 'webextension-polyfill';
 
-import type { WindowTabIdPair } from '../typings';
 import type { TabData, TreeNode } from './nodes';
 import { array2Object, pushIfAbsentInit } from './utils';
 
@@ -13,7 +12,7 @@ export const create = (tab: Tabs.Tab): TreeNode<TabData> => {
     return {
         title: title || '',
         key: `${windowId}-${id}`,
-        icon: favIconUrl || '/assets/chrome_icon.svg',
+        icon: favIconUrl || '/icons/chrome_icon.svg',
         data: {
             ...tab,
             windowId,

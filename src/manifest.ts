@@ -9,7 +9,7 @@ const manifest: Manifest.WebExtensionManifest = {
     description: pkg.description,
     manifest_version: 3,
     minimum_chrome_version: pkg.browserslist.split(' ')[2],
-    permissions: [],
+    permissions: ['tabs', 'storage', 'activeTab', 'windows'],
     content_security_policy: {
         extension_pages: "script-src 'self' http://localhost; object-src 'self';",
     },
@@ -30,7 +30,7 @@ const manifest: Manifest.WebExtensionManifest = {
         },
     ],
     action: {
-        default_popup: 'popup.html',
+        // default_popup: 'popup.html',
         default_icon: {
             '16': 'icons/extension-icon-x16.png',
             '32': 'icons/extension-icon-x32.png',

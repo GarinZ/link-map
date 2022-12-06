@@ -13,7 +13,7 @@ export const create = (window: Windows.Window): TreeNode<WindowData> => {
     const node: TreeNode<WindowData> = {
         title: `Window${type === 'normal' ? '' : `(${type})`}`,
         key: `${id}`,
-        icon: '/assets/chrome_icon.svg',
+        icon: '/icons/chrome_icon.svg',
         expanded: true,
         data: {
             ...window,

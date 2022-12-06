@@ -23,6 +23,7 @@ module.exports = (api) => {
     return {
         presets: ['@babel/preset-typescript', envPreset],
         plugins: [
+            '@babel/plugin-proposal-class-properties',
             '@babel/plugin-transform-runtime',
             ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
             'lodash',

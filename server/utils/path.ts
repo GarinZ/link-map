@@ -21,3 +21,7 @@ export function resolveServer(...args: string[]) {
 export function resolveSrc(...args: string[]) {
     return resolveProject('src', ...args);
 }
+
+export function resolveLib(...args: string[]) {
+    return resolveProject('lib', ...args);
+}

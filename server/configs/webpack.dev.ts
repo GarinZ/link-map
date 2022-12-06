@@ -20,7 +20,7 @@ const devConfig = merge(commonConfig, {
         //     typescript: {
         //         memoryLimit: 1024,
         //         configFile: resolveSrc('tsconfig.json'),
-        //     },
+        //     }
         // }),
     ],
 });
