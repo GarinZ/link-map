@@ -22,5 +22,5 @@
             "customSyntax": "postcss-less"
         }
     ],
-    "ignoreFiles": ["node_modules/**/*", "extension/**/*", "public/**/*", "**/*.d.ts"]
+    "ignoreFiles": ["node_modules/**/*", "extension/**/*", "public/**/*", "**/*.d.ts", "lib/**/*"]
 }
