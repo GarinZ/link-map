@@ -59,14 +59,14 @@ export const removeNode = (
 /**
  * 更新节点: 更新内容但没有移动窗口
  */
-export const updateNode = (tree: Fancytree.Fancytree, updatedTabId: number) => {
-    // const rootNode = tree.getRootNode();
-    // if (updatedTab.windowId === undefined) throw new Error('Tab must have an id');
-    // const toUpdateNode = tree.getNodeByKey(
-    //     TabNodes.getKey(updatedTab.windowId, updatedTab.id),
-    //     rootNode,
-    // );
-    // if (toUpdateNode) WindowNodes.updateFancyTreeNode(toUpdateNode, updatedTab);
+export const updateNode = (tree: Fancytree.Fancytree, updatedTab: Tabs.Tab) => {
+    const rootNode = tree.getRootNode();
+    if (updatedTab.windowId === undefined) throw new Error('Tab must have an id');
+    const toUpdateNode = tree.getNodeByKey(
+        TabNodes.getKey(updatedTab.windowId, updatedTab.id),
+        rootNode,
+    );
+    if (toUpdateNode) WindowNodes.updateFancyTreeNode(toUpdateNode, updatedTab);
 };
 
 /**

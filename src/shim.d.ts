@@ -21,7 +21,7 @@ declare module 'webext-bridge' {
             toIndex: number;
         };
         'remove-tab': WindowTabIdPair;
-        'update-tab': number;
+        'update-tab': Tabs.Tab;
         'move-tab': {
             windowId: number;
             fromIndex: number;
@@ -33,7 +33,7 @@ declare module 'webext-bridge' {
         'remove-window': { windowId: number };
         // tree event
         'get-tree': ProtocolWithReturn<null, { windows: Windows.Window[] }>;
-        'focus-node': WindowTabIdPair;
+        'focus-node': number;
         'remove-node': WindowTabIdPair;
     }
 }

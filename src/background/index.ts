@@ -89,9 +89,8 @@ browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
     sendMessageToExt('remove-tab', { windowId: removeInfo.windowId, tabId });
 });
 
-browser.tabs.onUpdated.addListener(async (tabId) => {
-    console.log('[bg]: tab updated!', tabId);
-    sendMessageToExt('update-tab', tabId);
+browser.tabs.onUpdated.addListener(async (_tabId, _changeInfo, tab) => {
+    sendMessageToExt('update-tab', tab);
 });
 
 browser.tabs.onMoved.addListener((tabId, { windowId, fromIndex, toIndex }) => {
