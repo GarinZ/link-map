@@ -1,6 +1,3 @@
-// import 'jquery.fancytree/dist/skin-xp/ui.fancytree.css';
-// import 'jquery.fancytree/dist/modules/jquery.fancytree.dnd5';
-
 import { onMessage } from 'webext-bridge';
 
 import {

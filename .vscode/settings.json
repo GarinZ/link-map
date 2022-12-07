@@ -1,4 +1,23 @@
 {
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    // 使用vscode扩展prettier作为默认格式化工具
+    "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html][css][less][scss][markdown][xml][yaml][svg]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "files.associations": {
+        "*.css": "postcss"
+    },
+    "search.exclude": {
+        "lib": true,
+        "extension": true,
+        "**/node_modules": true
+    },
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
@@ -6,6 +25,17 @@
         "**/CVS": true,
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
-        "**/node_modules": true
-    }
+        "**/node_modules": true,
+        "**/extension/**": true
+    },
+    "stylelint.validate": ["css", "less", "scss"],
+    "css.validate": false,
+    "less.validate": false,
+    "scss.validate": false,
+    "json.schemas": [
+        {
+            "fileMatch": ["/**/src/manifest.dev.json", "/**/src/manifest.prod.json"],
+            "url": "http://json.schemastore.org/chrome-manifest"
+        }
+    ]
 }

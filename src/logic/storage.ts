@@ -11,7 +11,6 @@ export const setExtIdPair = (extIdPair: ExtIdPair): Promise<void> => {
 };
 
 export const getExtIdPair = async (): Promise<ExtIdPair | null> => {
-    console.log(storage);
     const [windowIdObj, tabIdObj] = await Promise.all([
         storage.local.get('windowId'),
         storage.local.get('tabId'),

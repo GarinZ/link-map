@@ -82,9 +82,9 @@ export const onClick = (event: JQueryEventObject): boolean => {
  * @param {jQuery.Event} _event
  * @param {EventData} _data
  */
-export const onActivated = (_event: JQueryEventObject, _data: Fancytree.EventData): void => {
+export const onActivated = (_event: JQueryEventObject, data: Fancytree.EventData): void => {
     // const key = data.node.key
-    // sendToServiceWorker(ChannelMsg.buildReq(REQ_WORKER_TYPES.ACTIVATED_TAB, TabNodeFactory.getWindowAndTabIdFromKey(key)))
+    // sendMessage('focus-node', data.node.data.id)
 };
 
 export const renderTitle = (_eventData: JQueryEventObject, data: Fancytree.EventData): string => {
