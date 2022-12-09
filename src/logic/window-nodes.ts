@@ -36,8 +36,8 @@ export const create = (window: Windows.Window): TreeNode<WindowData> => {
  * @param sourceWindowNode
  */
 export const merge = (
-    targetWindowNode: TreeNode<WindowData>,
-    sourceWindowNode: TreeNode<WindowData>,
+    _targetWindowNode: TreeNode<WindowData>,
+    _sourceWindowNode: TreeNode<WindowData>,
 ): void => {
     // Object.keys(sourceWindowNode).forEach((prop) => {
     //   if (prop !== 'children') {

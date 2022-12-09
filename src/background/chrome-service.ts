@@ -21,7 +21,7 @@ export const getTabTreeFromChrome = async (): Promise<Windows.Window[]> =>
  * 判断一个URL是否为ConentScriptPage
  */
 export const isContentScriptPage = (url?: string): boolean =>
-    url === browser.runtime.getURL('/dist/popup/index.html');
+    url === browser.runtime.getURL('tree.html');
 
 /**
  * 仅通过browserAPI获取ExtIdPair
@@ -29,7 +29,7 @@ export const isContentScriptPage = (url?: string): boolean =>
 export const getExtIdPairAPIByBrowserAPI = async (): Promise<ExtIdPair | null> => {
     // TODO: 优化判断逻辑
     // 1. localStorage为空： 页面为未打开状态
-    // 2. browser.windows.getll(...)，遍历并比对windowId和tabId，相同则返回true
+    // 2. browser.windows.getAll(...)，遍历并比对windowId和tabId，相同则返回true
     // PS: 现在基于URL的判断限制性有点强
     let extIdPair: ExtIdPair | null = null;
     const windows = await browser.windows.getAll({ populate: true, windowTypes: ['popup'] });

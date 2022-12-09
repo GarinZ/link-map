@@ -13,11 +13,17 @@ import * as WindowNodes from '../logic/window-nodes';
  */
 export const addNodeFromTab = (tree: Fancytree.Fancytree, newTab: Tabs.Tab) => {
     const rootNode = tree.getRootNode();
+    const newNode = TabNodes.create(newTab);
     if (newTab.windowId === undefined) throw new Error('Tab must have an id');
-    const key = TabNodes.getKey(newTab.windowId, newTab.openerTabId);
-    const parentNode = tree.getNodeByKey(key, rootNode);
-    parentNode.addNode(TabNodes.create(newTab));
-    parentNode.setExpanded(true);
+    if (newTab.openerTabId === undefined) {
+        // 存在openerTabId
+        const parentNode = tree.getNodeByKey(`${newTab.windowId}`);
+        parentNode.addNode(newNode);
+    } else {
+        const parentNode = tree.getNodeByKey(`${newTab.openerTabId}`, rootNode);
+        parentNode.addChildren(newNode);
+        parentNode.setExpanded(true);
+    }
 };
 
 /**
@@ -43,13 +49,13 @@ export const addNodeFromTabAtIndex = (
  */
 export const removeNode = (
     tree: Fancytree.Fancytree,
-    windowId: number,
+    _windowId: number,
     tabId: number,
     reserveChildren: boolean,
 ) => {
     // 只删除当前节点，子节点不删除
     const rootNode = tree.getRootNode();
-    const key = TabNodes.getKey(windowId, tabId);
+    const key = TabNodes.getKey(tabId);
     const toRemoveNode = tree.getNodeByKey(key, rootNode);
     const children = toRemoveNode.children;
     if (reserveChildren) children.forEach((node) => node.moveTo(toRemoveNode, 'after'));
@@ -60,12 +66,8 @@ export const removeNode = (
  * 更新节点: 更新内容但没有移动窗口
  */
 export const updateNode = (tree: Fancytree.Fancytree, updatedTab: Tabs.Tab) => {
-    const rootNode = tree.getRootNode();
     if (updatedTab.windowId === undefined) throw new Error('Tab must have an id');
-    const toUpdateNode = tree.getNodeByKey(
-        TabNodes.getKey(updatedTab.windowId, updatedTab.id),
-        rootNode,
-    );
+    const toUpdateNode = tree.getNodeByKey(`${updatedTab.id!}`);
     if (toUpdateNode) WindowNodes.updateFancyTreeNode(toUpdateNode, updatedTab);
 };
 
@@ -82,7 +84,7 @@ export const moveNode = (
     const windowNode = tree.getNodeByKey(String(windowId));
     const children = windowNode.getChildren();
     const mode = toIndex < fromIndex ? 'before' : 'after';
-    const tabNode = tree.getNodeByKey(TabNodes.getKey(windowId, tabId));
+    const tabNode = tree.getNodeByKey(`${tabId}`);
     if (!tabNode) {
         // Trick: 适配tab添加到window时attach->move事件链中，调用move时tabNode可能尚未创建完毕
         // 可能死循环？
@@ -96,8 +98,8 @@ export const moveNode = (
     }
 };
 
-export const activatedNode = (tree: Fancytree.Fancytree, windowId: number, tabId: number) => {
-    const targetNode = tree.getNodeByKey(TabNodes.getKey(windowId, tabId));
+export const activatedNode = (tree: Fancytree.Fancytree, _windowId: number, tabId: number) => {
+    const targetNode = tree.getNodeByKey(`${tabId}`);
     if (!targetNode) return;
     WindowNodes.updateFancyTreeNode(targetNode, { active: true });
 };

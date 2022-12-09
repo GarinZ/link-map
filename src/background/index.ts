@@ -56,7 +56,7 @@ onMessage('get-tree', async () => {
 // tree-view的node focus状态改变
 onMessage('focus-node', (msg) => {
     // TODO 如果有网页重新加载，会导致active状态被完成load的网页抢走
-    const { tabId } = msg.data;
+    const tabId = msg.data;
     browser.tabs.update(tabId, { active: true });
 });
 // tree-view 删除node
@@ -93,6 +93,9 @@ browser.tabs.onUpdated.addListener(async (_tabId, _changeInfo, tab) => {
     sendMessageToExt('update-tab', tab);
 });
 
+/**
+ * 只有同窗口tab前后顺序移动会影响触发这个方法
+ */
 browser.tabs.onMoved.addListener((tabId, { windowId, fromIndex, toIndex }) => {
     sendMessageToExt('move-tab', {
         windowId,
@@ -118,6 +121,10 @@ browser.tabs.onAttached.addListener(async (tabId, { newPosition, newWindowId }) 
 browser.tabs.onDetached.addListener((tabId, { oldWindowId }) => {
     console.log('detached');
     sendMessageToExt('remove-tab', { windowId: oldWindowId, tabId });
+});
+
+browser.tabs.onReplaced.addListener((addedTabId, removedTabId) => {
+    console.log(`Tab replaced, added tabId: ${addedTabId}`, `removed tabId: ${removedTabId}`);
 });
 /**
  * detach tab的时候会触发这个事件

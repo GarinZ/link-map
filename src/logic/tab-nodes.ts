@@ -11,7 +11,7 @@ export const create = (tab: Tabs.Tab): TreeNode<TabData> => {
 
     return {
         title: title || '',
-        key: `${windowId}-${id}`,
+        key: `${id}`,
         icon: favIconUrl || '/icons/chrome_icon.svg',
         data: {
             ...tab,
@@ -30,21 +30,9 @@ export const getOpenerTabId2TabKeyArr = (tabs: Tabs.Tab[]): { [openerTabId: stri
     return openerId2tab;
 };
 
-export const getKey = (windowId: number, tabId?: number): string =>
-    tabId ? `${windowId}-${tabId}` : `${windowId}`;
+export const getKey = (id: number): string => `${id}`;
 
-export const getKeyFromChromeTab = (chromeTab: Tabs.Tab): string =>
-    getKey(chromeTab.windowId || 0, chromeTab.id || 0);
-
-/**
- * 根据FancyTree的key反解出windowId和TabId
- * @param key fancyTreeNode.data.key
- * @return
- */
-export const getWindowAndTabIdFromKey = (key: string): WindowTabIdPair => {
-    const arr = key.split('-');
-    return { windowId: +arr[0], tabId: +arr[1] };
-};
+export const getKeyFromChromeTab = (chromeTab: Tabs.Tab): string => getKey(chromeTab.id!);
 
 /**
  * 将两份treeData合并，并覆盖到dbTabData上面，按key决定是否相同

@@ -19,6 +19,7 @@ $('#tree').fancytree({
     activate: onActivated,
     renderTitle,
     click: onClick,
+    defaultKey: (node) => `${node.data.id}`,
     dnd5: DND5_CONFIG,
 });
 
