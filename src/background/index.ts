@@ -75,7 +75,7 @@ const sendMessageToExt = async (messageId: string, message: any) => {
 
 browser.tabs.onCreated.addListener(async (tab) => {
     // 1. 如果创建的是contentScript则忽略
-    console.log('[bg]: tab created!');
+    console.log('[bg]: tab created!', tab);
     if (isContentScriptPage(tab.url) || isContentScriptPage(tab.pendingUrl)) return;
 
     // 2. 其他TAB，发给contentScript做tree更新

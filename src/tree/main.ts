@@ -26,6 +26,7 @@ $('#tree').fancytree({
 const tree = $.ui.fancytree.getTree('#tree');
 
 onMessage('add-tab', (msg) => {
+    // 添加node一定是尾部追加
     addNodeFromTab(tree, msg.data);
 });
 onMessage('remove-tab', (msg) => {

@@ -25,6 +25,7 @@ export const create = (window: Windows.Window): TreeNode<WindowData> => {
     };
     // 删除data.tabs
     delete node.data.tabs;
+    // PS: openerTabId是空的，所以无法通过openerTabId构建Tab树
     if (tabs) node.children = tabs.map((tab) => TabNodes.create(tab));
 
     return node;

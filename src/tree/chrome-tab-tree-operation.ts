@@ -3,6 +3,7 @@
  * 用于处理tab-tree的各种操作，* 这一层需要完成ChromeTab到FancyTree的映射模型
  * 兴许以后还能用来抽象出interface做其他浏览器实现？好了，别做梦了...赶紧干活...
  */
+import _ from 'lodash';
 import type { Tabs, Windows } from 'webextension-polyfill';
 
 import * as TabNodes from '../logic/tab-nodes';
@@ -55,10 +56,12 @@ export const removeNode = (
 ) => {
     // 只删除当前节点，子节点不删除
     const rootNode = tree.getRootNode();
-    const key = TabNodes.getKey(tabId);
-    const toRemoveNode = tree.getNodeByKey(key, rootNode);
-    const children = toRemoveNode.children;
-    if (reserveChildren) children.forEach((node) => node.moveTo(toRemoveNode, 'after'));
+    const toRemoveNode = tree.getNodeByKey(TabNodes.getKey(tabId), rootNode);
+    const children = _.clone(toRemoveNode.children);
+    if (reserveChildren && children) {
+        // reverse children保证元素顺序
+        children.reverse().forEach((node) => node.moveTo(toRemoveNode, 'after'));
+    }
     if (toRemoveNode) toRemoveNode.remove();
 };
 
