@@ -1,4 +1,5 @@
 import { onMessage } from 'webext-bridge';
+import { windows } from 'webextension-polyfill';
 
 import {
     activatedNode,
@@ -7,6 +8,7 @@ import {
     addNodeFromWindow,
     moveNode,
     removeNode,
+    resetNodeIndex,
     updateNode,
 } from '../tree/chrome-tab-tree-operation';
 import { DND5_CONFIG } from './configs';
@@ -37,8 +39,14 @@ onMessage('remove-window', (msg) => {
     const { windowId } = msg.data;
     removeNode(tree, windowId, 0, false);
 });
-onMessage('move-tab', (msg) => {
+onMessage('move-tab', async (msg) => {
     const { windowId, fromIndex, toIndex, tabId } = msg.data;
+    const window = await windows.get(windowId, { populate: true });
+    const tabId2Index: { [tabId: number]: number } = {};
+    window.tabs!.forEach((tab) => (tabId2Index[tab.id!] = tab.index));
+    // 1. 重置所有节点的index属性
+    resetNodeIndex(tree, windowId, tabId2Index);
+    // 2. 移动元素
     moveNode(tree, windowId, fromIndex, toIndex, tabId);
 });
 onMessage('update-tab', (msg) => {

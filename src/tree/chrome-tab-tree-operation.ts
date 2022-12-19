@@ -85,8 +85,8 @@ export const moveNode = (
     tabId: number,
 ) => {
     const windowNode = tree.getNodeByKey(String(windowId));
-    const children = windowNode.getChildren();
-    const mode = toIndex < fromIndex ? 'before' : 'after';
+    const targetIndexNode = windowNode.findFirst((node) => node.data.index === toIndex);
+    // const mode = toIndex < fromIndex ? 'before' : 'after';
     const tabNode = tree.getNodeByKey(`${tabId}`);
     if (!tabNode) {
         // Trick: 适配tab添加到window时attach->move事件链中，调用move时tabNode可能尚未创建完毕
@@ -95,9 +95,9 @@ export const moveNode = (
             moveNode(tree, windowId, fromIndex, toIndex, tabId);
         }, 1);
     }
-    if (tabNode) {
+    if (tabNode && targetIndexNode) {
         // tab attach事件会触发move，这时候tree里面没有对应node
-        tabNode.moveTo(children[toIndex], mode);
+        tabNode.moveTo(targetIndexNode, 'before');
     }
 };
 
@@ -113,4 +113,26 @@ export const activatedNode = (tree: Fancytree.Fancytree, _windowId: number, tabI
 export const addNodeFromWindow = (tree: Fancytree.Fancytree, window: Windows.Window) => {
     const rootNode = tree.getRootNode();
     rootNode.addNode(WindowNodes.create(window));
+};
+
+/**
+ * 重置TabNode的Index
+ */
+export const resetNodeIndex = (
+    tree: Fancytree.Fancytree,
+    windowId: number,
+    browserTabIndexMap: { [tabId: number]: number },
+) => {
+    const parentNode = tree.getNodeByKey(`${windowId}`);
+    parentNode.visit((node) => {
+        // 1. 非tab节点，则略过
+        if (node.data.type !== 'tab') {
+            return true;
+        }
+        if (!(node.data.id in browserTabIndexMap)) {
+            throw new Error('Tab not in browserTabIndexMap');
+        }
+        node.data.index = browserTabIndexMap[node.data.id];
+        return true;
+    });
 };

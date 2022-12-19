@@ -7,6 +7,7 @@ export interface TabData extends Omit<Tabs.Tab, 'active'> {
     alias?: string;
     parentId: number;
     tabActive: boolean;
+    type: 'tab';
 }
 
 export interface WindowData extends Omit<Windows.Window, ''> {
@@ -15,6 +16,7 @@ export interface WindowData extends Omit<Windows.Window, ''> {
     alias?: string;
     parentId: number;
     isBackgroundPage: boolean;
+    type: 'window';
 }
 
 export type TreeData = TabData | WindowData;
