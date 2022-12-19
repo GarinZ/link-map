@@ -69,7 +69,6 @@ export const removeNode = (
  * 更新节点: 更新内容但没有移动窗口
  */
 export const updateNode = (tree: Fancytree.Fancytree, updatedTab: Tabs.Tab) => {
-    if (updatedTab.windowId === undefined) throw new Error('Tab must have an id');
     const toUpdateNode = tree.getNodeByKey(`${updatedTab.id!}`);
     if (toUpdateNode) WindowNodes.updateFancyTreeNode(toUpdateNode, updatedTab);
 };
@@ -104,7 +103,7 @@ export const moveNode = (
 export const activatedNode = (tree: Fancytree.Fancytree, _windowId: number, tabId: number) => {
     const targetNode = tree.getNodeByKey(`${tabId}`);
     if (!targetNode) return;
-    WindowNodes.updateFancyTreeNode(targetNode, { active: true });
+    targetNode.setActive(true);
 };
 
 /**

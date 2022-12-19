@@ -32,7 +32,6 @@ declare module 'webext-bridge' {
         'add-window': Windows.Window;
         'remove-window': { windowId: number };
         // tree event
-        'get-tree': ProtocolWithReturn<null, { windows: Windows.Window[] }>;
         'focus-node': number;
         'remove-node': WindowTabIdPair;
     }

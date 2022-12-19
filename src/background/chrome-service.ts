@@ -11,13 +11,6 @@ import type { ExtIdPair } from '../logic/storage';
 import { getExtIdPair, setExtIdPair } from '../logic/storage';
 
 /**
- * 从Chrome获取当前的tab树
- * 内部负责转换ChromeTab -> TabNode
- */
-export const getTabTreeFromChrome = async (): Promise<Windows.Window[]> =>
-    await browser.windows.getAll({ populate: true });
-
-/**
  * 判断一个URL是否为ConentScriptPage
  */
 export const isContentScriptPage = (url?: string): boolean =>

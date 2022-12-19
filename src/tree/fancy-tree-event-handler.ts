@@ -2,8 +2,8 @@
  * FancyTree的事件处理模块
  */
 
-import { sendMessage } from 'webext-bridge';
 import type { Windows } from 'webextension-polyfill';
+import browser from 'webextension-polyfill';
 
 import type { TreeData, TreeNode } from '../logic/nodes';
 import type { WindowData } from '../logic/nodes.js';
@@ -25,7 +25,7 @@ const removeBackgroundPageWindowNode = (windowNodeMap: { [key: string]: TreeNode
  */
 export const persistence = async (): Promise<TreeNode<TreeData>[]> => {
     // 1. 获取 Chrome tab list
-    const browserWindowPromise = await sendMessage('get-tree', null, 'background');
+    const browserWindowPromise = await browser.windows.getAll({ populate: true });
     const unknown = browserWindowPromise as unknown;
     const windows = unknown as Windows.Window[];
     return windows.map((w) => WindowNodes.create(w));

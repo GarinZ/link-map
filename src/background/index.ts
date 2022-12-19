@@ -6,7 +6,6 @@ import { setExtIdPair } from '../logic/storage';
 import {
     getOrRefreshExtIdPair,
     getTabById,
-    getTabTreeFromChrome,
     isContentScriptPage,
     isExtPageExistByBrowserAPI,
 } from './chrome-service';
@@ -47,12 +46,6 @@ browser.action.onClicked.addListener(async () => {
 });
 
 // #### Ext Page Fire的事件
-// content-script获取浏览器window
-onMessage('get-tree', async () => {
-    const windows = await getTabTreeFromChrome();
-    // 具体的Window interface不能转换成通用的JsonValue类型
-    return windows as any;
-});
 // tree-view的node focus状态改变
 onMessage('focus-node', (msg) => {
     // TODO 如果有网页重新加载，会导致active状态被完成load的网页抢走
