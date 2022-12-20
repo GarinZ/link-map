@@ -48,20 +48,16 @@ export const addNodeFromTabAtIndex = (
 /**
  * 删除节点
  */
-export const removeNode = (
-    tree: Fancytree.Fancytree,
-    _windowId: number,
-    tabId: number,
-    reserveChildren: boolean,
-) => {
-    // 只删除当前节点，子节点不删除
+export const removeNode = (tree: Fancytree.Fancytree, key: string, reserveChildren: boolean) => {
+    // 1. 当删除当前节点时，保留子节点
     const rootNode = tree.getRootNode();
-    const toRemoveNode = tree.getNodeByKey(TabNodes.getKey(tabId), rootNode);
-    const children = _.clone(toRemoveNode.children);
-    if (reserveChildren && children) {
+    const toRemoveNode = tree.getNodeByKey(key, rootNode);
+    const children = toRemoveNode.children ? _.clone(toRemoveNode.children) : null;
+    if (reserveChildren && !!children) {
         // reverse children保证元素顺序
         children.reverse().forEach((node) => node.moveTo(toRemoveNode, 'after'));
     }
+    // 2. 检查当前节点是否为
     if (toRemoveNode) toRemoveNode.remove();
 };
 
@@ -73,9 +69,7 @@ export const updateNode = (tree: Fancytree.Fancytree, updatedTab: Tabs.Tab) => {
     if (toUpdateNode) WindowNodes.updateFancyTreeNode(toUpdateNode, updatedTab);
 };
 
-/**
- * 移动节点
- */
+/** 移动节点 */
 export const moveNode = (
     tree: Fancytree.Fancytree,
     windowId: number,
@@ -100,10 +94,11 @@ export const moveNode = (
     }
 };
 
+/** 激活节点 */
 export const activatedNode = (tree: Fancytree.Fancytree, _windowId: number, tabId: number) => {
     const targetNode = tree.getNodeByKey(`${tabId}`);
     if (!targetNode) return;
-    targetNode.setActive(true);
+    WindowNodes.updateFancyTreeNode(targetNode, { active: true });
 };
 
 /**

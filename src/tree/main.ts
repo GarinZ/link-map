@@ -32,12 +32,13 @@ onMessage('add-tab', (msg) => {
     addNodeFromTab(tree, msg.data);
 });
 onMessage('remove-tab', (msg) => {
-    const { windowId, tabId } = msg.data;
-    removeNode(tree, windowId, tabId, true);
+    const { tabId } = msg.data;
+    removeNode(tree, `${tabId}`, true);
 });
 onMessage('remove-window', (msg) => {
     const { windowId } = msg.data;
-    removeNode(tree, windowId, 0, false);
+    console.log('remove window!');
+    removeNode(tree, `${windowId}`, false);
 });
 onMessage('move-tab', async (msg) => {
     const { windowId, fromIndex, toIndex, tabId } = msg.data;

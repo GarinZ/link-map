@@ -85,22 +85,22 @@ export const mergeArrPurely = (
  *
  */
 export const updateFancyTreeNode = (
-    oldNode: Fancytree.FancytreeNode,
+    toUpdateNode: Fancytree.FancytreeNode,
     updateProps: Partial<Tabs.Tab>,
 ) => {
     const { title, favIconUrl, active } = updateProps;
-    if (title) oldNode.setTitle(title);
+    if (title) toUpdateNode.setTitle(title);
 
-    if (favIconUrl) oldNode.icon = favIconUrl;
+    if (favIconUrl) toUpdateNode.icon = favIconUrl;
 
     if (active) {
-        oldNode.data.tabActive = active;
-        oldNode.setActive(active);
+        toUpdateNode.data.tabActive = active;
+        toUpdateNode.setActive(active);
     }
 
     const restValidKeys: TabKey[] = ['status', 'url', 'discarded'];
     restValidKeys.forEach((k) => {
-        if (updateProps[k]) oldNode.data[k] = updateProps[k];
+        if (updateProps[k]) toUpdateNode.data[k] = updateProps[k];
     });
 };
 
