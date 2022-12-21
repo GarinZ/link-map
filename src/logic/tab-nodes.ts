@@ -12,7 +12,10 @@ export const create = (tab: Tabs.Tab): TreeNode<TabData> => {
     return {
         title: title || '',
         key: `${id}`,
-        icon: favIconUrl || '/icons/chrome_icon.svg',
+        icon: {
+            // 直接写URL,会使用img标签渲染,导致childrenCounter不识别
+            html: `<img class="fancytree-icon" src="${favIconUrl || '/icons/chrome_icon.svg'}">`,
+        },
         data: {
             ...tab,
             windowId,
@@ -20,6 +23,7 @@ export const create = (tab: Tabs.Tab): TreeNode<TabData> => {
             closed: false,
             parentId: openerTabId || windowId,
             tabActive: active,
+            type: 'tab',
         },
     };
 };

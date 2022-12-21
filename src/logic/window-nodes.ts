@@ -13,7 +13,10 @@ export const create = (window: Windows.Window): TreeNode<WindowData> => {
     const node: TreeNode<WindowData> = {
         title: `Window${type === 'normal' ? '' : `(${type})`}`,
         key: `${id}`,
-        icon: '/icons/chrome_icon.svg',
+        icon: {
+            // 直接写URL,会使用img标签渲染,导致childrenCounter不识别
+            html: `<img class="fancytree-icon" src="/icons/chrome_icon.svg">`,
+        },
         expanded: true,
         data: {
             ...window,
@@ -21,6 +24,7 @@ export const create = (window: Windows.Window): TreeNode<WindowData> => {
             closed: false,
             parentId: 0,
             isBackgroundPage,
+            type: 'window',
         },
     };
     // 删除data.tabs

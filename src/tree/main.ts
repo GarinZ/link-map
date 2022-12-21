@@ -16,8 +16,13 @@ import { initTree, onActivated, onClick, renderTitle } from './fancy-tree-event-
 
 $('#tree').fancytree({
     active: true,
-    extensions: ['dnd5'],
+    extensions: ['dnd5', 'childcounter'],
     source: [{ title: 'pending' }],
+    childcounter: {
+        deep: true,
+        hideZeros: true,
+        hideExpanded: true,
+    },
     activate: onActivated,
     renderTitle,
     click: onClick,
