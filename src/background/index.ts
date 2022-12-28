@@ -1,14 +1,9 @@
 import { onMessage, sendMessage } from 'webext-bridge';
+import type { Tabs } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
 import type { ExtIdPair } from '../logic/storage';
-import { setExtIdPair } from '../logic/storage';
-import {
-    getOrRefreshExtIdPair,
-    getTabById,
-    isContentScriptPage,
-    isExtPageExistByBrowserAPI,
-} from './chrome-service';
+import { getExtIdPair, setExtIdPair } from '../logic/storage';
 
 // ext安装后的状态
 browser.runtime.onInstalled.addListener((): void => {
@@ -21,9 +16,10 @@ browser.runtime.onInstalled.addListener((): void => {
  * This Method Wouldn't Fire if tab-tree.html has benn set
  */
 browser.action.onClicked.addListener(async () => {
-    if (await isExtPageExistByBrowserAPI()) {
-        // 单例
-        // TODO: 再次点击则focus
+    let extIdPair = await getExtIdPairAPIByBrowserAPI();
+    if (extIdPair != null) {
+        // 页面已打开，则窗口focused
+        browser.windows.update(extIdPair.windowId, { focused: true });
         return;
     }
     const extWindow = await browser.windows.create({
@@ -36,7 +32,7 @@ browser.action.onClicked.addListener(async () => {
     if (extWindow.tabs === undefined || extWindow.tabs.length < 0)
         throw new Error('window tabs must has at least one tab');
     const extTab = extWindow!.tabs[0];
-    const extIdPair: ExtIdPair = {
+    extIdPair = {
         windowId: extTab.windowId!,
         tabId: extTab.id!,
     };
@@ -45,27 +41,7 @@ browser.action.onClicked.addListener(async () => {
     setExtIdPair(extIdPair);
 });
 
-// #### Ext Page Fire的事件
-// tree-view的node focus状态改变
-onMessage('focus-node', (msg) => {
-    // TODO 如果有网页重新加载，会导致active状态被完成load的网页抢走
-    const tabId = msg.data;
-    browser.tabs.update(tabId, { active: true });
-});
-// tree-view 删除node
-onMessage('remove-node', (msg) => {
-    // TODO 如果有网页重新加载，会导致active状态被完成load的网页抢走
-    const { tabId } = msg.data;
-    browser.tabs.remove(tabId);
-});
-
 // #### 浏览器Fire的事件
-const sendMessageToExt = async (messageId: string, message: any) => {
-    const extIdPair = await getOrRefreshExtIdPair();
-    if (extIdPair === null) return;
-    return sendMessage(messageId, message, { context: 'content-script', tabId: extIdPair.tabId });
-};
-
 browser.tabs.onCreated.addListener(async (tab) => {
     // 1. 如果创建的是contentScript则忽略
     console.log('[bg]: tab created!', tab);
@@ -107,7 +83,7 @@ browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
  */
 browser.tabs.onAttached.addListener(async (tabId, { newPosition, newWindowId }) => {
     console.log('attached');
-    const tab = await getTabById(tabId);
+    const tab = await browser.tabs.get(tabId);
     sendMessageToExt('add-tab-with-index', { newTab: tab, newWindowId, toIndex: newPosition });
 });
 
@@ -136,3 +112,76 @@ browser.windows.onRemoved.addListener((windowId) => {
 });
 
 browser.windows.onFocusChanged.addListener(() => {});
+
+// Ext Page Fire的事件 ----------------------------------------------------------------
+// tree-view的node focus状态改变
+onMessage('focus-node', (msg) => {
+    // TODO 如果有网页重新加载，会导致active状态被完成load的网页抢走
+    const tabId = msg.data;
+    browser.tabs.update(tabId, { active: true });
+});
+// tree-view 删除node
+onMessage('remove-node', (msg) => {
+    // TODO 如果有网页重新加载，会导致active状态被完成load的网页抢走
+    const { tabId } = msg.data;
+    browser.tabs.remove(tabId);
+});
+
+// util methods--------------------------------
+
+async function sendMessageToExt(messageId: string, message: any) {
+    const extIdPair = await getOrRefreshExtIdPair();
+    if (extIdPair === null) return;
+    return sendMessage(messageId, message, { context: 'content-script', tabId: extIdPair.tabId });
+}
+
+/**
+ * 判断一个URL是否为ConentScriptPage
+ */
+function isContentScriptPage(url?: string) {
+    return url === browser.runtime.getURL('tree.html');
+}
+
+/**
+ * 仅通过browserAPI获取ExtIdPair
+ */
+async function getExtIdPairAPIByBrowserAPI(): Promise<ExtIdPair | null> {
+    // TODO: 优化判断逻辑
+    // 1. localStorage为空： 页面为未打开状态
+    // 2. browser.windows.getAll(...)，遍历并比对windowId和tabId，相同则返回true
+    // PS: 现在基于URL的判断限制性有点强
+    let extIdPair: ExtIdPair | null = null;
+    const windows = await browser.windows.getAll({ populate: true, windowTypes: ['popup'] });
+    for (const window of windows) {
+        if (!window.tabs || window.tabs?.length === 0) continue;
+        const targetTab = window.tabs[0];
+        // 2.1 Ext Window存在
+        if (isContentScriptPage(targetTab.url) && targetTab.status !== 'loading') {
+            const extTab: Tabs.Tab = window!.tabs[0];
+            extIdPair = { windowId: extTab.windowId!, tabId: extTab.id! };
+            // 更新localStorage
+            setExtIdPair({ windowId: extTab.windowId!, tabId: extTab.id! });
+        }
+    }
+    return extIdPair;
+}
+
+/**
+ * 获取ContentScriptWindow
+ * 先从localStorage查，没有则通过browserAPI查询
+ */
+async function getOrRefreshExtIdPair(): Promise<ExtIdPair | null> {
+    // 1. 先从localStorage中获取，存在则直接返回
+    const localStorageValue = getExtIdPair();
+    if (localStorageValue !== null) return localStorageValue;
+
+    // 2. localStorage中没有，通过浏览器API获取
+    return await getExtIdPairAPIByBrowserAPI();
+}
+
+/**
+ * 判断ContentScript是否存在
+ */
+async function isExtPageExistByBrowserAPI(): Promise<Boolean> {
+    return !!(await getExtIdPairAPIByBrowserAPI());
+}

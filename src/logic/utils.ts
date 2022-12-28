@@ -1,3 +1,5 @@
+import { windows } from 'webextension-polyfill';
+
 const lazyLogCache: any = {};
 /* Log if value changed, nor more than interval/sec. */
 export const logLazy = (name: string, value: any, interval: number, msg: string) => {
@@ -47,4 +49,43 @@ export const pushIfAbsentInit = (
         arr.push(v);
         map[k] = arr;
     }
+};
+
+export const FancyTreeUtils = {
+    /** 重置TabNode的Index */
+    resetNodeIndex(
+        tree: Fancytree.Fancytree,
+        windowId: number,
+        browserTabIndexMap: { [tabId: number]: number },
+    ) {
+        const parentNode = tree.getNodeByKey(`${windowId}`);
+        parentNode.visit((node) => {
+            // 1. 非tab节点，则略过
+            if (node.data.type !== 'tab') {
+                return true;
+            }
+            if (!(node.data.id in browserTabIndexMap)) {
+                throw new Error('Tab not in browserTabIndexMap');
+            }
+            node.data.index = browserTabIndexMap[node.data.id];
+            return true;
+        });
+    },
+    /** 查找当前元素的windowNode */
+    findWindowNode(node: Fancytree.FancytreeNode) {
+        let windowNode = node;
+        while (windowNode.data.type !== 'window') {
+            windowNode = windowNode.parent;
+        }
+        return windowNode;
+    },
+};
+
+export const BrowserExtensionUtils = {
+    async getTabId2Index(windowId: number): Promise<{ [tabId: number]: number }> {
+        const window = await windows.get(windowId, { populate: true });
+        const tabId2Index: { [tabId: number]: number } = {};
+        window.tabs!.forEach((tab) => (tabId2Index[tab.id!] = tab.index));
+        return tabId2Index;
+    },
 };

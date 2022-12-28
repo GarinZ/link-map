@@ -1,6 +1,6 @@
 import { onMessage } from 'webext-bridge';
-import { windows } from 'webextension-polyfill';
 
+import { BrowserExtensionUtils, FancyTreeUtils } from '../logic/utils';
 import {
     activatedNode,
     addNodeFromTab,
@@ -8,9 +8,8 @@ import {
     addNodeFromWindow,
     moveNode,
     removeNode,
-    resetNodeIndex,
     updateNode,
-} from '../tree/chrome-tab-tree-operation';
+} from './browser-event-handler';
 import { DND5_CONFIG } from './configs';
 import { initTree, onActivated, onClick, renderTitle } from './fancy-tree-event-handler';
 
@@ -28,6 +27,7 @@ $('#tree').fancytree({
     click: onClick,
     defaultKey: (node) => `${node.data.id}`,
     dnd5: DND5_CONFIG,
+    // debugLevel: 4
 });
 
 const tree = $.ui.fancytree.getTree('#tree');
@@ -47,11 +47,9 @@ onMessage('remove-window', (msg) => {
 });
 onMessage('move-tab', async (msg) => {
     const { windowId, fromIndex, toIndex, tabId } = msg.data;
-    const window = await windows.get(windowId, { populate: true });
-    const tabId2Index: { [tabId: number]: number } = {};
-    window.tabs!.forEach((tab) => (tabId2Index[tab.id!] = tab.index));
+    const tabId2Index = await BrowserExtensionUtils.getTabId2Index(windowId);
     // 1. 重置所有节点的index属性
-    resetNodeIndex(tree, windowId, tabId2Index);
+    FancyTreeUtils.resetNodeIndex(tree, windowId, tabId2Index);
     // 2. 移动元素
     moveNode(tree, windowId, fromIndex, toIndex, tabId);
 });

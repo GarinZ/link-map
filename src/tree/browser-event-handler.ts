@@ -93,22 +93,3 @@ export const addNodeFromWindow = (tree: Fancytree.Fancytree, window: Windows.Win
     const rootNode = tree.getRootNode();
     rootNode.addNode(WindowNodes.create(window));
 };
-/** 重置TabNode的Index */
-export const resetNodeIndex = (
-    tree: Fancytree.Fancytree,
-    windowId: number,
-    browserTabIndexMap: { [tabId: number]: number },
-) => {
-    const parentNode = tree.getNodeByKey(`${windowId}`);
-    parentNode.visit((node) => {
-        // 1. 非tab节点，则略过
-        if (node.data.type !== 'tab') {
-            return true;
-        }
-        if (!(node.data.id in browserTabIndexMap)) {
-            throw new Error('Tab not in browserTabIndexMap');
-        }
-        node.data.index = browserTabIndexMap[node.data.id];
-        return true;
-    });
-};
