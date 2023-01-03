@@ -1,6 +1,5 @@
 import { onMessage } from 'webext-bridge';
 
-import { BrowserExtensionUtils, FancyTreeUtils } from '../logic/utils';
 import {
     activatedNode,
     addNodeFromTab,
@@ -47,9 +46,6 @@ onMessage('remove-window', (msg) => {
 });
 onMessage('move-tab', async (msg) => {
     const { windowId, fromIndex, toIndex, tabId } = msg.data;
-    const tabId2Index = await BrowserExtensionUtils.getTabId2Index(windowId);
-    // 1. 重置所有节点的index属性
-    FancyTreeUtils.resetNodeIndex(tree, windowId, tabId2Index);
     // 2. 移动元素
     moveNode(tree, windowId, fromIndex, toIndex, tabId);
 });

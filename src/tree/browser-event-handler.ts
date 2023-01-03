@@ -7,6 +7,7 @@ import _ from 'lodash';
 import type { Tabs, Windows } from 'webextension-polyfill';
 
 import * as TabNodes from '../logic/tab-nodes';
+import { BrowserExtensionUtils, FancyTreeUtils } from '../logic/utils';
 import * as WindowNodes from '../logic/window-nodes';
 
 /** 根据Tab创建Node */
@@ -59,16 +60,17 @@ export const updateNode = (tree: Fancytree.Fancytree, updatedTab: Tabs.Tab) => {
     if (toUpdateNode) WindowNodes.updateFancyTreeNode(toUpdateNode, updatedTab);
 };
 /** 移动节点 */
-export const moveNode = (
+export const moveNode = async (
     tree: Fancytree.Fancytree,
     windowId: number,
     fromIndex: number,
     toIndex: number,
     tabId: number,
 ) => {
+    // 1. 重置当前windowId下元素元素的index属性
+    const tabId2Index = await BrowserExtensionUtils.getTabId2Index(windowId);
+    FancyTreeUtils.resetNodeIndex(tree, windowId, tabId2Index);
     const windowNode = tree.getNodeByKey(String(windowId));
-    const targetIndexNode = windowNode.findFirst((node) => node.data.index === toIndex);
-    // const mode = toIndex < fromIndex ? 'before' : 'after';
     const tabNode = tree.getNodeByKey(`${tabId}`);
     if (!tabNode) {
         // Trick: 适配tab添加到window时attach->move事件链中，调用move时tabNode可能尚未创建完毕
@@ -77,10 +79,21 @@ export const moveNode = (
             moveNode(tree, windowId, fromIndex, toIndex, tabId);
         }, 1);
     }
-    if (tabNode && targetIndexNode) {
-        // tab attach事件会触发move，这时候tree里面没有对应node
-        tabNode.moveTo(targetIndexNode, 'before');
+    // TODO [text-node-ignore] 暂时没考虑其他node类型的情况
+    const hasChildren = tabNode.children && tabNode.children.length > 0;
+    // 2. 被移动元素有children，将children移动为toMoveNode的siblings
+    if (hasChildren) {
+        const children = _.clone(tabNode.children.reverse());
+        children.forEach((child) => child.moveTo(tabNode, 'after'));
     }
+    // 3. 如果toMove元素没有兄弟节点，则将其提升为parent的sibling
+    if (tabNode.isFirstSibling() && tabNode.isLastSibling()) {
+        tabNode.moveTo(tabNode.parent, 'after');
+    }
+    // 4. 对windowId下所有元素做重排序
+    windowNode.sortChildren((next, prev) => {
+        return next.data.index > prev.data.index ? 1 : -1;
+    }, true);
 };
 /** 激活节点 */
 export const activatedNode = (tree: Fancytree.Fancytree, _windowId: number, tabId: number) => {

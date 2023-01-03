@@ -25,8 +25,10 @@ browser.action.onClicked.addListener(async () => {
     const extWindow = await browser.windows.create({
         url: 'tree.html',
         type: 'popup',
-        width: 358,
-        height: 896,
+        width: 895,
+        height: 496,
+        left: 0,
+        top: 0,
         focused: true,
     });
     if (extWindow.tabs === undefined || extWindow.tabs.length < 0)
