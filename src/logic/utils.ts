@@ -1,3 +1,4 @@
+import _ from 'lodash/index';
 import { windows } from 'webextension-polyfill';
 
 const lazyLogCache: any = {};
@@ -87,5 +88,14 @@ export const BrowserExtensionUtils = {
         const tabId2Index: { [tabId: number]: number } = {};
         window.tabs!.forEach((tab) => (tabId2Index[tab.id!] = tab.index));
         return tabId2Index;
+    },
+};
+
+export const NodeUtils = {
+    moveChildrenAsNextSiblings(node: Fancytree.FancytreeNode) {
+        if (node.children && node.children.length > 0) {
+            const children = _.clone(node.children.reverse());
+            children.forEach((child) => child.moveTo(node, 'after'));
+        }
     },
 };

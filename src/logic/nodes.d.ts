@@ -21,7 +21,7 @@ export interface WindowData extends Omit<Windows.Window, ''> {
 
 export type TreeData = TabData | WindowData;
 
-export interface TreeNode<T extends TreeData> {
+export interface TreeNode<T extends TreeData> extends Fancytree.NodeData {
     /** Node id (must be unique inside the tree) */
     key: string;
     /** Display name (may contain HTML) */

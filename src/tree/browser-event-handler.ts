@@ -7,7 +7,7 @@ import _ from 'lodash';
 import type { Tabs, Windows } from 'webextension-polyfill';
 
 import * as TabNodes from '../logic/tab-nodes';
-import { BrowserExtensionUtils, FancyTreeUtils } from '../logic/utils';
+import { BrowserExtensionUtils, FancyTreeUtils, NodeUtils } from '../logic/utils';
 import * as WindowNodes from '../logic/window-nodes';
 
 /** 根据Tab创建Node */
@@ -46,12 +46,19 @@ export const removeNode = (tree: Fancytree.Fancytree, key: string, reserveChildr
     // 1. 当删除当前节点时，保留子节点
     const rootNode = tree.getRootNode();
     const toRemoveNode = tree.getNodeByKey(key, rootNode);
+    // TODO 若包含note的节点在浏览器关闭时也不做删除处理
+    // 2. 状态为closed的节点不做删除
+    if (toRemoveNode.data.closed === true) {
+        return;
+    }
+    // 3. 若保留子元素则提升children作为siblings
+    reserveChildren && NodeUtils.moveChildrenAsNextSiblings(toRemoveNode);
     const children = toRemoveNode.children ? _.clone(toRemoveNode.children) : null;
     if (reserveChildren && !!children) {
         // reverse children保证元素顺序
         children.reverse().forEach((node) => node.moveTo(toRemoveNode, 'after'));
     }
-    // 2. 检查当前节点是否为
+    // 4. 删除节点
     if (toRemoveNode) toRemoveNode.remove();
 };
 /** 更新节点: 更新内容但没有移动窗口 */
@@ -80,12 +87,8 @@ export const moveNode = async (
         }, 1);
     }
     // TODO [text-node-ignore] 暂时没考虑其他node类型的情况
-    const hasChildren = tabNode.children && tabNode.children.length > 0;
     // 2. 被移动元素有children，将children移动为toMoveNode的siblings
-    if (hasChildren) {
-        const children = _.clone(tabNode.children.reverse());
-        children.forEach((child) => child.moveTo(tabNode, 'after'));
-    }
+    NodeUtils.moveChildrenAsNextSiblings(tabNode);
     // 3. 如果toMove元素没有兄弟节点，则将其提升为parent的sibling
     if (tabNode.isFirstSibling() && tabNode.isLastSibling()) {
         tabNode.moveTo(tabNode.parent, 'after');

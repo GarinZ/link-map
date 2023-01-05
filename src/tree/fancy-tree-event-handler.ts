@@ -57,21 +57,36 @@ export const initTree = async (tree: Fancytree.Fancytree) => {
     tree.reload(windowNodes);
 };
 
-const removeTab = (_key?: string) => {
-    console.log('remove node item on-clicked');
+const removeTab = (_event: JQueryEventObject, data: Fancytree.EventData) => {
+    const targetNode = data.node;
+    switch (targetNode.data.type) {
+        case 'window':
+            //
+            break;
+        case 'tab':
+            break;
+        default:
+            throw new Error('illegal type or not have type prop in data field');
+    }
+};
+
+const closeTab = (_event: JQueryEventObject, data: Fancytree.EventData) => {
+    const targetNode = data.node;
+    targetNode.data.closed = true;
+    targetNode.renderTitle();
 };
 
 /**
  * Tree Click事件处理
  * 主要用于代理和分发子事件
  */
-export const onClick = (event: JQueryEventObject): boolean => {
+export const onClick = (event: JQueryEventObject, data: Fancytree.EventData): boolean => {
     const target = $(event.originalEvent.target as Element);
     if (!target.attr(TYPE_ATTR)) return true;
 
     switch (target.attr(TYPE_ATTR)) {
         case NODE_CLOSE:
-            removeTab(target.attr(NODE_KEY));
+            closeTab(event, data);
             break;
     }
     return true;
@@ -88,6 +103,7 @@ export const onActivated = (_event: JQueryEventObject, data: Fancytree.EventData
 };
 
 export const renderTitle = (_eventData: JQueryEventObject, data: Fancytree.EventData): string => {
+    console.log('renderTitle', data.node.title);
     const treeNode = new TreeNodeTpl(data.node);
     return treeNode.html;
 };

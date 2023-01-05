@@ -11,6 +11,10 @@
 ///<reference types="jquery" />
 ///<reference types="jqueryui" />
 
+declare namespace JQueryStatic {
+    const ui: JQueryUI.UI;
+}
+
 declare namespace JQueryUI {
     interface UI {
         fancytree: Fancytree.FancytreeStatic;

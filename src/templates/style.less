@@ -1,0 +1,28 @@
+.fancytree-node {
+    span.zt-node {
+        position: relative;
+
+        &.closed {
+            .zt-node-title {
+                color: gray;
+            }
+        }
+    }
+
+    .zt-node-button-group {
+        position: absolute;
+        top: 0;
+        right: -55px;
+        display: none;
+
+        .zt-node-btn {
+            cursor: pointer;
+        }
+    }
+
+    &:hover {
+        .zt-node-button-group {
+            display: inline;
+        }
+    }
+}

@@ -22,6 +22,10 @@ $('#tree').fancytree({
         hideExpanded: true,
     },
     activate: onActivated,
+    renderNode(_event, data) {
+        console.log('renderNode', data.node.title);
+        data.node.renderTitle();
+    },
     renderTitle,
     click: onClick,
     defaultKey: (node) => `${node.data.id}`,

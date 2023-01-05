@@ -1,5 +1,6 @@
-import type { ProtocolWithReturn } from 'webext-bridge';
 import { Tabs, Windows } from 'webextension-polyfill';
+
+import type { ProtocolWithReturn } from '../../webext-bridge';
 
 declare type WindowTabIdPair = {
     windowId: number;

@@ -138,3 +138,14 @@ async function sortOnDrop(
     tabs.move(tabIds, { index: targetNodeIndex + 1 });
     // 3. 根据修改后的index字段调用API修改顺序
 }
+
+type MoveType =
+    | 'moveToClosedWindow'
+    | 'moveInsideWindow'
+    | 'moveToAnotherWindow'
+    | 'moveToNewWindow';
+
+/**
+ * 移动类型：同窗口移动/跨窗口移动/
+ */
+function getMoveType(targetNode: FancytreeNode, sourceNode: FancytreeNode): MoveType {}
