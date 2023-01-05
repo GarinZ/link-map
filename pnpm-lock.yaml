@@ -19,7 +19,6 @@ specifiers:
   '@types/html-minifier': 4.0.2
   '@types/html-webpack-plugin': 3.2.6
   '@types/jquery': 3.5.14
-  '@types/jquery.fancytree': 0.0.7
   '@types/lodash': 4.14.190
   '@types/mustache': 4.2.2
   '@types/node': 18.11.9
@@ -132,7 +131,6 @@ devDependencies:
   '@types/html-minifier': 4.0.2
   '@types/html-webpack-plugin': 3.2.6
   '@types/jquery': 3.5.14
-  '@types/jquery.fancytree': 0.0.7
   '@types/lodash': 4.14.190
   '@types/mustache': 4.2.2
   '@types/node': 18.11.9
@@ -2192,23 +2190,10 @@ packages:
       '@types/istanbul-lib-report': 3.0.0
     dev: true
 
-  /@types/jquery.fancytree/0.0.7:
-    resolution: {integrity: sha512-nV0sG7t4LLkFC+3S7Ln/do6sOHMYUI3BGU3Nca9ZB4gsmc8LY5RtObvCwmQsYDervDnispV+9bS7jrN6nEOHRA==}
-    dependencies:
-      '@types/jquery': 3.5.14
-      '@types/jqueryui': 1.12.16
-    dev: true
-
   /@types/jquery/3.5.14:
     resolution: {integrity: sha512-X1gtMRMbziVQkErhTQmSe2jFwwENA/Zr+PprCkF63vFq+Yt5PZ4AlKqgmeNlwgn7dhsXEK888eIW2520EpC+xg==}
     dependencies:
       '@types/sizzle': 2.3.3
-    dev: true
-
-  /@types/jqueryui/1.12.16:
-    resolution: {integrity: sha512-6huAQDpNlso9ayaUT9amBOA3kj02OCeUWs+UvDmbaJmwkHSg/HLsQOoap/D5uveN9ePwl72N45Bl+Frp5xyG1Q==}
-    dependencies:
-      '@types/jquery': 3.5.14
     dev: true
 
   /@types/json-schema/7.0.9:
