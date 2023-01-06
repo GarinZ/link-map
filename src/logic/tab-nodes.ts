@@ -16,6 +16,7 @@ export const create = (tab: Tabs.Tab): TreeNode<TabData> => {
             // 直接写URL,会使用img标签渲染,导致childrenCounter不识别
             html: `<img class="fancytree-icon" src="${favIconUrl || '/icons/chrome_icon.svg'}">`,
         },
+        expanded: true,
         data: {
             ...tab,
             windowId,

@@ -103,6 +103,10 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
             const sameTree = data.otherNode.tree === data.tree;
             if (mode === 'move') {
                 data.otherNode.moveTo(targetNode, data.hitMode);
+                if (data.otherNode.data.type === 'window') {
+                    // 若移动的是windowNode，什么也不做
+                    return;
+                }
                 sortOnDrop(targetNode, sourceNodes);
             } else {
                 newNode = data.otherNode.copyTo(targetNode, data.hitMode);

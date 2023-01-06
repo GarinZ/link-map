@@ -148,7 +148,7 @@ function isContentScriptPage(url?: string) {
  * 仅通过browserAPI获取ExtIdPair
  */
 async function getExtIdPairAPIByBrowserAPI(): Promise<ExtIdPair | null> {
-    // TODO: 优化判断逻辑
+    // TODO 优化判断逻辑
     // 1. localStorage为空： 页面为未打开状态
     // 2. browser.windows.getAll(...)，遍历并比对windowId和tabId，相同则返回true
     // PS: 现在基于URL的判断限制性有点强

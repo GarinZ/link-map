@@ -1,5 +1,7 @@
 import { Tabs, Windows } from 'webextension-polyfill';
 
+type NodeType = 'tab' | 'window';
+
 export interface TabData extends Omit<Tabs.Tab, 'active'> {
     windowId: number;
     tabId: number;
@@ -7,7 +9,7 @@ export interface TabData extends Omit<Tabs.Tab, 'active'> {
     alias?: string;
     parentId: number;
     tabActive: boolean;
-    type: 'tab';
+    type: NodeType = 'tab';
 }
 
 export interface WindowData extends Omit<Windows.Window, ''> {
@@ -16,7 +18,7 @@ export interface WindowData extends Omit<Windows.Window, ''> {
     alias?: string;
     parentId: number;
     isBackgroundPage: boolean;
-    type: 'window';
+    type: NodeType = 'window';
 }
 
 export type TreeData = TabData | WindowData;
@@ -31,7 +33,7 @@ export interface TreeNode<T extends TreeData> extends Fancytree.NodeData {
     /** Array of child nodes. For lazy nodes, null or undefined means 'not yet loaded'. Use an empty array to define a node that has no children. */
     children?: TreeNode<TreeData>[];
     /** Use isExpanded(), setExpanded() to access this property. */
-    expanded?: boolean;
+    expanded: boolean;
     /** Addtional CSS classes, added to the node's `<span>`. */
     extraClasses?: string;
     /** Folder nodes have different default icons and click behavior. Note: Also non-folders may have children. */

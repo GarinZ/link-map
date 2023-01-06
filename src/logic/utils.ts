@@ -66,7 +66,8 @@ export const FancyTreeUtils = {
                 return true;
             }
             if (!(node.data.id in browserTabIndexMap)) {
-                throw new Error('Tab not in browserTabIndexMap');
+                // ignore: closed tab node 不会存在于browserTabIndexMap中
+                // throw new Error('Tab not in browserTabIndexMap');
             }
             node.data.index = browserTabIndexMap[node.data.id];
             return true;

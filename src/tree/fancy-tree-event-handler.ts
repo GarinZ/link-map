@@ -5,7 +5,7 @@
 import type { Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
-import type { TreeData, TreeNode } from '../logic/nodes';
+import type { NodeType, TreeData, TreeNode } from '../logic/nodes';
 import type { WindowData } from '../logic/nodes.js';
 import * as WindowNodes from '../logic/window-nodes';
 import TreeNodeTpl, { TPL_CONSTANTS } from '../templates/tree-node-tpl';
@@ -57,23 +57,51 @@ export const initTree = async (tree: Fancytree.Fancytree) => {
     tree.reload(windowNodes);
 };
 
-const removeTab = (_event: JQueryEventObject, data: Fancytree.EventData) => {
+/**
+ * 关闭节点
+ * TODO 现在的处理方式是，如果是window节点，那么就关闭其下面的所有的tab
+ * 更好的方式是，如果是window节点，直接关闭window，不管其下面的tab
+ * @param _event
+ * @param data
+ */
+const closeNodes = (_event: JQueryEventObject, data: Fancytree.EventData) => {
     const targetNode = data.node;
-    switch (targetNode.data.type) {
-        case 'window':
-            //
-            break;
-        case 'tab':
-            break;
-        default:
-            throw new Error('illegal type or not have type prop in data field');
+    const nodeType: NodeType = targetNode.data.type;
+    const operatedNodes = [];
+    if (targetNode.expanded === undefined || targetNode.expanded === true) {
+        // 1. node展开：只处理头节点
+        if (nodeType === 'window') {
+            targetNode.visit((node) => {
+                if (node.data.windowId === targetNode.data.id) {
+                    node.data.closed = true;
+                    operatedNodes.push(node);
+                }
+            }, true);
+            browser.windows.remove(targetNode.data.id);
+        } else if (nodeType === 'tab') {
+            targetNode.data.closed = true;
+            browser.tabs.remove(targetNode.data.id);
+            operatedNodes.push(targetNode);
+        } else {
+            throw new Error('invalid node type');
+        }
+    } else {
+        // 2. node合起：处理尾节点
+        const toRemovedTabIds: number[] = [];
+        targetNode.visit((node) => {
+            // 2.2 对每个node.data.close === true
+            if ('closed' in node.data) {
+                node.data.closed = true;
+                operatedNodes.push(node);
+            }
+            if (node.data.type === 'tab' && closed === false) {
+                toRemovedTabIds.push(node.data.id);
+            }
+        }, true);
+        // 2.3 调用tabs.remove方法(批量)
+        browser.tabs.remove(toRemovedTabIds);
     }
-};
-
-const closeTab = (_event: JQueryEventObject, data: Fancytree.EventData) => {
-    const targetNode = data.node;
-    targetNode.data.closed = true;
-    targetNode.renderTitle();
+    operatedNodes.forEach((node) => node.renderTitle());
 };
 
 /**
@@ -86,7 +114,7 @@ export const onClick = (event: JQueryEventObject, data: Fancytree.EventData): bo
 
     switch (target.attr(TYPE_ATTR)) {
         case NODE_CLOSE:
-            closeTab(event, data);
+            closeNodes(event, data);
             break;
     }
     return true;
@@ -103,7 +131,6 @@ export const onActivated = (_event: JQueryEventObject, data: Fancytree.EventData
 };
 
 export const renderTitle = (_eventData: JQueryEventObject, data: Fancytree.EventData): string => {
-    console.log('renderTitle', data.node.title);
     const treeNode = new TreeNodeTpl(data.node);
     return treeNode.html;
 };
