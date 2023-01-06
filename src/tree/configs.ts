@@ -148,8 +148,3 @@ type MoveType =
     | 'moveInsideWindow'
     | 'moveToAnotherWindow'
     | 'moveToNewWindow';
-
-/**
- * 移动类型：同窗口移动/跨窗口移动/
- */
-function getMoveType(targetNode: FancytreeNode, sourceNode: FancytreeNode): MoveType {}

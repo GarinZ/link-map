@@ -6,24 +6,37 @@
 import _ from 'lodash';
 import type { Tabs, Windows } from 'webextension-polyfill';
 
+import { ViewTabIndexUtils } from '../logic/tab-index-utils';
 import * as TabNodes from '../logic/tab-nodes';
 import { BrowserExtensionUtils, FancyTreeUtils, NodeUtils } from '../logic/utils';
 import * as WindowNodes from '../logic/window-nodes';
 
 /** 根据Tab创建Node */
-export const addNodeFromTab = (tree: Fancytree.Fancytree, newTab: Tabs.Tab) => {
-    const rootNode = tree.getRootNode();
+export const addNodeFromTab = async (tree: Fancytree.Fancytree, newTab: Tabs.Tab) => {
     const newNode = TabNodes.create(newTab);
     if (newTab.windowId === undefined) throw new Error('Tab must have an id');
-    if (newTab.openerTabId === undefined) {
-        // 存在openerTabId
-        const parentNode = tree.getNodeByKey(`${newTab.windowId}`);
-        parentNode.addNode(newNode);
-    } else {
-        const parentNode = tree.getNodeByKey(`${newTab.openerTabId}`, rootNode);
-        parentNode.addChildren(newNode);
-        parentNode.setExpanded(true);
+    const windowNode = tree.getNodeByKey(`${newTab.windowId}`);
+    // 1. 先根据index - 1找到前一个节点
+    const prevNode = windowNode.findFirst((node) => node.data.index === newTab.index - 1);
+    // 2. 如果index - 1不存在，说明是第一个节点，直接添加为windowNode的子节点
+    if (prevNode === null) {
+        windowNode.addNode(newNode, 'child');
+        return;
     }
+    ViewTabIndexUtils.increaseIndex(tree, windowNode.data.id, newTab.index);
+    // 3. 判断该节点的id和openerTabId是否相等
+    if (prevNode.data.id === newTab.openerTabId) {
+        // 3.1 如果相等，说明是openerTab的子节点，直接添加为openerTab的子节点
+        prevNode.addNode(newNode, 'child');
+    } else if (!prevNode.data.openerTabId || prevNode.data.openerTabId === newTab.openerTabId) {
+        // 3.2 prevNode有opernerTabId，但是不等于newTab的openerTabId，说明newTab是prevNode的兄弟节点
+        prevNode.addNode(newNode, 'after');
+    } else {
+        // 3.3 都不是则为新建
+        windowNode.addChildren(newNode);
+    }
+
+    windowNode.visit((item) => console.log(`${item.data.index}-${item.title}`));
 };
 
 /** 根据Tab在指定位置上创建Node */

@@ -3,15 +3,8 @@
         /* Basic Options */
         "jsx": "react-jsx",
         "isolatedModules": true,
-
         /* Strict Type-Checking Options */
         "strict": true,
-
-        /* Additional Checks */
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true,
 
         /* Module Resolution Options */
         "moduleResolution": "node",
@@ -30,11 +23,7 @@
         "target": "ES2022",
         "module": "ESNext",
         "baseUrl": "./",
-        "paths": {
-            "@/*": ["src/*"]
-        },
-        "typeRoots": ["../node_modules/@types", "./typings"],
-        "types": ["jquery", "webext-bridge"]
+        "types": ["jquery", "webext-bridge", "jquery.fancytree", "jest", "ts-jest"]
     },
     "exclude": ["manifest.ts"]
 }

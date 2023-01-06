@@ -1,0 +1,35 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "debug tsno",
+            "type": "node",
+            "request": "launch",
+            "program": "/Users/garin/Library/pnpm/global/5/node_modules/esno/esno.js",
+            "args": ["${workspaceRoot}/test/index.ts"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "node",
+            "name": "vscode-jest-tests.v2",
+            "request": "launch",
+            "args": [
+                "node_modules/jest/bin/jest.js",
+                "--runInBand",
+                "--watchAll=false",
+                "--testNamePattern",
+                "${jest.testNamePattern}",
+                "--runTestsByPath",
+                "${jest.testFile}"
+            ],
+            "cwd": "/Users/garin/Project/chrome-extension/tab-master-r",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
+            "program": "/Users/garin/.nvm/versions/node/v18.12.1/bin/node"
+        }
+    ]
+}

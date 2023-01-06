@@ -11,10 +11,6 @@
 ///<reference types="jquery" />
 ///<reference types="jqueryui" />
 
-declare namespace JQueryStatic {
-    const ui: JQueryUI.UI;
-}
-
 declare namespace JQueryUI {
     interface UI {
         fancytree: Fancytree.FancytreeStatic;
@@ -520,7 +516,7 @@ declare namespace Fancytree {
 
         /** Move this node to targetNode.
          *
-         * @param mode 'child': append this node as last child of targetNode.w
+         * @param mode 'child': append this node as last child of targetNode.
          *                       This is the default. To be compatble with the D'n'd
          *                       hitMode, we also accept 'over'.
          *              'before': add this node as sibling before targetNode.
@@ -836,7 +832,14 @@ declare namespace Fancytree {
         /** Add `id="..."` to node markup (default: true). */
         generateIds?: boolean | undefined;
         /** Node icon url, if only filename, please use imagePath to set the path */
-        icon?: boolean | string | undefined;
+        icon?:
+            | string
+            | {
+                  html?: string;
+                  text?: string;
+                  addClass?: string;
+              }
+            | undefined;
         /** Prefix (default: "ft_") */
         idPrefix?: string | undefined;
         /** Path to a folder containing icons (default: null, using 'skin/' subdirectory). */
@@ -1090,7 +1093,8 @@ declare namespace Fancytree {
                   html?: string;
                   text?: string;
                   addClass?: string;
-              };
+              }
+            | undefined;
         /** unique key for this node (auto-generated if omitted) */
         key?: string | undefined;
         /** (reserved) */

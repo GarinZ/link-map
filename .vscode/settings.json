@@ -25,8 +25,8 @@
         "**/CVS": true,
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
-        "**/node_modules": true,
-        "**/extension/**": true
+        "pnpm-lock.yaml": true,
+        "**/node_modules": false
     },
     "stylelint.validate": ["css", "less", "scss"],
     "css.validate": false,
