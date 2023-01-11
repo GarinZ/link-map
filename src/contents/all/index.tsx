@@ -1,4 +1,4 @@
-import { sendMessage } from 'webext-bridge';
+import { sendMessage } from '@garinz/webext-bridge';
 
 import './style.scss';
 

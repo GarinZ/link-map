@@ -1,9 +1,9 @@
-import { onMessage, sendMessage } from 'webext-bridge';
+import { onMessage, sendMessage } from '@garinz/webext-bridge';
 import type { Tabs } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
-import type { ExtIdPair } from '../logic/storage';
-import { getExtIdPair, setExtIdPair } from '../logic/storage';
+import type { ExtIdPair } from '../logic';
+import { getExtIdPair, setExtIdPair } from '../logic';
 
 // ext安装后的状态
 browser.runtime.onInstalled.addListener((): void => {

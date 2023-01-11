@@ -173,4 +173,4 @@ tags
 [._]*.un~
 
 #IDE config
-.idea
+.jest

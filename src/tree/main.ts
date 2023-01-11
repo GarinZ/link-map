@@ -1,4 +1,4 @@
-import { onMessage } from 'webext-bridge';
+import { onMessage } from '@garinz/webext-bridge';
 
 import {
     activatedNode,

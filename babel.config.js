@@ -4,21 +4,22 @@ module.exports = (api) => {
     const envPreset = [
         '@babel/env',
         {
-            modules: false,
+            // 不注释这一行jest运行会报错
+            // modules: false,
             bugfixes: true,
             useBuiltIns: 'usage',
             corejs: { version: require('./package.json').devDependencies['core-js'] },
         },
     ];
 
-    const importPlugin = [
-        'import',
-        {
-            libraryName: 'antd',
-            libraryDirectory: 'es',
-            style: true,
-        },
-    ];
+    // const importPlugin = [
+    //     'import',
+    //     {
+    //         libraryName: 'antd',
+    //         libraryDirectory: 'es',
+    //         style: true,
+    //     },
+    // ];
 
     return {
         presets: ['@babel/preset-typescript', envPreset],
@@ -27,7 +28,7 @@ module.exports = (api) => {
             '@babel/plugin-transform-runtime',
             ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
             'lodash',
-            importPlugin,
+            // importPlugin,
         ],
         env: {
             development: {
@@ -37,6 +38,9 @@ module.exports = (api) => {
             production: {
                 presets: [['@babel/preset-react', { runtime: 'automatic', development: false }]],
                 plugins: ['@babel/plugin-transform-react-constant-elements'],
+            },
+            test: {
+                plugins: ['transform-es2015-modules-commonjs'],
             },
         },
     };

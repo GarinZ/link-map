@@ -1,0 +1,66 @@
+import type { TreeData, TreeNode } from '../../src/logic/nodes';
+
+export const SINGLE_TAB_WINDOW = [
+    {
+        title: 'Window',
+        key: '1660892704',
+        icon: {
+            html: '<img class="fancytree-icon" src="/icons/chrome_icon.svg">',
+        },
+        expanded: true,
+        data: {
+            alwaysOnTop: false,
+            focused: false,
+            height: 1050,
+            id: 1660892704,
+            incognito: false,
+            left: 0,
+            state: 'maximized',
+            top: 25,
+            type: 'window',
+            width: 1792,
+            windowId: 1660892704,
+            closed: false,
+            parentId: 0,
+            isBackgroundPage: false,
+        },
+        children: [
+            {
+                title: '扩展程序',
+                key: '1660892705',
+                icon: {
+                    html: '<img class="fancytree-icon" src="/icons/chrome_icon.svg">',
+                },
+                expanded: true,
+                data: {
+                    // active: false,
+                    audible: false,
+                    autoDiscardable: true,
+                    discarded: false,
+                    favIconUrl: '',
+                    // groupId: -1,
+                    height: 939,
+                    highlighted: false,
+                    id: 1660892705,
+                    incognito: false,
+                    index: 0,
+                    mutedInfo: {
+                        muted: false,
+                    },
+                    pinned: false,
+                    // selected: false,
+                    status: 'complete',
+                    title: '扩展程序',
+                    url: 'chrome://extensions/',
+                    width: 1792,
+                    windowId: 1660892704,
+                    tabId: 1660892705,
+                    closed: false,
+                    parentId: 1660892704,
+                    tabActive: false,
+                    type: 'tab',
+                },
+            },
+        ],
+    },
+] as TreeNode<TreeData>[];

@@ -22,6 +22,7 @@ const prodEntry: Record<string, string[]> = {
     background: [backgroundPath],
     options: [optionsPath],
     popup: [popupPath],
+    tree: [treePath],
 };
 const entry = __DEV__ ? devEntry : prodEntry;
 

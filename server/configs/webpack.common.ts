@@ -31,7 +31,7 @@ const commonConfig: Configuration = {
     context: PROJECT_ROOT,
     entry,
     watchOptions: {
-        ignored: ['node_modules/**', 'extension/**'],
+        ignored: ['node_modules/**', 'extension/**', 'lib/**'],
     },
     output: {
         publicPath: '/',

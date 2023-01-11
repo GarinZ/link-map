@@ -1,5 +1,4 @@
-import * as fancytree from 'jquery.fancytree';
-import type { ProtocolWithReturn } from 'webext-bridge';
+import type { ProtocolWithReturn } from '@garinz/webext-bridge';
 import { Tabs, Windows } from 'webextension-polyfill';
 
 declare type WindowTabIdPair = {
@@ -7,7 +6,7 @@ declare type WindowTabIdPair = {
     tabId: number;
 };
 
-declare module 'webext-bridge' {
+declare module '@garinz/webext-bridge' {
     export interface ProtocolMap {
         // define message protocol types
         // see https://github.com/antfu/webext-bridge#type-safe-protocols

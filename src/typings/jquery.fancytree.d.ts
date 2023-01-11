@@ -247,7 +247,8 @@ declare namespace Fancytree {
                   html?: string;
                   text?: string;
                   addClass?: string;
-              };
+              }
+            | undefined;
         /** null or type of temporarily generated system node like 'loading', or 'error'. */
         statusNodeType: string;
         /** True if this node is loaded on demand, i.e. on first expansion. */
@@ -832,14 +833,7 @@ declare namespace Fancytree {
         /** Add `id="..."` to node markup (default: true). */
         generateIds?: boolean | undefined;
         /** Node icon url, if only filename, please use imagePath to set the path */
-        icon?:
-            | string
-            | {
-                  html?: string;
-                  text?: string;
-                  addClass?: string;
-              }
-            | undefined;
+        icon?: boolean | string | undefined;
         /** Prefix (default: "ft_") */
         idPrefix?: string | undefined;
         /** Path to a folder containing icons (default: null, using 'skin/' subdirectory). */
