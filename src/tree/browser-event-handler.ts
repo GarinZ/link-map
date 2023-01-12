@@ -8,7 +8,7 @@ import type { Tabs, Windows } from 'webextension-polyfill';
 
 import { ViewTabIndexUtils } from '../logic/tab-index-utils';
 import * as TabNodes from '../logic/tab-nodes';
-import { BrowserExtensionUtils, FancyTreeUtils, NodeUtils } from '../logic/utils';
+import { NodeUtils } from '../logic/utils';
 import * as WindowNodes from '../logic/window-nodes';
 
 /** 根据Tab创建Node */
@@ -83,28 +83,24 @@ export const moveNode = async (
     tabId: number,
 ) => {
     // 1. 重置当前windowId下元素元素的index属性
-    const tabId2Index = await BrowserExtensionUtils.getTabId2Index(windowId);
-    FancyTreeUtils.resetNodeIndex(tree, windowId, tabId2Index);
     const windowNode = tree.getNodeByKey(String(windowId));
-    const tabNode = tree.getNodeByKey(`${tabId}`);
-    if (!tabNode) {
+    const toMoveNode = tree.getNodeByKey(`${tabId}`);
+    if (!toMoveNode) {
         // Trick: 适配tab添加到window时attach->move事件链中，调用move时tabNode可能尚未创建完毕
         // 可能死循环？
         setTimeout(() => {
             moveNode(tree, windowId, fromIndex, toIndex, tabId);
         }, 1);
     }
-    // TODO [text-node-ignore] 暂时没考虑其他node类型的情况
-    // 2. 被移动元素有children，将children移动为toMoveNode的siblings
-    NodeUtils.moveChildrenAsNextSiblings(tabNode);
-    // 3. 如果toMove元素没有兄弟节点，则将其提升为parent的sibling
-    if (tabNode.isFirstSibling() && tabNode.isLastSibling()) {
-        tabNode.moveTo(tabNode.parent, 'after');
+    if (toMoveNode.data.index !== fromIndex) {
+        throw new Error('toMoveNode index is not equal to fromIndex');
     }
-    // 4. 对windowId下所有元素做重排序
-    windowNode.sortChildren((next, prev) => {
-        return next.data.index > prev.data.index ? 1 : -1;
-    }, true);
+    // 2. 被移动元素有children，将children移动为toMoveNode的siblings
+    NodeUtils.moveChildrenAsNextSiblings(toMoveNode);
+    // 3. 移动元素
+    ViewTabIndexUtils.changeIndex(tree, windowNode.data.id, fromIndex, toIndex);
+    const prevNode = windowNode.findFirst((node) => node.data.index === toMoveNode.data.index - 1);
+    prevNode ? toMoveNode.moveTo(prevNode, 'after') : toMoveNode.moveTo(windowNode, 'firstChild');
 };
 /** 激活节点 */
 export const activatedNode = (tree: Fancytree.Fancytree, _windowId: number, tabId: number) => {
