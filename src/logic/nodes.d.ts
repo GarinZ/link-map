@@ -2,26 +2,26 @@ import { Tabs, Windows } from 'webextension-polyfill';
 
 type NodeType = 'tab' | 'window';
 
-export interface TabData extends Omit<Tabs.Tab, 'active'> {
-    windowId: number;
-    tabId: number;
+export interface TreeData {
+    id: number;
     closed: boolean;
     alias?: string;
     parentId: number;
+    type: NodeType;
+    index?: number;
+}
+
+export interface TabData extends Omit<Tabs.Tab, 'active'>, TreeData {
+    windowId: number;
     tabActive: boolean;
     type: 'tab';
 }
 
-export interface WindowData extends Omit<Windows.Window, ''> {
+export interface WindowData extends Omit<Windows.Window, ''>, TreeData {
     windowId: number;
-    closed: boolean;
-    alias?: string;
-    parentId: number;
     isBackgroundPage: boolean;
     type: 'window';
 }
-
-export type TreeData = TabData | WindowData;
 
 export interface TreeNode<T extends TreeData> extends Fancytree.NodeData {
     /** Node id (must be unique inside the tree) */
