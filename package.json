@@ -31,7 +31,7 @@
         "clean": "rimraf -rf ./extension ./dist ./*.zip ./*.crx",
         "reinstall": "rimraf -rf ./node_modules && pnpm",
         "prepare": "husky install",
-        "test-ext": "ts-node ./test/bootstrap.ts"
+        "test-ext": "jest --config ./jest.config.js"
     },
     "lint-staged": {
         "*.{ts,tsx,js}": [
