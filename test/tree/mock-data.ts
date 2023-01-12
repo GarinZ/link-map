@@ -1,4 +1,4 @@
-import type { TreeData, TreeNode } from '../../src/logic/nodes';
+import type { TabData, TreeData, TreeNode, WindowData } from '../../src/logic/nodes';
 
 export const SINGLE_TAB_WINDOW = [
     {
@@ -23,7 +23,7 @@ export const SINGLE_TAB_WINDOW = [
             closed: false,
             parentId: 0,
             isBackgroundPage: false,
-        },
+        } as WindowData,
         children: [
             {
                 title: '扩展程序',
@@ -53,13 +53,13 @@ export const SINGLE_TAB_WINDOW = [
                     title: '扩展程序',
                     url: 'chrome://extensions/',
                     width: 1792,
-                    windowId: 1660892704,
+                    windowId: 1,
                     tabId: 10,
                     closed: false,
                     parentId: 1,
                     tabActive: false,
                     type: 'tab',
-                },
+                } as TabData,
             },
         ],
     },

@@ -11,10 +11,10 @@ import { createTab, initFancytree } from '../utils/gen-utils';
 import { toAsciiTree } from '../utils/print-utils';
 import { SINGLE_TAB_WINDOW } from './mock-data';
 
-const WINDOW_ID = SINGLE_TAB_WINDOW[0].data.id!;
+const WID = SINGLE_TAB_WINDOW[0].data.id!;
 const FIRST_TAB_DATA = SINGLE_TAB_WINDOW[0].children![0].data as TabData;
-const FIRST_TAB_ID = FIRST_TAB_DATA.id!;
-const FIRST_INDEX_ID = FIRST_TAB_DATA.index;
+const FIRST_TID = FIRST_TAB_DATA.id!;
+const FIRST_INDEX = FIRST_TAB_DATA.index;
 
 describe('add new tab to tree', () => {
     let fancytree: Fancytree.Fancytree;
@@ -23,32 +23,29 @@ describe('add new tab to tree', () => {
     });
 
     it('add as sibling', async () => {
-        const tab: Tabs.Tab = createTab(FIRST_TAB_ID + 1, WINDOW_ID, FIRST_TAB_ID + 1);
+        const tab: Tabs.Tab = createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1);
         await addNodeFromTab(fancytree, tab);
         const children = fancytree.toDict()[0].children;
         expect(children.length).toEqual(2);
-        expect(children[0].data.id).toEqual(FIRST_TAB_ID);
-        expect(children[1].data.id).toEqual(FIRST_TAB_ID + 1);
+        expect(children[0].data.id).toEqual(FIRST_TID);
+        expect(children[1].data.id).toEqual(FIRST_TID + 1);
     });
 
     /**
-     * window
-     * ├── a
-     * └── b
+     *     ┬ .
+     *     └─┬ window-1
+     *       └─┬ 0-10
+     *         └── 1-11
      */
     it('add as child', async () => {
-        const tab: Tabs.Tab = createTab(
-            FIRST_TAB_ID + 1,
-            WINDOW_ID,
-            FIRST_TAB_ID + 1,
-            FIRST_TAB_ID,
-        );
+        const tab: Tabs.Tab = createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1, FIRST_TID);
         await addNodeFromTab(fancytree, tab);
         const children = fancytree.toDict()[0].children;
         expect(children.length).toEqual(1);
-        expect(children[0].data.id).toEqual(FIRST_TAB_ID);
+        expect(children[0].data.id).toEqual(FIRST_TID);
         expect(children[0].children.length).toEqual(1);
-        expect(children[0].children[0].data.id).toEqual(FIRST_TAB_ID + 1);
+        expect(children[0].children[0].data.id).toEqual(FIRST_TID + 1);
+        console.log(toAsciiTree(fancytree.toDict()));
     });
 
     /**
@@ -58,17 +55,73 @@ describe('add new tab to tree', () => {
      * └── c
      */
     it('add as last siblings', async () => {
-        await addNodeFromTab(
-            fancytree,
-            createTab(FIRST_TAB_ID + 1, WINDOW_ID, FIRST_INDEX_ID + 1, FIRST_TAB_ID),
-        );
-        await addNodeFromTab(fancytree, createTab(FIRST_TAB_ID + 2, WINDOW_ID, FIRST_INDEX_ID + 2));
+        await addNodeFromTab(fancytree, createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1, FIRST_TID));
+        await addNodeFromTab(fancytree, createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2));
         const children = fancytree.toDict()[0].children;
         expect(children.length).toEqual(2);
-        expect(children[0].data.id).toEqual(FIRST_TAB_ID);
+        expect(children[0].data.id).toEqual(FIRST_TID);
         expect(children[0].children.length).toEqual(1);
-        expect(children[0].children[0].data.id).toEqual(FIRST_TAB_ID + 1);
-        expect(children[1].data.id).toEqual(FIRST_TAB_ID + 2);
+        expect(children[0].children[0].data.id).toEqual(FIRST_TID + 1);
+        expect(children[1].data.id).toEqual(FIRST_TID + 2);
+    });
+
+    /**
+     *┬ .
+     *└─┬ window-1
+     *  ├─┬ 0-10
+     *  │ └── 1-11
+     *  ├── 2-12
+     *  └── 3-13
+     */
+    it('same openerTabId but has gap index', async () => {
+        await addNodeFromTab(fancytree, createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1, FIRST_TID));
+        await addNodeFromTab(fancytree, createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2));
+        await addNodeFromTab(fancytree, createTab(FIRST_TID + 3, WID, FIRST_INDEX + 3, FIRST_TID));
+        const children = fancytree.toDict()[0].children;
+        expect(children.length).toEqual(3);
+        expect(children[2].data.id).toEqual(FIRST_TID + 3);
         console.log(toAsciiTree(fancytree.toDict()));
+    });
+
+    /**
+     *     ┬ .
+     *     └─┬ window-1
+     *       └─┬ 0-10
+     *         ├── 1-11
+     *         └── 2-12
+     */
+    it('add two sibling', async () => {
+        await addNodeFromTab(fancytree, createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1, FIRST_TID));
+        await addNodeFromTab(fancytree, createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2, FIRST_TID));
+        const children = fancytree.toDict()[0].children;
+        expect(children.length).toEqual(1);
+        expect(children[0].children[0].data.id).toEqual(FIRST_TID + 1);
+        expect(children[0].children[1].data.id).toEqual(FIRST_TID + 2);
+        console.log(toAsciiTree(fancytree.toDict()));
+    });
+
+    /**
+     *     ┬ .
+     *     └─┬ window-1
+     *       ├── 0-13
+     *       ├── 1-10
+     *       ├── 2-11
+     *       └── 3-12
+     */
+    it('add node in the middle', async () => {
+        await addNodeFromTab(fancytree, createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1));
+        await addNodeFromTab(fancytree, createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2));
+        // 在首位插入元素
+        await addNodeFromTab(fancytree, createTab(FIRST_TID + 3, WID, FIRST_INDEX));
+        console.log(toAsciiTree(fancytree.toDict()));
+        const children = fancytree.toDict()[0].children;
+        expect(children.length).toEqual(4);
+        expect(children[0].data.id).toEqual(FIRST_TID + 3);
+        expect(children[1].data.id).toEqual(FIRST_TID);
+        expect(children[1].data.index).toEqual(FIRST_INDEX + 1);
+        expect(children[2].data.id).toEqual(FIRST_TID + 1);
+        expect(children[2].data.index).toEqual(FIRST_INDEX + 2);
+        expect(children[3].data.id).toEqual(FIRST_TID + 2);
+        expect(children[3].data.index).toEqual(FIRST_INDEX + 3);
     });
 });

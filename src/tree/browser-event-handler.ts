@@ -18,12 +18,12 @@ export const addNodeFromTab = async (tree: Fancytree.Fancytree, newTab: Tabs.Tab
     const windowNode = tree.getNodeByKey(`${newTab.windowId}`);
     // 1. 先根据index - 1找到前一个节点
     const prevNode = windowNode.findFirst((node) => node.data.index === newTab.index - 1);
+    ViewTabIndexUtils.increaseIndex(tree, windowNode.data.id, newTab.index);
     // 2. 如果index - 1不存在，说明是第一个节点，直接添加为windowNode的子节点
     if (prevNode === null) {
-        windowNode.addNode(newNode, 'child');
+        windowNode.addNode(newNode, 'firstChild');
         return;
     }
-    ViewTabIndexUtils.increaseIndex(tree, windowNode.data.id, newTab.index);
     // 3. 判断该节点的id和openerTabId是否相等
     if (prevNode.data.id === newTab.openerTabId) {
         // 3.1 如果相等，说明是openerTab的子节点，直接添加为openerTab的子节点
