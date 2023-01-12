@@ -3,7 +3,7 @@ import type { TreeData, TreeNode } from '../../src/logic/nodes';
 export const SINGLE_TAB_WINDOW = [
     {
         title: 'Window',
-        key: '1660892704',
+        key: '1',
         icon: {
             html: '<img class="fancytree-icon" src="/icons/chrome_icon.svg">',
         },
@@ -12,14 +12,14 @@ export const SINGLE_TAB_WINDOW = [
             alwaysOnTop: false,
             focused: false,
             height: 1050,
-            id: 1660892704,
+            id: 1,
             incognito: false,
             left: 0,
             state: 'maximized',
             top: 25,
             type: 'window',
             width: 1792,
-            windowId: 1660892704,
+            windowId: 1,
             closed: false,
             parentId: 0,
             isBackgroundPage: false,
@@ -27,7 +27,7 @@ export const SINGLE_TAB_WINDOW = [
         children: [
             {
                 title: '扩展程序',
-                key: '1660892705',
+                key: '10',
                 icon: {
                     html: '<img class="fancytree-icon" src="/icons/chrome_icon.svg">',
                 },
@@ -41,7 +41,7 @@ export const SINGLE_TAB_WINDOW = [
                     // groupId: -1,
                     height: 939,
                     highlighted: false,
-                    id: 1660892705,
+                    id: 10,
                     incognito: false,
                     index: 0,
                     mutedInfo: {
@@ -54,9 +54,9 @@ export const SINGLE_TAB_WINDOW = [
                     url: 'chrome://extensions/',
                     width: 1792,
                     windowId: 1660892704,
-                    tabId: 1660892705,
+                    tabId: 10,
                     closed: false,
-                    parentId: 1660892704,
+                    parentId: 1,
                     tabActive: false,
                     type: 'tab',
                 },

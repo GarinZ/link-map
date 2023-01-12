@@ -12,5 +12,3 @@ Object.assign(global, {
     jQuery: $,
     jquery: $,
 });
-
-console.log(chrome.runtime.id);

@@ -29,14 +29,12 @@ export const addNodeFromTab = async (tree: Fancytree.Fancytree, newTab: Tabs.Tab
         // 3.1 如果相等，说明是openerTab的子节点，直接添加为openerTab的子节点
         prevNode.addNode(newNode, 'child');
     } else if (!prevNode.data.openerTabId || prevNode.data.openerTabId === newTab.openerTabId) {
-        // 3.2 prevNode有opernerTabId，但是不等于newTab的openerTabId，说明newTab是prevNode的兄弟节点
+        // 3.2 prevNode有openerTabId，但是不等于newTab的openerTabId，说明newTab是prevNode的兄弟节点
         prevNode.addNode(newNode, 'after');
     } else {
         // 3.3 都不是则为新建
         windowNode.addChildren(newNode);
     }
-
-    windowNode.visit((item) => console.log(`${item.data.index}-${item.title}`));
 };
 
 /** 根据Tab在指定位置上创建Node */

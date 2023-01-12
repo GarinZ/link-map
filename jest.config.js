@@ -18,4 +18,7 @@ module.exports = {
             '|.pnpm/serialize-error@9.1.1/node_modules/serialize-error' +
             '))',
     ], // 忽略一些node_modules的编译
+    collectCoverage: true,
+    collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}'], // 收集覆盖率的文件
+    coverageDirectory: 'coverage',
 };

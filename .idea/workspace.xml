@@ -4,29 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d121c9e8-da59-4cb8-8560-a36463b58de9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/jest.config.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/jest.setup.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/tree/mock-data.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.npmrc" beforeDir="false" afterPath="$PROJECT_DIR$/.npmrc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/babel.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/babel.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jest.config.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/configs/webpack.common.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server/configs/webpack.common.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/utils/entry.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server/utils/entry.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/background/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/background/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/contents/all/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/contents/all/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/logic/nodes.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/logic/nodes.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tree/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/tree/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/typings/jquery.fancytree.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/typings/jquery.fancytree.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/typings/shim.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/typings/shim.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/bootstrap.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sampleTest.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+    <list default="true" id="c49610b4-591a-4620-8c0b-8ea9cc51e9c6" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jest.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/jest.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jest.setup.js" beforeDir="false" afterPath="$PROJECT_DIR$/jest.setup.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tree/browser-event-handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/tree/browser-event-handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/tree/browser-event-hanlder.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/test/tree/browser-event-hanlder.spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/tree/mock-data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/test/tree/mock-data.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,6 +43,8 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
@@ -66,12 +52,13 @@
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.stylelint&quot;: &quot;/Users/garin/Project/chrome-extension/tab-master-r/node_modules/stylelint&quot;,
+    &quot;node.js.selected.package.stylelint&quot;: &quot;\\Users\\garin\\Project\\chrome-extension\\tab-master-r\\node_modules\\stylelint&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;C:/Users/Garin/Project/tab-master-r/node_modules/jest&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/garin/Project/chrome-extension/tab-master-r/node_modules/prettier&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/garin/Project/chrome-extension/tab-master-r/node_modules/typescript/lib&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\Garin\\Project\\tab-master-r\\node_modules\\prettier&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\Garin\\Project\\tab-master-r\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -86,7 +73,21 @@
       <recent name="$PROJECT_DIR$/src/typings" />
     </key>
   </component>
-  <component name="RunManager" selected="Jest.init ext.ext page open">
+  <component name="RunManager" selected="Jest.add new tab to tree.add as sibling">
+    <configuration name="add new tab to tree.add as sibling" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/test/tree/browser-event-hanlder.spec.ts" />
+      <test-names>
+        <test-name value="add new tab to tree" />
+        <test-name value="add as sibling" />
+      </test-names>
+      <method v="2" />
+    </configuration>
     <configuration name="create tab" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <node-options value="" />
@@ -130,6 +131,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Jest.add new tab to tree.add as sibling" />
         <item itemvalue="Jest.init ext.ext page open" />
         <item itemvalue="Jest.create tab" />
         <item itemvalue="Jest.create tab.create one tab in the window" />
@@ -142,7 +144,7 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="d121c9e8-da59-4cb8-8560-a36463b58de9" name="Default Changelist" comment="" />
+      <changelist id="c49610b4-591a-4620-8c0b-8ea9cc51e9c6" name="Changes" comment="" />
       <created>1670576927530</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -168,6 +170,8 @@
       <workItem from="1673383406871" duration="239000" />
       <workItem from="1673383653623" duration="12661000" />
       <workItem from="1673439133988" duration="862000" />
+      <workItem from="1673452949825" duration="1061000" />
+      <workItem from="1673487739480" duration="605000" />
     </task>
     <servers />
   </component>
@@ -197,6 +201,11 @@
           <url>file://$PROJECT_DIR$/node_modules/.pnpm/@garinz+webext-bridge@5.0.6/node_modules/@garinz/webext-bridge/dist/index.js</url>
           <line>148</line>
           <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/tree/browser-event-handler.ts</url>
+          <line>15</line>
+          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
