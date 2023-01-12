@@ -12,7 +12,7 @@ import { BrowserExtensionUtils, FancyTreeUtils, NodeUtils } from '../logic/utils
 import * as WindowNodes from '../logic/window-nodes';
 
 /** 根据Tab创建Node */
-export const addNodeFromTab = async (tree: Fancytree.Fancytree, newTab: Tabs.Tab) => {
+export const addNodeFromTab = (tree: Fancytree.Fancytree, newTab: Tabs.Tab) => {
     const newNode = TabNodes.create(newTab);
     if (newTab.windowId === undefined) throw new Error('Tab must have an id');
     const windowNode = tree.getNodeByKey(`${newTab.windowId}`);
@@ -20,21 +20,22 @@ export const addNodeFromTab = async (tree: Fancytree.Fancytree, newTab: Tabs.Tab
     const prevNode = windowNode.findFirst((node) => node.data.index === newTab.index - 1);
     ViewTabIndexUtils.increaseIndex(tree, windowNode.data.id, newTab.index);
     // 2. 如果index - 1不存在，说明是第一个节点，直接添加为windowNode的子节点
+    let newFancyTreeNode: Fancytree.FancytreeNode;
     if (prevNode === null) {
-        windowNode.addNode(newNode, 'firstChild');
-        return;
+        newFancyTreeNode = windowNode.addNode(newNode, 'firstChild');
     }
     // 3. 判断该节点的id和openerTabId是否相等
     if (prevNode.data.id === newTab.openerTabId) {
         // 3.1 如果相等，说明是openerTab的子节点，直接添加为openerTab的子节点
-        prevNode.addNode(newNode, 'child');
+        newFancyTreeNode = prevNode.addNode(newNode, 'child');
     } else if (!prevNode.data.openerTabId || prevNode.data.openerTabId === newTab.openerTabId) {
         // 3.2 prevNode有openerTabId，但是不等于newTab的openerTabId，说明newTab是prevNode的兄弟节点
-        prevNode.addNode(newNode, 'after');
+        newFancyTreeNode = prevNode.addNode(newNode, 'after');
     } else {
         // 3.3 都不是则为新建
-        windowNode.addChildren(newNode);
+        newFancyTreeNode = windowNode.addChildren(newNode);
     }
+    return newFancyTreeNode;
 };
 
 /** 根据Tab在指定位置上创建Node */
@@ -55,8 +56,7 @@ export const addNodeFromTabAtIndex = (
 /** 删除节点 */
 export const removeNode = (tree: Fancytree.Fancytree, key: string, reserveChildren: boolean) => {
     // 1. 当删除当前节点时，保留子节点
-    const rootNode = tree.getRootNode();
-    const toRemoveNode = tree.getNodeByKey(key, rootNode);
+    const toRemoveNode = tree.getNodeByKey(key);
     // TODO 若包含note的节点在浏览器关闭时也不做删除处理
     // 2. 状态为closed的节点不做删除
     if (toRemoveNode.data.closed === true) {
@@ -64,12 +64,9 @@ export const removeNode = (tree: Fancytree.Fancytree, key: string, reserveChildr
     }
     // 3. 若保留子元素则提升children作为siblings
     reserveChildren && NodeUtils.moveChildrenAsNextSiblings(toRemoveNode);
-    const children = toRemoveNode.children ? _.clone(toRemoveNode.children) : null;
-    if (reserveChildren && !!children) {
-        // reverse children保证元素顺序
-        children.reverse().forEach((node) => node.moveTo(toRemoveNode, 'after'));
-    }
     // 4. 删除节点
+    const windowNode = tree.getNodeByKey(`${toRemoveNode.data.windowId}`);
+    ViewTabIndexUtils.decreaseIndex(tree, windowNode.data.id, toRemoveNode.data.index);
     if (toRemoveNode) toRemoveNode.remove();
 };
 /** 更新节点: 更新内容但没有移动窗口 */

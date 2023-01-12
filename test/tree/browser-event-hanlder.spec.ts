@@ -6,7 +6,7 @@
 import type { Tabs } from 'webextension-polyfill';
 
 import type { TabData } from '../../src/logic/nodes';
-import { addNodeFromTab } from '../../src/tree/browser-event-handler';
+import { addNodeFromTab, removeNode } from '../../src/tree/browser-event-handler';
 import { createTab, initFancytree } from '../utils/gen-utils';
 import { toAsciiTree } from '../utils/print-utils';
 import { SINGLE_TAB_WINDOW } from './mock-data';
@@ -16,7 +16,7 @@ const FIRST_TAB_DATA = SINGLE_TAB_WINDOW[0].children![0].data as TabData;
 const FIRST_TID = FIRST_TAB_DATA.id!;
 const FIRST_INDEX = FIRST_TAB_DATA.index;
 
-describe('add new tab to tree', () => {
+describe('add tab', () => {
     let fancytree: Fancytree.Fancytree;
     beforeEach(() => {
         fancytree = initFancytree(SINGLE_TAB_WINDOW);
@@ -123,5 +123,54 @@ describe('add new tab to tree', () => {
         expect(children[2].data.index).toEqual(FIRST_INDEX + 2);
         expect(children[3].data.id).toEqual(FIRST_TID + 2);
         expect(children[3].data.index).toEqual(FIRST_INDEX + 3);
+    });
+});
+
+describe('remove tab', () => {
+    let fancytree: Fancytree.Fancytree;
+    beforeEach(() => {
+        fancytree = initFancytree(SINGLE_TAB_WINDOW);
+    });
+
+    it('remove first node', async () => {
+        addNodeFromTab(fancytree, createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1));
+        addNodeFromTab(fancytree, createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2));
+        removeNode(fancytree, `${FIRST_TID}`, true);
+        const children = fancytree.toDict()[0].children;
+        expect(children.length).toEqual(2);
+        expect(children[0].data.id).toEqual(FIRST_TID + 1);
+        expect(children[0].data.index).toEqual(FIRST_INDEX);
+        expect(children[1].data.id).toEqual(FIRST_TID + 2);
+        expect(children[1].data.index).toEqual(FIRST_INDEX + 1);
+    });
+
+    it('remove parent node and reserve children', async () => {
+        addNodeFromTab(fancytree, createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1, FIRST_TID));
+        addNodeFromTab(fancytree, createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2, FIRST_TID));
+        removeNode(fancytree, `${FIRST_TID}`, true);
+        const children = fancytree.toDict()[0].children;
+        expect(children.length).toEqual(2);
+        expect(children[0].data.id).toEqual(FIRST_TID + 1);
+        expect(children[0].data.index).toEqual(FIRST_INDEX);
+        expect(children[1].data.id).toEqual(FIRST_TID + 2);
+        expect(children[1].data.index).toEqual(FIRST_INDEX + 1);
+    });
+
+    it('remove parent node and remove children', async () => {
+        addNodeFromTab(fancytree, createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1, FIRST_TID));
+        addNodeFromTab(fancytree, createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2, FIRST_TID));
+        removeNode(fancytree, `${FIRST_TID}`, false);
+        const children = fancytree.toDict()[0].children;
+        expect(children).toBe(undefined);
+    });
+
+    it('remove closed tab', async () => {
+        const newNode = addNodeFromTab(fancytree, createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1));
+        newNode.data.closed = true;
+        removeNode(fancytree, `${FIRST_TID + 1}`, true);
+        const children = fancytree.toDict()[0].children;
+        expect(children.length).toEqual(2);
+        expect(children[1].data.id).toEqual(FIRST_TID + 1);
+        expect(children[1].data.index).toEqual(FIRST_INDEX + 1);
     });
 });
