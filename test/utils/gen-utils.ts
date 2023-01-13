@@ -4,14 +4,14 @@
 
 import type { Tabs } from 'webextension-polyfill';
 
-import { FancyTabMasterTree } from '../../src/tree/fancy-tab-master-tree';
+import { FancyTabMasterTree } from '../../src/tree/fancy-tab-master-tree/fancy-tab-master-tree';
 import type { TreeData, TreeNode } from '../../src/tree/nodes';
 
 import 'jquery.fancytree';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.dnd5';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.childcounter';
 
-export function initFancytree(source: TreeNode<TreeData>[]) {
+export function initFancytree(source: TreeNode<TreeData>[]): FancyTabMasterTree {
     document.body.innerHTML = '<div id="tree">';
     const tree = new FancyTabMasterTree('#tree');
     tree.initTree(source);

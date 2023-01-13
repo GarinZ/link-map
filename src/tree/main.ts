@@ -1,6 +1,6 @@
 import { onMessage } from '@garinz/webext-bridge';
 
-import { FancyTabMasterTree } from './fancy-tab-master-tree';
+import { FancyTabMasterTree } from './fancy-tab-master-tree/fancy-tab-master-tree';
 
 const tree = new FancyTabMasterTree('#tree');
 tree.initTree();

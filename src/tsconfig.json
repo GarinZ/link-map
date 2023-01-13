@@ -31,7 +31,8 @@
         "module": "ESNext",
         "baseUrl": "./",
         "paths": {
-            "@/*": ["src/*"]
+            "@/*": ["src/*"],
+            "?/*": ["test/*"]
         },
         "typeRoots": ["../node_modules/@types", "./typings"],
         "types": ["jquery", "webext-bridge", "jquery.fancytree"]

@@ -24,7 +24,10 @@
         "module": "ESNext",
         "baseUrl": "./",
         "types": ["jquery", "webext-bridge", "jquery.fancytree", "jest"],
-        "typeRoots": ["node_modules/@types", "src/typings"]
+        "typeRoots": ["node_modules/@types", "src/typings"],
+        "paths": {
+            "@/*": ["src/*"]
+        }
     },
     "exclude": ["manifest.ts"]
 }

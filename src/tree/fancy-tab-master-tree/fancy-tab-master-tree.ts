@@ -1,13 +1,13 @@
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
-import TreeNodeTpl, { TPL_CONSTANTS } from '../templates/tree-node-tpl';
+import TreeNodeTpl, { TPL_CONSTANTS } from '../../templates/tree-node-tpl';
+import * as TabNodes from '../node-builders';
+import { createWindowNode } from '../node-builders';
+import type { NodeType, TreeData, TreeNode } from '../nodes';
+import { NodeUtils } from '../utils';
 import { DND5_CONFIG } from './configs';
-import * as TabNodes from './node-builders';
-import { createWindowNode } from './node-builders';
-import type { NodeType, TreeData, TreeNode } from './nodes';
 import { ViewTabIndexUtils } from './tab-index-utils';
-import { NodeUtils } from './utils';
 
 type Tab = Tabs.Tab;
 

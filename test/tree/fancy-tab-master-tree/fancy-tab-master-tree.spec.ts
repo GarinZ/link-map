@@ -5,9 +5,10 @@
 
 import type { Tabs } from 'webextension-polyfill';
 
-import type { TabData } from '../../src/tree/nodes';
-import { createTab, initFancytree } from '../utils/gen-utils';
-import { toAsciiTree } from '../utils/print-utils';
+import type { TabData } from '@/tree/nodes';
+
+import { createTab, initFancytree } from '../../utils/gen-utils';
+import { toAsciiTree } from '../../utils/print-utils';
 import { SINGLE_TAB_WINDOW } from './mock-data';
 
 type FancytreeNode = Fancytree.FancytreeNode;

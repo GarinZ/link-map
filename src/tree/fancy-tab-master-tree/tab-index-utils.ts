@@ -1,17 +1,4 @@
 export const ViewTabIndexUtils = {
-    // 添加tab
-    // 1. 根据index找到元素
-    // 2. 选择适合的方式添加元素
-    // 3. 后面元素的index + 1
-
-    // 删除tab
-    // 1. 删除元素
-    // 2. 后面元素的index - 1
-
-    // 移动tab
-    // 1. 根据index找到元素
-    // 2. 和目标元素交换index
-
     increaseIndex: (tree: Fancytree.Fancytree, windowId: number, index: number) => {
         const parentNode = tree.getNodeByKey(`${windowId}`);
         parentNode.visit((node) => {

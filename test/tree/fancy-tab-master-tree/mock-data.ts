@@ -1,4 +1,4 @@
-import type { TabData, TreeData, TreeNode, WindowData } from '../../src/tree/nodes';
+import type { TabData, TreeData, TreeNode, WindowData } from '../../../src/tree/nodes';
 
 export const SINGLE_TAB_WINDOW = [
     {
