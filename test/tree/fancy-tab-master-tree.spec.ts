@@ -5,7 +5,7 @@
 
 import type { Tabs } from 'webextension-polyfill';
 
-import type { TabData } from '../../src/logic/nodes';
+import type { TabData } from '../../src/tree/nodes';
 import { createTab, initFancytree } from '../utils/gen-utils';
 import { toAsciiTree } from '../utils/print-utils';
 import { SINGLE_TAB_WINDOW } from './mock-data';

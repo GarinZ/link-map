@@ -1,6 +1,6 @@
 import { flatten } from 'lodash';
 
-import type { TreeData, TreeNode } from '../../src/logic/nodes';
+import type { TreeData, TreeNode } from '../../src/tree/nodes';
 
 function prefixChild(strArr: string[], last: boolean): string[] {
     return strArr.map((s, i) => {

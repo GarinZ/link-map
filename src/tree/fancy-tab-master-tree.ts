@@ -1,18 +1,24 @@
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
-import type { NodeType, TreeData, TreeNode } from '../logic/nodes';
-import { ViewTabIndexUtils } from '../logic/tab-index-utils';
-import * as TabNodes from '../logic/tab-nodes';
-import { NodeUtils } from '../logic/utils';
-import * as WindowNodes from '../logic/window-nodes';
 import TreeNodeTpl, { TPL_CONSTANTS } from '../templates/tree-node-tpl';
 import { DND5_CONFIG } from './configs';
+import * as TabNodes from './node-builders';
+import { createWindowNode } from './node-builders';
+import type { NodeType, TreeData, TreeNode } from './nodes';
+import { ViewTabIndexUtils } from './tab-index-utils';
+import { NodeUtils } from './utils';
+
+type Tab = Tabs.Tab;
 
 const { TYPE_ATTR, NODE_CLOSE } = TPL_CONSTANTS;
 
 type FancytreeNode = Fancytree.FancytreeNode;
 
+/**
+ * Tab-Master Tree 基于fancytree的实现
+ * 处理浏览器模型到fancytree模型的转换
+ */
 export class FancyTabMasterTree implements TabMasterTree<FancytreeNode> {
     tree: Fancytree.Fancytree;
 
@@ -46,12 +52,12 @@ export class FancyTabMasterTree implements TabMasterTree<FancytreeNode> {
         const browserWindowPromise = await browser.windows.getAll({ populate: true });
         const unknown = browserWindowPromise as unknown;
         const windows = unknown as Windows.Window[];
-        const nodes = windows.map((w) => WindowNodes.create(w));
+        const nodes = windows.map((w) => createWindowNode(w));
         this.tree.reload(nodes);
     }
 
     public createTab(tab: Tabs.Tab): FancytreeNode {
-        const newNode = TabNodes.create(tab);
+        const newNode = TabNodes.createTabNode(tab);
         if (tab.windowId === undefined) throw new Error('Tab must have an id');
         const windowNode = this.tree.getNodeByKey(`${tab.windowId}`);
         // 1. 先根据index - 1找到前一个节点
@@ -76,13 +82,13 @@ export class FancyTabMasterTree implements TabMasterTree<FancytreeNode> {
 
     public createWindow(window: Windows.Window): FancytreeNode {
         const rootNode = this.tree.getRootNode();
-        return rootNode.addNode(WindowNodes.create(window));
+        return rootNode.addNode(createWindowNode(window));
     }
 
     public activeTab(tabId: number): void {
         const targetNode = this.tree.getNodeByKey(`${tabId}`);
         if (!targetNode) return;
-        WindowNodes.updateFancyTreeNode(targetNode, { active: true });
+        this.updateTabNodePartial(targetNode, { active: true });
     }
 
     public moveTab(windowId: number, tabId: number, fromIndex: number, toIndex: number): void {
@@ -121,7 +127,8 @@ export class FancyTabMasterTree implements TabMasterTree<FancytreeNode> {
 
     public updateTab(tab: Tabs.Tab): void {
         const toUpdateNode = this.tree.getNodeByKey(`${tab.id!}`);
-        if (toUpdateNode) WindowNodes.updateFancyTreeNode(toUpdateNode, tab);
+        if (!toUpdateNode) return;
+        this.updateTabNodePartial(toUpdateNode, tab);
     }
 
     public async attachTab(windowId: number, tabId: number, fromIndex: number): Promise<void> {
@@ -151,6 +158,20 @@ export class FancyTabMasterTree implements TabMasterTree<FancytreeNode> {
 
     public toJsonObj(includeRoot = false): TreeNode<TreeData> {
         return this.tree.toDict(includeRoot);
+    }
+
+    private updateTabNodePartial(toUpdateNode: FancytreeNode, updateProps: Partial<Tabs.Tab>) {
+        const { title, favIconUrl, active } = updateProps;
+        if (title) toUpdateNode.setTitle(title);
+        if (favIconUrl) toUpdateNode.icon = favIconUrl;
+        if (active) {
+            toUpdateNode.data.tabActive = active;
+            toUpdateNode.setActive(active);
+        }
+        const restValidKeys: (keyof Tab)[] = ['status', 'url', 'discarded'];
+        restValidKeys.forEach((k) => {
+            if (updateProps[k]) toUpdateNode.data[k] = updateProps[k];
+        });
     }
 }
 

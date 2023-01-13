@@ -4,8 +4,8 @@
 
 import type { Tabs } from 'webextension-polyfill';
 
-import type { TreeData, TreeNode } from '../../src/logic/nodes';
 import { FancyTabMasterTree } from '../../src/tree/fancy-tab-master-tree';
+import type { TreeData, TreeNode } from '../../src/tree/nodes';
 
 import 'jquery.fancytree';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.dnd5';
