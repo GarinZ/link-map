@@ -38,6 +38,7 @@ describe('add tab', () => {
      *         └── 1-11
      */
     it('add as child', async () => {
+        console.log(toAsciiTree(fancytree.toDict()));
         const tab: Tabs.Tab = createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1, FIRST_TID);
         addNodeFromTab(fancytree, tab);
         const children = fancytree.toDict()[0].children;
@@ -147,6 +148,7 @@ describe('remove tab', () => {
     it('remove parent node and reserve children', async () => {
         addNodeFromTab(fancytree, createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1, FIRST_TID));
         addNodeFromTab(fancytree, createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2, FIRST_TID));
+        console.log(toAsciiTree(fancytree.toDict()));
         removeNode(fancytree, `${FIRST_TID}`, true);
         const children = fancytree.toDict()[0].children;
         expect(children.length).toEqual(2);
@@ -154,6 +156,7 @@ describe('remove tab', () => {
         expect(children[0].data.index).toEqual(FIRST_INDEX);
         expect(children[1].data.id).toEqual(FIRST_TID + 2);
         expect(children[1].data.index).toEqual(FIRST_INDEX + 1);
+        console.log(toAsciiTree(fancytree.toDict()));
     });
 
     it('remove parent node and remove children', async () => {
@@ -187,7 +190,7 @@ describe('move tab', () => {
             createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1),
         );
         const thirdNode = addNodeFromTab(fancytree, createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2));
-        moveNode(fancytree, WID, secondNode.data.index, 0, secondNode.data.id);
+        moveNode(fancytree, WID, secondNode.data.id, 0, secondNode.data.index);
         console.log(toAsciiTree(fancytree.toDict()));
         const children = fancytree.toDict()[0].children;
         expect(children.length).toEqual(3);
@@ -205,7 +208,7 @@ describe('move tab', () => {
             createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1),
         );
         const thirdNode = addNodeFromTab(fancytree, createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2));
-        moveNode(fancytree, WID, secondNode.data.index, 2, secondNode.data.id);
+        moveNode(fancytree, WID, secondNode.data.id, 2, secondNode.data.index);
         const children = fancytree.toDict()[0].children;
         expect(children.length).toEqual(3);
         expect(children[1].data.id).toEqual(thirdNode.data.id);
@@ -236,17 +239,54 @@ describe('move tab', () => {
             fancytree,
             createTab(FIRST_TID + 3, WID, FIRST_INDEX + 3, secondNode.data.id),
         );
-        console.log(toAsciiTree(fancytree.toDict()));
-        moveNode(fancytree, WID, secondNode.data.index, 0, secondNode.data.id);
+        moveNode(fancytree, WID, secondNode.data.id, 0, secondNode.data.index);
         const children = fancytree.toDict()[0].children;
         expect(children.length).toEqual(2);
         expect(children[0].data.id).toEqual(secondNode.data.id);
-        expect(children[0].data.index).toBe(0);
+        expect(children[0].data.index).toEqual(0);
+        expect(secondNode.expanded).toEqual(true);
         expect(children[1].data.id).toEqual(FIRST_TID);
-        expect(children[1].data.index).toBe(1);
+        expect(children[1].data.index).toEqual(1);
         expect(children[1].children[0].data.id).toEqual(thirdNode.data.id);
         expect(children[1].children[0].data.index).toEqual(2);
         expect(children[1].children[1].data.id).toEqual(forthNode.data.id);
         expect(children[1].children[1].data.index).toEqual(3);
+    });
+
+    it('first with children, forth move to second', async () => {
+        const secondNode = addNodeFromTab(
+            fancytree,
+            createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1, FIRST_TID),
+        );
+        const thirdNode = addNodeFromTab(
+            fancytree,
+            createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2, FIRST_TID),
+        );
+        const forthNode = addNodeFromTab(fancytree, createTab(FIRST_TID + 3, WID, FIRST_INDEX + 3));
+        moveNode(fancytree, WID, forthNode.data.id, 1, forthNode.data.index);
+        console.log(toAsciiTree(fancytree.toDict()));
+        const children = fancytree.toDict()[0].children;
+        expect(children.length).toEqual(1);
+        expect(children[0].data.id).toEqual(FIRST_TID);
+        expect(children[0].data.index).toEqual(0);
+        const firstNodeChildren = children[0].children;
+        expect(firstNodeChildren[0].data.id).toEqual(forthNode.data.id);
+        expect(firstNodeChildren[0].data.index).toEqual(1);
+        expect(firstNodeChildren[1].data.id).toEqual(secondNode.data.id);
+        expect(firstNodeChildren[1].data.index).toEqual(2);
+        expect(firstNodeChildren[2].data.id).toEqual(thirdNode.data.id);
+        expect(firstNodeChildren[2].data.index).toEqual(3);
+    });
+
+    it('1st to 2rd', async () => {
+        const secondNode = addNodeFromTab(fancytree, createTab(FIRST_TID + 1, WID, 1));
+        moveNode(fancytree, WID, FIRST_TID, 1, 0);
+        console.log(toAsciiTree(fancytree.toDict()));
+        const children = fancytree.toDict()[0].children;
+        expect(children.length).toEqual(2);
+        expect(children[0].data.id).toEqual(secondNode.data.id);
+        expect(children[0].data.index).toEqual(0);
+        expect(children[1].data.id).toEqual(FIRST_TID);
+        expect(children[1].data.index).toEqual(1);
     });
 });

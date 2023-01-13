@@ -20,7 +20,6 @@ export const create = (tab: Tabs.Tab): TreeNode<TabData> => {
         data: {
             ...tab,
             windowId,
-            tabId: id,
             closed: false,
             parentId: openerTabId || windowId,
             tabActive: active,

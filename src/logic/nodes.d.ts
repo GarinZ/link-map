@@ -3,7 +3,7 @@ import { Tabs, Windows } from 'webextension-polyfill';
 type NodeType = 'tab' | 'window';
 
 export interface TreeData {
-    id: number;
+    id?: number;
     closed: boolean;
     alias?: string;
     parentId: number;

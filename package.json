@@ -134,7 +134,6 @@
         "postcss-less": "6.0.0",
         "postcss-scss": "4.0.5",
         "prettier": "2.8.0",
-        "puppeteer": "19.4.1",
         "react-devtools": "4.26.1",
         "react-refresh": "0.14.0",
         "rimraf": "3.0.2",

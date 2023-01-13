@@ -97,6 +97,7 @@ export const NodeUtils = {
         if (node.children && node.children.length > 0) {
             const children = _.clone(node.children.reverse());
             children.forEach((child) => child.moveTo(node, 'after'));
+            node.expanded = true;
         }
     },
 };

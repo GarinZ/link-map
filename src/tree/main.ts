@@ -50,7 +50,7 @@ onMessage('remove-window', (msg) => {
 onMessage('move-tab', async (msg) => {
     const { windowId, fromIndex, toIndex, tabId } = msg.data;
     // 2. 移动元素
-    moveNode(tree, windowId, fromIndex, toIndex, tabId);
+    moveNode(tree, windowId, tabId, toIndex, fromIndex);
 });
 onMessage('update-tab', (msg) => {
     updateNode(tree, msg.data);

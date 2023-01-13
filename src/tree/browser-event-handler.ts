@@ -76,34 +76,31 @@ export const updateNode = (tree: Fancytree.Fancytree, updatedTab: Tabs.Tab) => {
     if (toUpdateNode) WindowNodes.updateFancyTreeNode(toUpdateNode, updatedTab);
 };
 /** 移动节点 */
-export const moveNode = async (
+export const moveNode = (
     tree: Fancytree.Fancytree,
     windowId: number,
-    fromIndex: number,
-    toIndex: number,
     tabId: number,
+    toIndex: number,
+    fromIndex: number,
 ) => {
-    // 1. 重置当前windowId下元素元素的index属性
+    if (toIndex === fromIndex) return;
     const windowNode = tree.getNodeByKey(String(windowId));
     const toMoveNode = tree.getNodeByKey(`${tabId}`);
-    if (!toMoveNode) {
-        // Trick: 适配tab添加到window时attach->move事件链中，调用move时tabNode可能尚未创建完毕
-        // 可能死循环？
-        setTimeout(() => {
-            moveNode(tree, windowId, fromIndex, toIndex, tabId);
-        }, 1);
-    }
-    if (toMoveNode.data.index !== fromIndex) {
-        throw new Error('toMoveNode index is not equal to fromIndex');
-    }
+    toMoveNode.data.index = fromIndex;
     // 2. 被移动元素有children，将children移动为toMoveNode的siblings
     NodeUtils.moveChildrenAsNextSiblings(toMoveNode);
-    // 3. 移动元素
+    // 3. 重置所有节点的index
+    // const currentNode = windowNode.findFirst((node) => node.data.index === toIndex);
     ViewTabIndexUtils.changeIndex(tree, windowNode.data.id, fromIndex, toIndex);
-    const prevNode = windowNode.findFirst((node) => node.data.index === toMoveNode.data.index - 1);
-    prevNode ? toMoveNode.moveTo(prevNode, 'after') : toMoveNode.moveTo(windowNode, 'firstChild');
+    // 4. 移动节点
+    if (toIndex === 0) {
+        toMoveNode.moveTo(windowNode, 'firstChild');
+        return;
+    }
+    const prevNode = windowNode.findFirst((node) => node.data.index === toIndex - 1);
+    const nextNode = prevNode.findFirst((node) => node.data.type === 'tab');
+    nextNode ? toMoveNode.moveTo(nextNode, 'before') : toMoveNode.moveTo(prevNode, 'after');
 };
-/** 激活节点 */
 export const activatedNode = (tree: Fancytree.Fancytree, _windowId: number, tabId: number) => {
     const targetNode = tree.getNodeByKey(`${tabId}`);
     if (!targetNode) return;
