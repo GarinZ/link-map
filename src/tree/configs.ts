@@ -93,7 +93,7 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
         const mode = data.dropEffect;
         // 1. 若hitMode设置为after，直接
         if (data.hitMode === 'after') {
-            // If node are inserted directly after tagrget node one-by-one,
+            // If node are inserted directly after target node one-by-one,
             // this would reverse them. So we compensate:
             sourceNodes = sourceNodes.reverse();
         }

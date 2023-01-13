@@ -194,6 +194,6 @@ async function getOrRefreshExtIdPair(): Promise<ExtIdPair | null> {
 /**
  * 判断ContentScript是否存在
  */
-async function isExtPageExistByBrowserAPI(): Promise<Boolean> {
-    return !!(await getExtIdPairAPIByBrowserAPI());
-}
+// async function isExtPageExistByBrowserAPI(): Promise<Boolean> {
+//     return !!(await getExtIdPairAPIByBrowserAPI());
+// }

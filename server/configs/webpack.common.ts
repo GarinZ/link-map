@@ -6,7 +6,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import type { Configuration } from 'webpack';
 import WebpackBar from 'webpackbar';
 
-import { __DEV__, ENABLE_DEVTOOLS, PROJECT_ROOT } from '../utils/constants';
+import { ENABLE_DEVTOOLS, PROJECT_ROOT } from '../utils/constants';
 import entry from '../utils/entry';
 import { resolveExtension, resolveLib, resolvePublic, resolveSrc } from '../utils/path';
 

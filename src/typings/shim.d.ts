@@ -15,11 +15,6 @@ declare module '@garinz/webext-bridge' {
         // browser event
         'get-windows-and-tabs': void;
         'add-tab': Tabs.Tab;
-        'add-tab-with-index': {
-            newTab: Tabs.Tab;
-            newWindowId: number;
-            toIndex: number;
-        };
         'remove-tab': WindowTabIdPair;
         'update-tab': Tabs.Tab;
         'move-tab': {
