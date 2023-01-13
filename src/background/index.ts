@@ -61,6 +61,7 @@ browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
 });
 
 browser.tabs.onUpdated.addListener(async (_tabId, _changeInfo, tab) => {
+    console.log('[bg]: tab updated!', tab);
     sendMessageToExt('update-tab', tab);
 });
 
@@ -68,6 +69,7 @@ browser.tabs.onUpdated.addListener(async (_tabId, _changeInfo, tab) => {
  * 只有同窗口tab前后顺序移动会影响触发这个方法
  */
 browser.tabs.onMoved.addListener((tabId, { windowId, fromIndex, toIndex }) => {
+    console.log('[bg]: tab moved!');
     sendMessageToExt('move-tab', {
         windowId,
         fromIndex,
@@ -80,13 +82,21 @@ browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
     sendMessageToExt('activated-tab', { windowId, tabId });
 });
 /**
- * tab从window拉出来的时候也会发这个事件
- * attach和WindowCreate是不是冲突了？
+ * 如果没有window会先触发window的创建事件
+ *
  */
-browser.tabs.onAttached.addListener(async (tabId, { newPosition, newWindowId }) => {
+browser.tabs.onAttached.addListener(async (tabId, { newPosition }) => {
     console.log('attached');
     const tab = await browser.tabs.get(tabId);
-    sendMessageToExt('add-tab-with-index', { newTab: tab, newWindowId, toIndex: newPosition });
+    console.log(tab.index, newPosition);
+    await sendMessageToExt('add-tab', tab);
+    await sendMessageToExt('move-tab', {
+        windowId: tab.windowId,
+        fromIndex: newPosition,
+        toIndex: tab.index,
+        tabId,
+    });
+    await sendMessageToExt('activated-tab', { windowId: tab.windowId, tabId });
 });
 
 browser.tabs.onDetached.addListener((tabId, { oldWindowId }) => {

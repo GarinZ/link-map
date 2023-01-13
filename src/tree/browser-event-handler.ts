@@ -86,11 +86,12 @@ export const moveNode = (
     if (toIndex === fromIndex) return;
     const windowNode = tree.getNodeByKey(String(windowId));
     const toMoveNode = tree.getNodeByKey(`${tabId}`);
+    // attach时会竞态触发move事件，如果之前排序过就不要再排一次
+    if (!toMoveNode || toMoveNode.data.index === toIndex) return;
     toMoveNode.data.index = fromIndex;
     // 2. 被移动元素有children，将children移动为toMoveNode的siblings
     NodeUtils.moveChildrenAsNextSiblings(toMoveNode);
     // 3. 重置所有节点的index
-    // const currentNode = windowNode.findFirst((node) => node.data.index === toIndex);
     ViewTabIndexUtils.changeIndex(tree, windowNode.data.id, fromIndex, toIndex);
     // 4. 移动节点
     if (toIndex === 0) {
