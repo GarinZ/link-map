@@ -42,7 +42,12 @@ export const ViewTabIndexUtils = {
         });
     },
 
-    decreaseIndex: (tree: Fancytree.Fancytree, windowId: number, index: number) => {
+    decreaseIndex: (
+        tree: Fancytree.Fancytree,
+        windowId: number,
+        index: number,
+    ): Fancytree.FancytreeNode[] => {
+        const changedNode: Fancytree.FancytreeNode[] = [];
         const parentNode = tree.getNodeByKey(`${windowId}`);
         parentNode.visit((node) => {
             if (
@@ -54,8 +59,10 @@ export const ViewTabIndexUtils = {
             }
             if (node.data.index > index) {
                 node.data.index -= 1;
+                changedNode.push(node);
             }
             return true;
         });
+        return changedNode;
     },
 };

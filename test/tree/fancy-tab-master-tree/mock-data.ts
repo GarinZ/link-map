@@ -23,6 +23,7 @@ export const SINGLE_TAB_WINDOW = [
             closed: false,
             parentId: 0,
             isBackgroundPage: false,
+            activeTabId: 10,
         } as WindowData,
         children: [
             {
@@ -57,7 +58,6 @@ export const SINGLE_TAB_WINDOW = [
                     tabId: 10,
                     closed: false,
                     parentId: 1,
-                    tabActive: false,
                     type: 'tab',
                 } as TabData,
             },

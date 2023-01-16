@@ -1,15 +1,13 @@
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
-import TreeNodeTpl, { TPL_CONSTANTS } from '../../templates/tree-node-tpl';
-import * as TabNodes from '../node-builders';
-import { createWindowNode } from '../node-builders';
-import type { NodeType, TreeData, TreeNode } from '../nodes';
-import { NodeUtils } from '../utils';
 import { DND5_CONFIG } from './configs';
+import * as TabNodes from './node-builders';
+import { createWindowNode } from './node-builders';
+import type { NodeType, TabData, TreeData, TreeNode } from './nodes';
 import { ViewTabIndexUtils } from './tab-index-utils';
-
-type Tab = Tabs.Tab;
+import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
+import { NodeUtils } from './utils';
 
 const { TYPE_ATTR, NODE_CLOSE } = TPL_CONSTANTS;
 
@@ -17,9 +15,10 @@ type FancytreeNode = Fancytree.FancytreeNode;
 
 /**
  * Tab-Master Tree 基于fancytree的实现
+ * 以后如果有其他实现可以抽象一个interface
  * 处理浏览器模型到fancytree模型的转换
  */
-export class FancyTabMasterTree implements TabMasterTree<FancytreeNode> {
+export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
 
     constructor(selector: JQuery.Selector = '#tree') {
@@ -60,6 +59,7 @@ export class FancyTabMasterTree implements TabMasterTree<FancytreeNode> {
         const newNode = TabNodes.createTabNode(tab);
         if (tab.windowId === undefined) throw new Error('Tab must have an id');
         const windowNode = this.tree.getNodeByKey(`${tab.windowId}`);
+        if (tab.active) windowNode.data.activeTabId = tab.id;
         // 1. 先根据index - 1找到前一个节点
         const prevNode = windowNode.findFirst((node) => node.data.index === tab.index - 1);
         ViewTabIndexUtils.increaseIndex(this.tree, windowNode.data.id, tab.index);
@@ -85,10 +85,14 @@ export class FancyTabMasterTree implements TabMasterTree<FancytreeNode> {
         return rootNode.addNode(createWindowNode(window));
     }
 
-    public activeTab(tabId: number): void {
-        const targetNode = this.tree.getNodeByKey(`${tabId}`);
+    public activeTab(windowId: number, tabId: number): void {
+        // devtools的windowId为-1，不做处理
+        if (windowId < 0) return;
+        const windowNode = this.tree.getNodeByKey(`${windowId}`);
+        const targetNode = this.tree.getNodeByKey(`${tabId}`, windowNode);
         if (!targetNode) return;
-        this.updateTabNodePartial(targetNode, { active: true });
+        windowNode.data.activeTabId = tabId;
+        targetNode.setActive();
     }
 
     public moveTab(windowId: number, tabId: number, fromIndex: number, toIndex: number): void {
@@ -113,16 +117,20 @@ export class FancyTabMasterTree implements TabMasterTree<FancytreeNode> {
     }
 
     public removeTab(tabId: number): void {
-        // 1. 当删除当前节点时，保留子节点
         const toRemoveNode = this.tree.getNodeByKey(`${tabId}`);
-        // 2. 状态为closed的节点不做删除
+        // 1. 状态为closed的节点不做删除
         if (toRemoveNode.data.closed === true) return;
-        // 3. 若保留子元素则提升children作为siblings
+        // 2. 保留子元素：提升children作为siblings
         NodeUtils.moveChildrenAsNextSiblings(toRemoveNode);
-        // 4. 删除节点
+        // 3. 删除节点
         const windowNode = this.tree.getNodeByKey(`${toRemoveNode.data.windowId}`);
-        ViewTabIndexUtils.decreaseIndex(this.tree, windowNode.data.id, toRemoveNode.data.index);
+        const changedTabNodes = ViewTabIndexUtils.decreaseIndex(
+            this.tree,
+            windowNode.data.id,
+            toRemoveNode.data.index,
+        );
         if (toRemoveNode) toRemoveNode.remove();
+        windowNode.data.activeTabId = changedTabNodes[0]?.data.id;
     }
 
     public updateTab(tab: Tabs.Tab): void {
@@ -135,7 +143,7 @@ export class FancyTabMasterTree implements TabMasterTree<FancytreeNode> {
         const tab = await browser.tabs.get(tabId);
         this.createTab(tab);
         this.moveTab(windowId, tabId, fromIndex, tab.index);
-        this.activeTab(tabId);
+        this.activeTab(windowId, tabId);
     }
 
     public detachTab(tabId: number): void {
@@ -152,23 +160,26 @@ export class FancyTabMasterTree implements TabMasterTree<FancytreeNode> {
     }
 
     public windowFocus(windowId: number): void {
+        // devtools的windowId为-1，不做处理
+        if (windowId < 0) return;
         const focusWindow = this.tree.getNodeByKey(`${windowId}`);
-        focusWindow.findFirst((node) => node.data.active)?.setActive();
+        const toActiveTabNode = this.tree.getNodeByKey(
+            `${focusWindow.data.activeTabId}`,
+            focusWindow,
+        );
+        toActiveTabNode?.setActive(true);
+        // focusWindow?.findFirst((node) => node.data.tabActive)?.setActive();
     }
 
-    public toJsonObj(includeRoot = false): TreeNode<TreeData> {
+    public toJsonObj(includeRoot = false): TreeNode<TreeData>[] {
         return this.tree.toDict(includeRoot);
     }
 
-    private updateTabNodePartial(toUpdateNode: FancytreeNode, updateProps: Partial<Tabs.Tab>) {
-        const { title, favIconUrl, active } = updateProps;
+    private updateTabNodePartial(toUpdateNode: FancytreeNode, updateProps: Partial<TabData>) {
+        const { title, favIconUrl } = updateProps;
         if (title) toUpdateNode.setTitle(title);
         if (favIconUrl) toUpdateNode.icon = favIconUrl;
-        if (active) {
-            toUpdateNode.data.tabActive = active;
-            toUpdateNode.setActive(active);
-        }
-        const restValidKeys: (keyof Tab)[] = ['status', 'url', 'discarded'];
+        const restValidKeys: (keyof TabData)[] = ['status', 'url', 'discarded'];
         restValidKeys.forEach((k) => {
             if (updateProps[k]) toUpdateNode.data[k] = updateProps[k];
         });
@@ -203,7 +214,7 @@ function closeNodes(_event: JQueryEventObject, data: Fancytree.EventData) {
     const targetNode = data.node;
     const nodeType: NodeType = targetNode.data.type;
     const operatedNodes = [];
-    if (targetNode.expanded === undefined || targetNode.expanded === true) {
+    if (targetNode.expanded === undefined || targetNode.expanded) {
         // 1. node展开：只处理头节点
         if (nodeType === 'window') {
             targetNode.visit((node) => {
@@ -229,7 +240,7 @@ function closeNodes(_event: JQueryEventObject, data: Fancytree.EventData) {
                 node.data.closed = true;
                 operatedNodes.push(node);
             }
-            if (node.data.type === 'tab' && closed === false) {
+            if (node.data.type === 'tab' && !closed) {
                 toRemovedTabIds.push(node.data.id);
             }
         }, true);

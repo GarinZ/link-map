@@ -13,7 +13,6 @@ export interface TreeData {
 
 export interface TabData extends Omit<Tabs.Tab, 'active'>, TreeData {
     windowId: number;
-    tabActive: boolean;
     type: 'tab';
 }
 
@@ -21,6 +20,7 @@ export interface WindowData extends Omit<Windows.Window, ''>, TreeData {
     windowId: number;
     isBackgroundPage: boolean;
     type: 'window';
+    activeTabId: number; // active tab in curren window
 }
 
 export interface TreeNode<T extends TreeData> extends Fancytree.NodeData {

@@ -5,7 +5,7 @@ import type { TabData, TreeNode, WindowData } from './nodes';
 export const BACKGROUND_PAGE_TITLE = 'Tab Master';
 
 export const createTabNode = (tab: Tabs.Tab): TreeNode<TabData> => {
-    const { title, windowId, active, favIconUrl, id, openerTabId } = tab;
+    const { title, windowId, favIconUrl, id, openerTabId } = tab;
     if (windowId === undefined) throw new Error('windowId is required');
     if (id === undefined) throw new Error('id is required');
 
@@ -22,7 +22,6 @@ export const createTabNode = (tab: Tabs.Tab): TreeNode<TabData> => {
             windowId,
             closed: false,
             parentId: openerTabId || windowId,
-            tabActive: active,
             type: 'tab',
         },
     };
@@ -45,6 +44,7 @@ export const createWindowNode = (window: Windows.Window): TreeNode<WindowData> =
             parentId: 0,
             isBackgroundPage,
             type: 'window',
+            activeTabId: tabs?.find((tab) => tab.active)?.id || 0,
         },
     };
     // 删除data.tabs

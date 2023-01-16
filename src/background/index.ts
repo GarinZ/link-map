@@ -85,23 +85,18 @@ browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
  * 如果没有window会先触发window的创建事件
  *
  */
-browser.tabs.onAttached.addListener(async (tabId, { newPosition }) => {
+browser.tabs.onAttached.addListener(async (tabId, { newPosition, newWindowId }) => {
     console.log('attached');
-    const tab = await browser.tabs.get(tabId);
-    console.log(tab.index, newPosition);
-    await sendMessageToExt('add-tab', tab);
-    await sendMessageToExt('move-tab', {
-        windowId: tab.windowId,
-        fromIndex: newPosition,
-        toIndex: tab.index,
+    await sendMessageToExt('attach-tab', {
+        windowId: newWindowId,
         tabId,
+        newPosition,
     });
-    await sendMessageToExt('activated-tab', { windowId: tab.windowId, tabId });
 });
 
-browser.tabs.onDetached.addListener((tabId, { oldWindowId }) => {
+browser.tabs.onDetached.addListener(async (tabId) => {
     console.log('detached');
-    sendMessageToExt('remove-tab', { windowId: oldWindowId, tabId });
+    await sendMessageToExt('detach-tab', { tabId });
 });
 
 browser.tabs.onReplaced.addListener((addedTabId, removedTabId) => {
@@ -123,7 +118,9 @@ browser.windows.onRemoved.addListener((windowId) => {
     sendMessageToExt('remove-window', { windowId });
 });
 
-browser.windows.onFocusChanged.addListener(() => {});
+browser.windows.onFocusChanged.addListener(async (windowId) => {
+    await sendMessageToExt('window-focus', { windowId });
+});
 
 // Ext Page Fire的事件 ----------------------------------------------------------------
 // tree-view的node focus状态改变

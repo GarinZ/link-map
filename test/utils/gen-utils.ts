@@ -4,8 +4,8 @@
 
 import type { Tabs } from 'webextension-polyfill';
 
-import { FancyTabMasterTree } from '../../src/tree/fancy-tab-master-tree/fancy-tab-master-tree';
-import type { TreeData, TreeNode } from '../../src/tree/nodes';
+import { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
+import type { TreeData, TreeNode } from '@/tree/nodes';
 
 import 'jquery.fancytree';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.dnd5';
@@ -25,7 +25,7 @@ export function createTab(
     openerTabId?: number,
 ): Tabs.Tab {
     return {
-        active: false,
+        active: true,
         audible: false,
         autoDiscardable: true,
         discarded: false,

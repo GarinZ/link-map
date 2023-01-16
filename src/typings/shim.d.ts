@@ -1,11 +1,6 @@
 import type { ProtocolWithReturn } from '@garinz/webext-bridge';
 import { Tabs, Windows } from 'webextension-polyfill';
 
-declare type WindowTabIdPair = {
-    windowId: number;
-    tabId: number;
-};
-
 declare module '@garinz/webext-bridge' {
     export interface ProtocolMap {
         // define message protocol types
@@ -15,7 +10,10 @@ declare module '@garinz/webext-bridge' {
         // browser event
         'get-windows-and-tabs': void;
         'add-tab': Tabs.Tab;
-        'remove-tab': WindowTabIdPair;
+        'remove-tab': {
+            windowId: number;
+            tabId: number;
+        };
         'update-tab': Tabs.Tab;
         'move-tab': {
             windowId: number;
@@ -23,11 +21,20 @@ declare module '@garinz/webext-bridge' {
             toIndex: number;
             tabId: number;
         };
-        'activated-tab': WindowTabIdPair;
+        'activated-tab': {
+            windowId: number;
+            tabId: number;
+        };
+        'attach-tab': { windowId: number; tabId: number; fromIndex: number };
+        'detach-tab': { tabId: number };
         'add-window': Windows.Window;
         'remove-window': { windowId: number };
+        'window-focus': { windowId: number };
         // tree event
         'focus-node': number;
-        'remove-node': WindowTabIdPair;
+        'remove-node': {
+            windowId: number;
+            tabId: number;
+        };
     }
 }

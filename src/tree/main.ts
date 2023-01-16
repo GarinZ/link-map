@@ -1,6 +1,6 @@
 import { onMessage } from '@garinz/webext-bridge';
 
-import { FancyTabMasterTree } from './fancy-tab-master-tree/fancy-tab-master-tree';
+import { FancyTabMasterTree } from './fancy-tab-master-tree';
 
 const tree = new FancyTabMasterTree('#tree');
 tree.initTree();
@@ -24,7 +24,20 @@ onMessage('update-tab', (msg) => {
     tree.updateTab(msg.data);
 });
 onMessage('activated-tab', (msg) => {
-    tree.activeTab(msg.data.tabId);
+    const { windowId, tabId } = msg.data;
+    tree.activeTab(windowId, tabId);
+});
+onMessage('attach-tab', (msg) => {
+    const { tabId, windowId, fromIndex } = msg.data;
+    tree.attachTab(windowId, tabId, fromIndex);
+});
+onMessage('detach-tab', (msg) => {
+    const { tabId } = msg.data;
+    tree.detachTab(tabId);
+});
+onMessage('window-focus', (msg) => {
+    const { windowId } = msg.data;
+    tree.windowFocus(windowId);
 });
 onMessage('add-window', (msg) => {
     tree.createWindow(msg.data);

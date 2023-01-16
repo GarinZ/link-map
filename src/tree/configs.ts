@@ -1,6 +1,6 @@
 import { tabs } from 'webextension-polyfill';
 
-import { BrowserExtensionUtils, FancyTreeUtils, logLazy } from '../utils';
+import { BrowserExtensionUtils, FancyTreeUtils, logLazy } from './utils';
 
 interface DND5Data {
     dataTransfer: {
