@@ -3,6 +3,7 @@
  * @jest-environment jsdom
  */
 
+import browser from 'sinon-chrome';
 import type { Tabs } from 'webextension-polyfill';
 
 import type { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
@@ -275,5 +276,30 @@ describe('move tab', () => {
         expect(children[0].data.index).toEqual(0);
         expect(children[1].data.id).toEqual(FIRST_TID);
         expect(children[1].data.index).toEqual(1);
+    });
+});
+
+describe('attach tab', () => {
+    let tree: FancyTabMasterTree;
+    beforeEach(() => {
+        tree = initFancytree(SINGLE_TAB_WINDOW);
+        browser.flush();
+    });
+
+    it('attach to first', async () => {
+        browser.tabs.get.resolves(createTab(FIRST_TID + 1, WID, 0));
+        await tree.attachTab(WID, FIRST_TID + 1, FIRST_INDEX + 1);
+        const windowNode = tree.toJsonObj()[0] as TreeNode<WindowData>;
+        const children = windowNode.children! as TreeNode<TabData>[];
+        expect(children.length).toEqual(2);
+        expect(windowNode.data.activeTabId).toEqual(FIRST_TID + 1);
+        expect(children[0].data.id).toEqual(FIRST_TID + 1);
+        expect(children[0].data.index).toEqual(0);
+        expect(children[1].data.id).toEqual(FIRST_TID);
+        expect(children[1].data.index).toEqual(1);
+    });
+
+    afterEach(() => {
+        browser.flush();
     });
 });

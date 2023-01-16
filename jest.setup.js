@@ -6,7 +6,10 @@ import $ from 'jquery';
 import chrome from 'sinon-chrome';
 
 chrome.runtime.id = 'test-id';
-Object.assign(global, { chrome });
+Object.assign(global, {
+    chrome,
+    browser: chrome,
+});
 Object.assign(global, {
     $,
     jQuery: $,

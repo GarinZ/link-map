@@ -174,7 +174,7 @@ FancyTabMasterTree.onDbClick = (_event: JQueryEventObject, _data: Fancytree.Even
  */
 FancyTabMasterTree.closeNodes = (_event: JQueryEventObject, data: Fancytree.EventData) => {
     const targetNode = data.node;
-    const nodeType: NodeType = targetnode.data.nodeType;
+    const nodeType: NodeType = targetNode.data.nodeType;
     if (targetNode.expanded === undefined || targetNode.expanded) {
         // 1. node展开：只处理头节点
         if (nodeType === 'window') {
