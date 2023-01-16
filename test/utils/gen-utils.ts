@@ -5,7 +5,7 @@
 import type { Tabs } from 'webextension-polyfill';
 
 import { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
-import type { TreeData, TreeNode } from '@/tree/nodes';
+import type { TreeData, TreeNode } from '@/tree/nodes/nodes';
 
 import 'jquery.fancytree';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.dnd5';

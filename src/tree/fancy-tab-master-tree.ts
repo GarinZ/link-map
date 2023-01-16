@@ -2,9 +2,9 @@ import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
 import { DND5_CONFIG } from './configs';
-import * as TabNodes from './node-builders';
-import { createWindowNode } from './node-builders';
-import type { NodeType, TabData, TreeData, TreeNode } from './nodes';
+import type { NodeType, TreeData, TreeNode } from './nodes/nodes';
+import { TabNodeOperations } from './nodes/tab-node-operations';
+import { WindowNodeOperations } from './nodes/window-node-operations';
 import { ViewTabIndexUtils } from './tab-index-utils';
 import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
 import { NodeUtils } from './utils';
@@ -20,6 +20,9 @@ type FancytreeNode = Fancytree.FancytreeNode;
  */
 export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
+    static closeNodes: (_event: JQueryEventObject, data: Fancytree.EventData) => void;
+    static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
+    static onDbClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
 
     constructor(selector: JQuery.Selector = '#tree') {
         $(selector).fancytree({
@@ -36,7 +39,8 @@ export class FancyTabMasterTree {
                 data.node.renderTitle();
             },
             renderTitle,
-            click: onClick,
+            click: FancyTabMasterTree.onClick,
+            dblclick: FancyTabMasterTree.onDbClick,
             defaultKey: (node) => `${node.data.id}`,
             dnd5: DND5_CONFIG,
         });
@@ -51,48 +55,24 @@ export class FancyTabMasterTree {
         const browserWindowPromise = await browser.windows.getAll({ populate: true });
         const unknown = browserWindowPromise as unknown;
         const windows = unknown as Windows.Window[];
-        const nodes = windows.map((w) => createWindowNode(w));
+        const nodes = windows.map((w) => WindowNodeOperations.createData(w));
         this.tree.reload(nodes);
     }
 
     public createTab(tab: Tabs.Tab): FancytreeNode {
-        const newNode = TabNodes.createTabNode(tab);
-        if (tab.windowId === undefined) throw new Error('Tab must have an id');
-        const windowNode = this.tree.getNodeByKey(`${tab.windowId}`);
-        if (tab.active) windowNode.data.activeTabId = tab.id;
-        // 1. 先根据index - 1找到前一个节点
-        const prevNode = windowNode.findFirst((node) => node.data.index === tab.index - 1);
-        ViewTabIndexUtils.increaseIndex(this.tree, windowNode.data.id, tab.index);
-        // 2. 如果index - 1不存在，说明是第一个节点，直接添加为windowNode的子节点
-        if (prevNode === null) {
-            return windowNode.addNode(newNode, 'firstChild');
-        }
-        // 3. 判断该节点的id和openerTabId是否相等
-        if (prevNode.data.id === tab.openerTabId) {
-            // 3.1 如果相等，说明是openerTab的子节点，直接添加为openerTab的子节点
-            return prevNode.addNode(newNode, 'child');
-        } else if (!prevNode.data.openerTabId || prevNode.data.openerTabId === tab.openerTabId) {
-            // 3.2 prevNode有openerTabId，但是不等于newTab的openerTabId，说明newTab是prevNode的兄弟节点
-            return prevNode.addNode(newNode, 'after');
-        } else {
-            // 3.3 都不是则为新建
-            return windowNode.addChildren(newNode);
-        }
+        const newNode = TabNodeOperations.createData(tab);
+        return TabNodeOperations.add(this.tree, newNode, tab.active);
     }
 
     public createWindow(window: Windows.Window): FancytreeNode {
-        const rootNode = this.tree.getRootNode();
-        return rootNode.addNode(createWindowNode(window));
+        return this.tree.getRootNode().addNode(WindowNodeOperations.createData(window));
     }
 
     public activeTab(windowId: number, tabId: number): void {
         // devtools的windowId为-1，不做处理
         if (windowId < 0) return;
-        const windowNode = this.tree.getNodeByKey(`${windowId}`);
-        const targetNode = this.tree.getNodeByKey(`${tabId}`, windowNode);
-        if (!targetNode) return;
-        windowNode.data.activeTabId = tabId;
-        targetNode.setActive();
+        TabNodeOperations.active(this.tree, tabId);
+        WindowNodeOperations.updatePartial(this.tree, windowId, { activeTabId: tabId });
     }
 
     public moveTab(windowId: number, tabId: number, fromIndex: number, toIndex: number): void {
@@ -112,7 +92,7 @@ export class FancyTabMasterTree {
             return;
         }
         const prevNode = windowNode.findFirst((node) => node.data.index === toIndex - 1);
-        const nextNode = prevNode.findFirst((node) => node.data.type === 'tab');
+        const nextNode = prevNode.findFirst((node) => node.data.nodeType === 'tab');
         nextNode ? toMoveNode.moveTo(nextNode, 'before') : toMoveNode.moveTo(prevNode, 'after');
     }
 
@@ -120,23 +100,13 @@ export class FancyTabMasterTree {
         const toRemoveNode = this.tree.getNodeByKey(`${tabId}`);
         // 1. 状态为closed的节点不做删除
         if (toRemoveNode.data.closed === true) return;
-        // 2. 保留子元素：提升children作为siblings
-        NodeUtils.moveChildrenAsNextSiblings(toRemoveNode);
-        // 3. 删除节点
-        const windowNode = this.tree.getNodeByKey(`${toRemoveNode.data.windowId}`);
-        const changedTabNodes = ViewTabIndexUtils.decreaseIndex(
-            this.tree,
-            windowNode.data.id,
-            toRemoveNode.data.index,
-        );
-        if (toRemoveNode) toRemoveNode.remove();
-        windowNode.data.activeTabId = changedTabNodes[0]?.data.id;
+        TabNodeOperations.remove(this.tree, toRemoveNode);
     }
 
     public updateTab(tab: Tabs.Tab): void {
         const toUpdateNode = this.tree.getNodeByKey(`${tab.id!}`);
         if (!toUpdateNode) return;
-        this.updateTabNodePartial(toUpdateNode, tab);
+        TabNodeOperations.updatePartial(toUpdateNode, tab);
     }
 
     public async attachTab(windowId: number, tabId: number, fromIndex: number): Promise<void> {
@@ -163,26 +133,11 @@ export class FancyTabMasterTree {
         // devtools的windowId为-1，不做处理
         if (windowId < 0) return;
         const focusWindow = this.tree.getNodeByKey(`${windowId}`);
-        const toActiveTabNode = this.tree.getNodeByKey(
-            `${focusWindow.data.activeTabId}`,
-            focusWindow,
-        );
-        toActiveTabNode?.setActive(true);
-        // focusWindow?.findFirst((node) => node.data.tabActive)?.setActive();
+        TabNodeOperations.active(this.tree, focusWindow.data.activeTabId, focusWindow);
     }
 
     public toJsonObj(includeRoot = false): TreeNode<TreeData>[] {
         return this.tree.toDict(includeRoot);
-    }
-
-    private updateTabNodePartial(toUpdateNode: FancytreeNode, updateProps: Partial<TabData>) {
-        const { title, favIconUrl } = updateProps;
-        if (title) toUpdateNode.setTitle(title);
-        if (favIconUrl) toUpdateNode.icon = favIconUrl;
-        const restValidKeys: (keyof TabData)[] = ['status', 'url', 'discarded'];
-        restValidKeys.forEach((k) => {
-            if (updateProps[k]) toUpdateNode.data[k] = updateProps[k];
-        });
     }
 }
 
@@ -191,61 +146,66 @@ function renderTitle(_eventData: JQueryEventObject, data: Fancytree.EventData): 
     return treeNode.html;
 }
 
-function onClick(event: JQueryEventObject, data: Fancytree.EventData): boolean {
+FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventData): boolean => {
     const target = $(event.originalEvent.target as Element);
     if (!target.attr(TYPE_ATTR)) return true;
 
     switch (target.attr(TYPE_ATTR)) {
         case NODE_CLOSE:
-            closeNodes(event, data);
+            FancyTabMasterTree.closeNodes(event, data);
             break;
     }
     return true;
-}
+};
+
+FancyTabMasterTree.onDbClick = (_event: JQueryEventObject, _data: Fancytree.EventData): boolean => {
+    // const targetNode = data.node;
+    // 1. windowNode
+
+    // 2. tabNode
+    return true;
+};
 
 /**
  * 关闭节点
- * TODO 现在的处理方式是，如果是window节点，那么就关闭其下面的所有的tab
  * 更好的方式是，如果是window节点，直接关闭window，不管其下面的tab
  * @param _event
  * @param data
  */
-function closeNodes(_event: JQueryEventObject, data: Fancytree.EventData) {
+FancyTabMasterTree.closeNodes = (_event: JQueryEventObject, data: Fancytree.EventData) => {
     const targetNode = data.node;
-    const nodeType: NodeType = targetNode.data.type;
-    const operatedNodes = [];
+    const nodeType: NodeType = targetnode.data.nodeType;
     if (targetNode.expanded === undefined || targetNode.expanded) {
         // 1. node展开：只处理头节点
         if (nodeType === 'window') {
-            targetNode.visit((node) => {
-                if (node.data.windowId === targetNode.data.id) {
-                    node.data.closed = true;
-                    operatedNodes.push(node);
-                }
-            }, true);
+            WindowNodeOperations.closeItem(targetNode);
             browser.windows.remove(targetNode.data.id);
         } else if (nodeType === 'tab') {
-            targetNode.data.closed = true;
+            TabNodeOperations.closeItem(targetNode);
             browser.tabs.remove(targetNode.data.id);
-            operatedNodes.push(targetNode);
         } else {
             throw new Error('invalid node type');
         }
     } else {
-        // 2. node合起：处理尾节点
+        // 2. node合起：处理子节点
         const toRemovedTabIds: number[] = [];
+        const toRemoveWindowIds: number[] = [];
+
         targetNode.visit((node) => {
-            // 2.2 对每个node.data.close === true
-            if ('closed' in node.data) {
-                node.data.closed = true;
-                operatedNodes.push(node);
+            const { nodeType, id, windowId } = node.data;
+            // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
+            if (nodeType === 'tab') {
+                TabNodeOperations.closeItem(node);
+                if (windowId === targetNode.data.windowId) {
+                    toRemovedTabIds.push(id);
+                }
+            } else if (nodeType === 'window') {
+                WindowNodeOperations.closeItem(node) && toRemoveWindowIds.push(id);
             }
-            if (node.data.type === 'tab' && !closed) {
-                toRemovedTabIds.push(node.data.id);
-            }
+            return true;
         }, true);
-        // 2.3 调用tabs.remove方法(批量)
+        // 3. 调用window/tabs.remove方法(批量)
         browser.tabs.remove(toRemovedTabIds);
+        toRemoveWindowIds.forEach((windowId) => browser.windows.remove(windowId));
     }
-    operatedNodes.forEach((node) => node.renderTitle());
-}
+};

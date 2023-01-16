@@ -1,5 +1,3 @@
-import { Tabs, Windows } from 'webextension-polyfill';
-
 type NodeType = 'tab' | 'window';
 
 export interface TreeData {
@@ -7,20 +5,7 @@ export interface TreeData {
     closed: boolean;
     alias?: string;
     parentId: number;
-    type: NodeType;
-    index?: number;
-}
-
-export interface TabData extends Omit<Tabs.Tab, 'active'>, TreeData {
-    windowId: number;
-    type: 'tab';
-}
-
-export interface WindowData extends Omit<Windows.Window, ''>, TreeData {
-    windowId: number;
-    isBackgroundPage: boolean;
-    type: 'window';
-    activeTabId: number; // active tab in curren window
+    nodeType: NodeType;
 }
 
 export interface TreeNode<T extends TreeData> extends Fancytree.NodeData {
@@ -59,4 +44,7 @@ export interface TreeNode<T extends TreeData> extends Fancytree.NodeData {
     tr?: HTMLTableRowElement;
 }
 
-export type TreeNodeMap = { [key: string]: TreeNode<TreeData> };
+// export interface TreeNodeOperations<T extends TreeData> {
+//     create(data: any): TreeNode<T>;
+//
+// }

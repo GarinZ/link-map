@@ -62,7 +62,7 @@ export const FancyTreeUtils = {
         const parentNode = tree.getNodeByKey(`${windowId}`);
         parentNode.visit((node) => {
             // 1. 非tab节点，则略过
-            if (node.data.type !== 'tab') {
+            if (node.data.nodeType !== 'tab') {
                 return true;
             }
             if (!(node.data.id in browserTabIndexMap)) {
@@ -76,7 +76,7 @@ export const FancyTreeUtils = {
     /** 查找当前元素的windowNode */
     findWindowNode(node: Fancytree.FancytreeNode) {
         let windowNode = node;
-        while (windowNode.data.type !== 'window') {
+        while (windownode.data.nodeType !== 'window') {
             windowNode = windowNode.parent;
         }
         return windowNode;

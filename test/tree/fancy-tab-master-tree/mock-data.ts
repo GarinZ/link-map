@@ -1,4 +1,6 @@
-import type { TabData, TreeData, TreeNode, WindowData } from '../../../src/tree/nodes';
+import type { TreeData, TreeNode } from '@/tree/nodes/nodes';
+import type { TabData } from '@/tree/nodes/tab-node-operations';
+import type { WindowData } from '@/tree/nodes/window-node-operations';
 
 export const SINGLE_TAB_WINDOW = [
     {
@@ -17,7 +19,7 @@ export const SINGLE_TAB_WINDOW = [
             left: 0,
             state: 'maximized',
             top: 25,
-            type: 'window',
+            nodeType: 'window',
             width: 1792,
             windowId: 1,
             closed: false,
@@ -58,7 +60,7 @@ export const SINGLE_TAB_WINDOW = [
                     tabId: 10,
                     closed: false,
                     parentId: 1,
-                    type: 'tab',
+                    nodeType: 'tab',
                 } as TabData,
             },
         ],

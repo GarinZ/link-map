@@ -3,9 +3,9 @@ export const ViewTabIndexUtils = {
         const parentNode = tree.getNodeByKey(`${windowId}`);
         parentNode.visit((node) => {
             if (
-                node.data.type !== 'tab' ||
+                node.data.nodeType !== 'tab' ||
                 node.data.windowId !== windowId ||
-                node.data.close === true
+                node.data.closed === true
             ) {
                 return true;
             }
@@ -24,11 +24,7 @@ export const ViewTabIndexUtils = {
     ) => {
         const parentNode = tree.getNodeByKey(`${windowId}`);
         parentNode.visit((node) => {
-            if (
-                node.data.type !== 'tab' ||
-                node.data.windowId !== windowId ||
-                node.data.close === true
-            ) {
+            if (node.data.nodeType !== 'tab' || node.data.close === true) {
                 return true;
             }
             if (node.data.index === oldIndex) {
@@ -51,7 +47,7 @@ export const ViewTabIndexUtils = {
         const parentNode = tree.getNodeByKey(`${windowId}`);
         parentNode.visit((node) => {
             if (
-                node.data.type !== 'tab' ||
+                node.data.nodeType !== 'tab' ||
                 node.data.windowId !== windowId ||
                 node.data.close === true
             ) {
