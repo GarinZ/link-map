@@ -20,7 +20,7 @@ type FancytreeNode = Fancytree.FancytreeNode;
  */
 export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
-    static closeNodes: (_event: JQueryEventObject, data: Fancytree.EventData) => void;
+    static closeNodes: (targetNode: FancytreeNode) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
 
@@ -152,7 +152,7 @@ FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventDat
 
     switch (target.attr(TYPE_ATTR)) {
         case NODE_CLOSE:
-            FancyTabMasterTree.closeNodes(event, data);
+            FancyTabMasterTree.closeNodes(data.node);
             break;
     }
     return true;
@@ -169,11 +169,8 @@ FancyTabMasterTree.onDbClick = (_event: JQueryEventObject, _data: Fancytree.Even
 /**
  * 关闭节点
  * 更好的方式是，如果是window节点，直接关闭window，不管其下面的tab
- * @param _event
- * @param data
  */
-FancyTabMasterTree.closeNodes = (_event: JQueryEventObject, data: Fancytree.EventData) => {
-    const targetNode = data.node;
+FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
     const nodeType: NodeType = targetNode.data.nodeType;
     if (targetNode.expanded === undefined || targetNode.expanded) {
         // 1. node展开：只处理头节点

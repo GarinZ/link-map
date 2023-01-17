@@ -1,6 +1,6 @@
 import { flatten } from 'lodash';
 
-import type { TreeData, TreeNode } from '@/tree/nodes/nodes';
+import type { NodeData, TreeData, TreeNode } from '@/tree/nodes/nodes';
 
 function prefixChild(strArr: string[], last: boolean): string[] {
     return strArr.map((s, i) => {
@@ -37,7 +37,7 @@ function stringifyTree<T>(
     return nodeToStrings(tn, nameFn, childrenFn).join('\n');
 }
 
-const genText = (node: TreeNode<TreeData>) => {
+const genText = (node: TreeNode<NodeData>) => {
     const { title, data } = node;
     if (data === undefined) {
         return title;
@@ -47,7 +47,8 @@ const genText = (node: TreeNode<TreeData>) => {
             : `${data.index}-${data.id}`;
     }
 };
-export function toAsciiTree(tree: TreeNode<TreeData>[]) {
+
+export function toAsciiTree(tree: TreeNode<NodeData>[]) {
     const rootNode = {
         title: '.',
         children: tree,

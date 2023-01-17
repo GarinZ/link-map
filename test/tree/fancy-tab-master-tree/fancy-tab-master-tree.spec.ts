@@ -11,7 +11,7 @@ import type { TreeNode } from '@/tree/nodes/nodes';
 import type { TabData } from '@/tree/nodes/tab-node-operations';
 import type { WindowData } from '@/tree/nodes/window-node-operations';
 
-import { createTab, initFancytree } from '../../utils/gen-utils';
+import { createTab, initTabMasterTree } from '../../utils/gen-utils';
 import { toAsciiTree } from '../../utils/print-utils';
 import { SINGLE_TAB_WINDOW } from './mock-data';
 
@@ -23,7 +23,7 @@ const FIRST_INDEX = FIRST_TAB_DATA.index;
 describe('add tab', () => {
     let tree: FancyTabMasterTree;
     beforeEach(() => {
-        tree = initFancytree(SINGLE_TAB_WINDOW);
+        tree = initTabMasterTree(SINGLE_TAB_WINDOW);
     });
 
     it('add as sibling', async () => {
@@ -136,7 +136,7 @@ describe('add tab', () => {
 describe('remove tab', () => {
     let tree: FancyTabMasterTree;
     beforeEach(() => {
-        tree = initFancytree(SINGLE_TAB_WINDOW);
+        tree = initTabMasterTree(SINGLE_TAB_WINDOW);
     });
 
     it('remove first node', async () => {
@@ -181,7 +181,7 @@ describe('remove tab', () => {
 describe('move tab', () => {
     let tree: FancyTabMasterTree;
     beforeEach(() => {
-        tree = initFancytree(SINGLE_TAB_WINDOW);
+        tree = initTabMasterTree(SINGLE_TAB_WINDOW);
     });
 
     it('middle move to first', async () => {
@@ -282,7 +282,7 @@ describe('move tab', () => {
 describe('attach tab', () => {
     let tree: FancyTabMasterTree;
     beforeEach(() => {
-        tree = initFancytree(SINGLE_TAB_WINDOW);
+        tree = initTabMasterTree(SINGLE_TAB_WINDOW);
         browser.flush();
     });
 

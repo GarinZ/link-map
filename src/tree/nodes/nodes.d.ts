@@ -8,6 +8,8 @@ export interface TreeData {
     nodeType: NodeType;
 }
 
+export type NodeData = TabData | WindowData;
+
 export interface TreeNode<T extends TreeData> extends Fancytree.NodeData {
     /** Node id (must be unique inside the tree) */
     key: string;
