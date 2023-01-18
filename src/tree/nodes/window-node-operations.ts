@@ -11,7 +11,7 @@ export interface WindowData extends Omit<Windows.Window, ''>, TreeData {
     windowId: number;
     isBackgroundPage: boolean;
     nodeType: 'window';
-    activeTabId: number; // active tab in curren window
+    // activeTabId: number; // active tab in curren window
 }
 
 export const WindowNodeOperations = {
@@ -34,7 +34,7 @@ export const WindowNodeOperations = {
                 parentId: 0,
                 isBackgroundPage,
                 nodeType: 'window',
-                activeTabId: tabs?.find((tab) => tab.active)?.id || 0,
+                // activeTabId: tabs?.find((tab) => tab.active)?.id || 0,
             },
         };
         // 删除data.tabs

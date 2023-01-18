@@ -44,12 +44,12 @@ const genText = (
 ) => {
     const { title, data } = node;
     let joinedNodeProps = '';
-    if (node) {
+    if (node && nodeProps.length > 0) {
         joinedNodeProps = nodeProps.map((p) => `[${String(p)}: ${node[p]}]`).join(' ');
         joinedNodeProps = `-${joinedNodeProps}`;
     }
     let joinedDataProps = '';
-    if (data) {
+    if (data && dataProps.length > 0) {
         joinedDataProps = dataProps.map((p) => `[${String(p)}: ${data[p]}]`).join(' ');
     }
     if (data === undefined) {

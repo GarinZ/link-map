@@ -29,12 +29,10 @@ describe('add tab', () => {
     it('add as sibling', async () => {
         const tab: Tabs.Tab = createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1);
         tree.createTab(tab);
-        const windowNode = tree.toJsonObj()[0] as TreeNode<WindowData>;
         const children = tree.toJsonObj()[0].children! as TreeNode<TabData>[];
         expect(children.length).toEqual(2);
         expect(children[0].data.id).toEqual(FIRST_TID);
         expect(children[1].data.id).toEqual(FIRST_TID + 1);
-        expect(windowNode.data.activeTabId).toEqual(tab.id);
     });
 
     /**
@@ -142,7 +140,10 @@ describe('remove tab', () => {
     it('remove first node', async () => {
         tree.createTab(createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1));
         tree.createTab(createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2));
-        tree.removeTab(FIRST_TID);
+        browser.tabs.query.returns(
+            Promise.resolve([createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1)]),
+        );
+        await tree.removeTab(FIRST_TID);
         const children = tree.toJsonObj()[0].children! as TreeNode<TabData>[];
         expect(children.length).toEqual(2);
         expect(children[0].data.id).toEqual(FIRST_TID + 1);
@@ -155,7 +156,7 @@ describe('remove tab', () => {
         tree.createTab(createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1, FIRST_TID));
         tree.createTab(createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2, FIRST_TID));
         console.log(toAsciiTree(tree.toJsonObj()));
-        tree.removeTab(FIRST_TID);
+        await tree.removeTab(FIRST_TID);
         const windowNode = tree.toJsonObj()[0] as TreeNode<WindowData>;
         const children = windowNode.children! as TreeNode<TabData>[];
         expect(children.length).toEqual(2);
@@ -163,14 +164,13 @@ describe('remove tab', () => {
         expect(children[0].data.index).toEqual(FIRST_INDEX);
         expect(children[1].data.id).toEqual(FIRST_TID + 2);
         expect(children[1].data.index).toEqual(FIRST_INDEX + 1);
-        expect(windowNode.data.activeTabId).toEqual(FIRST_TID + 1);
         console.log(toAsciiTree(tree.toJsonObj()));
     });
 
     it('remove closed tab', async () => {
         const newNode = tree.createTab(createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1));
         newNode.data.closed = true;
-        tree.removeTab(FIRST_TID + 1);
+        await tree.removeTab(FIRST_TID + 1);
         const children = tree.toJsonObj()[0].children! as TreeNode<TabData>[];
         expect(children.length).toEqual(2);
         expect(children[1].data.id).toEqual(FIRST_TID + 1);
@@ -287,12 +287,13 @@ describe('attach tab', () => {
     });
 
     it('attach to first', async () => {
-        browser.tabs.get.resolves(createTab(FIRST_TID + 1, WID, 0));
+        const attachedTab = createTab(FIRST_TID + 1, WID, 0);
+        browser.tabs.get.resolves(attachedTab);
+        browser.tabs.query.resolves([attachedTab]);
         await tree.attachTab(WID, FIRST_TID + 1, FIRST_INDEX + 1);
         const windowNode = tree.toJsonObj()[0] as TreeNode<WindowData>;
         const children = windowNode.children! as TreeNode<TabData>[];
         expect(children.length).toEqual(2);
-        expect(windowNode.data.activeTabId).toEqual(FIRST_TID + 1);
         expect(children[0].data.id).toEqual(FIRST_TID + 1);
         expect(children[0].data.index).toEqual(0);
         expect(children[1].data.id).toEqual(FIRST_TID);

@@ -3,7 +3,6 @@ import type { Tabs } from 'webextension-polyfill';
 import { ViewTabIndexUtils } from '../tab-index-utils';
 import { NodeUtils } from '../utils';
 import type { TreeData, TreeNode } from './nodes';
-import { WindowNodeOperations } from './window-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
 
@@ -38,7 +37,7 @@ export const TabNodeOperations = {
         };
     },
     add(tree: Fancytree.Fancytree, newNode: TreeNode<TabData>, active: boolean): FancytreeNode {
-        const { windowId, index, openerTabId, id } = newNode.data;
+        const { windowId, index, openerTabId } = newNode.data;
         const windowNode = tree.getNodeByKey(`${windowId}`);
         // 1. 先根据index - 1找到前一个节点
         const prevNode = windowNode.findFirst((node) => node.data.index === index - 1);
@@ -58,30 +57,30 @@ export const TabNodeOperations = {
             createdNode = windowNode.addChildren(newNode);
         }
         if (active) {
-            WindowNodeOperations.updatePartial(tree, windowId, { activeTabId: id });
+            // WindowNodeOperations.updatePartial(tree, windowId, { activeTabId: id });
             createdNode.setActive(true);
         }
         return createdNode;
     },
     active(tree: Fancytree.Fancytree, id: number, windowNode?: FancytreeNode): void {
-        const toActiveNode = tree.getNodeByKey(`${id}`, windowNode);
-        toActiveNode.setActive();
-        WindowNodeOperations.updatePartial(tree, toActiveNode.data.windowId, {
-            activeTabId: id,
-        });
+        try {
+            const toActiveNode = tree.getNodeByKey(`${id}`, windowNode);
+            if (!toActiveNode) return;
+            toActiveNode.setActive();
+        } catch (error) {
+            console.log(error);
+        }
+        // WindowNodeOperations.updatePartial(tree, toActiveNode.data.windowId, {
+        //     activeTabId: id,
+        // });
     },
     remove(tree: Fancytree.Fancytree, toRemoveNode: FancytreeNode): void {
         // 1. 保留子元素：提升children作为siblings
         NodeUtils.moveChildrenAsNextSiblings(toRemoveNode);
         // 2. 删除节点
         const windowNode = tree.getNodeByKey(`${toRemoveNode.data.windowId}`);
-        const changedTabNodes = ViewTabIndexUtils.decreaseIndex(
-            tree,
-            windowNode.data.id,
-            toRemoveNode.data.index,
-        );
+        ViewTabIndexUtils.decreaseIndex(tree, windowNode.data.id, toRemoveNode.data.index);
         if (toRemoveNode) toRemoveNode.remove();
-        this.active(tree, changedTabNodes[0].data.id, windowNode);
     },
     updatePartial(toUpdateNode: FancytreeNode, updateProps: Partial<TabData>) {
         const { title, favIconUrl } = updateProps;

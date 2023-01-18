@@ -79,6 +79,7 @@ browser.tabs.onMoved.addListener((tabId, { windowId, fromIndex, toIndex }) => {
 });
 
 browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
+    console.log('[bg]: tab activated!');
     sendMessageToExt('activated-tab', { windowId, tabId });
 });
 /**

@@ -72,7 +72,7 @@ export class FancyTabMasterTree {
         // devtools的windowId为-1，不做处理
         if (windowId < 0) return;
         TabNodeOperations.active(this.tree, tabId);
-        WindowNodeOperations.updatePartial(this.tree, windowId, { activeTabId: tabId });
+        // WindowNodeOperations.updatePartial(this.tree, windowId, { activeTabId: tabId });
     }
 
     public moveTab(windowId: number, tabId: number, fromIndex: number, toIndex: number): void {
@@ -96,11 +96,13 @@ export class FancyTabMasterTree {
         nextNode ? toMoveNode.moveTo(nextNode, 'before') : toMoveNode.moveTo(prevNode, 'after');
     }
 
-    public removeTab(tabId: number): void {
+    public async removeTab(tabId: number): Promise<void> {
         const toRemoveNode = this.tree.getNodeByKey(`${tabId}`);
         // 1. 状态为closed的节点不做删除
         if (toRemoveNode.data.closed === true) return;
+        const windowId = toRemoveNode.data.windowId;
         TabNodeOperations.remove(this.tree, toRemoveNode);
+        await this.syncActiveTab(windowId);
     }
 
     public updateTab(tab: Tabs.Tab): void {
@@ -113,7 +115,7 @@ export class FancyTabMasterTree {
         const tab = await browser.tabs.get(tabId);
         this.createTab(tab);
         this.moveTab(windowId, tabId, fromIndex, tab.index);
-        this.activeTab(windowId, tabId);
+        // await this.syncActiveTab(windowId);
     }
 
     public detachTab(tabId: number): void {
@@ -129,15 +131,21 @@ export class FancyTabMasterTree {
         if (toRemoveNode) toRemoveNode.remove();
     }
 
-    public windowFocus(windowId: number): void {
+    public async windowFocus(windowId: number): Promise<void> {
         // devtools的windowId为-1，不做处理
         if (windowId < 0) return;
-        const focusWindow = this.tree.getNodeByKey(`${windowId}`);
-        TabNodeOperations.active(this.tree, focusWindow.data.activeTabId, focusWindow);
+        await this.syncActiveTab(windowId);
     }
 
     public toJsonObj(includeRoot = false): TreeNode<TreeData>[] {
         return this.tree.toDict(includeRoot);
+    }
+
+    private async syncActiveTab(windowId: number): Promise<void> {
+        const tabs = await browser.tabs.query({ windowId, active: true });
+        if (tabs.length === 0) return;
+        const activeTab = tabs[0];
+        this.activeTab(windowId, activeTab.id!);
     }
 }
 
