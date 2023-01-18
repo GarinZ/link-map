@@ -74,6 +74,26 @@ describe('close node', () => {
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
     });
 
+    it('close un-expanded opened window node, with window node as children', () => {
+        const treeData = new MockTreeBuilder()
+            .addNestedTabChildren(4)
+            .addWindowNode(true)
+            .addTabChildren(2, 2)
+            .build();
+        const tree = initTabMasterTree(treeData).tree;
+        const targetNode = tree.getNodeByKey(`${1}`);
+        targetNode.setExpanded(false);
+        FancyTabMasterTree.closeNodes(targetNode);
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        expect(browser.tabs.remove.callCount).toBe(0);
+        expect(browser.windows.remove.callCount).toBe(2);
+        expect(browser.windows.remove.getCall(0).args[0]).toBe(1);
+        expect(browser.windows.remove.getCall(1).args[0]).toBe(2);
+        targetNode.visit((node) => {
+            expect(node.data.closed).toBe(true);
+        });
+    });
+
     afterEach(() => {
         browser.flush();
     });

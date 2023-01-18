@@ -171,17 +171,17 @@ FancyTabMasterTree.onDbClick = (_event: JQueryEventObject, _data: Fancytree.Even
  * 更好的方式是，如果是window节点，直接关闭window，不管其下面的tab
  */
 FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
-    const nodeType: NodeType = targetNode.data.nodeType;
+    const targetNodeType: NodeType = targetNode.data.nodeType;
     if (targetNode.expanded === undefined || targetNode.expanded) {
         // 1. node展开：只处理头节点
-        if (nodeType === 'window') {
+        if (targetNodeType === 'window') {
             WindowNodeOperations.closeItem(targetNode);
             targetNode.visit((node) => {
                 if (node.data.nodeType === 'tab' && node.data.windowId === targetNode.data.windowId)
                     TabNodeOperations.closeItem(node);
             });
             browser.windows.remove(targetNode.data.id);
-        } else if (nodeType === 'tab') {
+        } else if (targetNodeType === 'tab') {
             TabNodeOperations.closeItem(targetNode);
             browser.tabs.remove(targetNode.data.id);
         } else {
@@ -197,7 +197,7 @@ FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
             // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
             if (nodeType === 'tab') {
                 const result = TabNodeOperations.closeItem(node);
-                if (result && windowId === targetNode.data.windowId) {
+                if (result && windowId === targetNode.data.windowId && targetNodeType === 'tab') {
                     toRemovedTabIds.push(id);
                 }
             } else if (nodeType === 'window') {
@@ -206,7 +206,7 @@ FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
             return true;
         }, true);
         // 3. 调用window/tabs.remove方法(批量)
-        browser.tabs.remove(toRemovedTabIds);
+        toRemovedTabIds.length > 0 && browser.tabs.remove(toRemovedTabIds);
         toRemoveWindowIds.forEach((windowId) => browser.windows.remove(windowId));
     }
 };
