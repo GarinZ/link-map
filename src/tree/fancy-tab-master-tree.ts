@@ -176,6 +176,10 @@ FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
         // 1. node展开：只处理头节点
         if (nodeType === 'window') {
             WindowNodeOperations.closeItem(targetNode);
+            targetNode.visit((node) => {
+                if (node.data.nodeType === 'tab' && node.data.windowId === targetNode.data.windowId)
+                    TabNodeOperations.closeItem(node);
+            });
             browser.windows.remove(targetNode.data.id);
         } else if (nodeType === 'tab') {
             TabNodeOperations.closeItem(targetNode);
@@ -192,8 +196,8 @@ FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
             const { nodeType, id, windowId } = node.data;
             // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
             if (nodeType === 'tab') {
-                TabNodeOperations.closeItem(node);
-                if (windowId === targetNode.data.windowId) {
+                const result = TabNodeOperations.closeItem(node);
+                if (result && windowId === targetNode.data.windowId) {
                     toRemovedTabIds.push(id);
                 }
             } else if (nodeType === 'window') {

@@ -37,21 +37,42 @@ function stringifyTree<T>(
     return nodeToStrings(tn, nameFn, childrenFn).join('\n');
 }
 
-const genText = (node: TreeNode<NodeData>) => {
+const genText = (
+    node: TreeNode<NodeData>,
+    nodeProps: (keyof TreeNode<TreeData>)[] = [],
+    dataProps: (keyof NodeData)[] = [],
+) => {
     const { title, data } = node;
+    let joinedNodeProps = '';
+    if (node) {
+        joinedNodeProps = nodeProps.map((p) => `[${String(p)}: ${node[p]}]`).join(' ');
+        joinedNodeProps = `-${joinedNodeProps}`;
+    }
+    let joinedDataProps = '';
+    if (data) {
+        joinedDataProps = dataProps.map((p) => `[${String(p)}: ${data[p]}]`).join(' ');
+    }
     if (data === undefined) {
         return title;
     } else {
         return data.index === undefined
-            ? `${data.nodeType}-${data.id}`
-            : `${data.index}-${data.id}`;
+            ? `${data.nodeType}-${data.id}${joinedNodeProps}${joinedDataProps}`
+            : `${data.index}-${data.id}${joinedNodeProps}${joinedDataProps}`;
     }
 };
 
-export function toAsciiTree(tree: TreeNode<NodeData>[]) {
+export function toAsciiTree(
+    tree: TreeNode<NodeData>[],
+    nodeProps: (keyof TreeNode<TreeData>)[] = [],
+    joinProperties: (keyof NodeData)[] = [],
+) {
     const rootNode = {
         title: '.',
         children: tree,
     } as TreeNode<TreeData>;
-    return stringifyTree(rootNode, genText, (node) => node.children ?? []);
+    return stringifyTree(
+        rootNode,
+        (node) => genText(node, nodeProps, joinProperties),
+        (node) => node.children ?? [],
+    );
 }

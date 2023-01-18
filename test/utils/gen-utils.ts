@@ -6,7 +6,7 @@ import _ from 'lodash';
 import type { Tabs } from 'webextension-polyfill';
 
 import { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
-import type { TreeData, TreeNode } from '@/tree/nodes/nodes';
+import type { NodeData, TreeData, TreeNode } from '@/tree/nodes/nodes';
 import type { TabData } from '@/tree/nodes/tab-node-operations';
 import type { WindowData } from '@/tree/nodes/window-node-operations';
 
@@ -37,14 +37,19 @@ export function createTab(
     return _.merge(tab, { id, windowId, index, openerTabId });
 }
 
-export function createWindowNode(props: Partial<TreeNode<WindowData>>) {
-    return _.merge(_.cloneDeep(DEFAULT_WINDOW_NODE), props);
+export function createWindowNode({ windowId }: Partial<WindowData>) {
+    const node = _.cloneDeep(DEFAULT_WINDOW_NODE);
+    node.title = `Window ${windowId}`;
+    node.key = `${windowId}`;
+    node.data = _.merge(node.data, { id: windowId, windowId });
+    return node;
 }
 export function createTabNode({
     id,
     windowId,
     index,
     openerTabId,
+    ...props
 }: Partial<TabData>): TreeNode<TabData> {
     const newNode = _.cloneDeep(DEFAULT_TAB_NODE);
     newNode.key = `${id}`;
@@ -54,6 +59,7 @@ export function createTabNode({
         windowId,
         index,
         openerTabId,
+        ...props,
     });
     return newNode;
 }
@@ -64,74 +70,92 @@ export class MockTreeBuilder {
     static DEFAULT_WINDOW_ID = DEFAULT_WINDOW_NODE.data.windowId;
 
     private readonly treeData: TreeNode<TreeData>[];
+    private windowIdToTabNodeData: { [windowId: number]: TreeNode<TabData>[] } = {};
+    private windowIdToWindowNodeData: { [windowId: number]: TreeNode<WindowData> } = {};
 
-    constructor(source?: TreeNode<TreeData>[]) {
-        this.treeData = source || [_.cloneDeep(DEFAULT_WINDOW_NODE)];
+    constructor() {
+        const windowNodeData = _.cloneDeep(DEFAULT_WINDOW_NODE);
+        this.treeData = [windowNodeData];
+        this.windowIdToTabNodeData[MockTreeBuilder.DEFAULT_WINDOW_ID] = [];
+        this.windowIdToWindowNodeData[MockTreeBuilder.DEFAULT_WINDOW_ID] = windowNodeData;
     }
 
-    addTabChildren(count: number, windowIndex?: number, openerTabId?: number): MockTreeBuilder {
-        const targetWindow = this.treeData[windowIndex || 0] as TreeNode<WindowData>;
-        const baseNode: TreeNode<TabData> | undefined = targetWindow.children![
-            targetWindow.children!.length - 1
-        ] as TreeNode<TabData>;
+    addTabChildren(
+        count: number,
+        windowId: number = MockTreeBuilder.DEFAULT_WINDOW_ID,
+        openerTabId?: number,
+    ): MockTreeBuilder {
+        const targetWindow = this.windowIdToWindowNodeData[windowId];
+        if (!targetWindow) {
+            throw new Error(`Window with id ${windowId} not found`);
+        }
+        const siblingsTabNodeData = this.windowIdToTabNodeData[windowId];
+        const prevTabNodeData: TreeNode<TabData> | undefined = siblingsTabNodeData.at(-1);
+        let index = prevTabNodeData
+            ? prevTabNodeData.data.index + 1
+            : MockTreeBuilder.DEFAULT_INDEX;
+        let id = prevTabNodeData ? prevTabNodeData.data.id! + 1 : windowId * 10 + 1;
         for (let i = 0; i < count; i++) {
-            targetWindow.children!.push(
-                createTabNode({
-                    id:
-                        baseNode === null
-                            ? MockTreeBuilder.DEFAULT_ID + i
-                            : baseNode.data.id! + i + 1,
-                    windowId: targetWindow.data.windowId ?? MockTreeBuilder.DEFAULT_WINDOW_ID,
-                    index: baseNode
-                        ? baseNode.data.index + i + 1
-                        : MockTreeBuilder.DEFAULT_INDEX + i,
-                    openerTabId,
-                }),
-            );
+            const newTabNodeData = createTabNode({
+                id: id++,
+                windowId,
+                index: index++,
+                openerTabId,
+            });
+            targetWindow.children!.push(newTabNodeData);
+            siblingsTabNodeData.push(newTabNodeData);
         }
         return this;
     }
 
     addNestedTabChildren(
         count: number,
-        windowIndex?: number,
+        windowId: number = MockTreeBuilder.DEFAULT_WINDOW_ID,
         openerTabId?: number,
     ): MockTreeBuilder {
-        const targetWindow = this.treeData[windowIndex || 0] as TreeNode<WindowData>;
-        const baseNode: TreeNode<TabData> | undefined = targetWindow.children![
-            targetWindow.children!.length - 1
-        ] as TreeNode<TabData>;
-        let prevNode: TreeNode<TabData> | null = null;
+        const targetWindow = this.windowIdToWindowNodeData[windowId];
+        if (!targetWindow) {
+            throw new Error(`Window with id ${windowId} not found`);
+        }
+        const siblingsTabNodeData = this.windowIdToTabNodeData[windowId];
+        const prevTabNodeData: TreeNode<TabData> | undefined = siblingsTabNodeData.at(-1);
+        let index = prevTabNodeData
+            ? prevTabNodeData.data.index + 1
+            : MockTreeBuilder.DEFAULT_INDEX;
+        let id = prevTabNodeData ? prevTabNodeData.data.id! + 1 : windowId * 10 + 1;
+        let prevNode: TreeNode<NodeData> = prevTabNodeData ?? targetWindow;
         for (let i = 0; i < count; i++) {
-            if (prevNode) {
-                const tabNodeData = createTabNode({
-                    id: baseNode ? baseNode.data.id! + i + 1 : MockTreeBuilder.DEFAULT_ID + i,
-                    windowId: targetWindow.data.windowId ?? MockTreeBuilder.DEFAULT_WINDOW_ID,
-                    index: baseNode
-                        ? baseNode.data.index + i + 1
-                        : MockTreeBuilder.DEFAULT_INDEX + i,
-                    openerTabId,
-                });
-                prevNode.children!.push(tabNodeData);
-                prevNode = tabNodeData;
-            } else {
-                const tabNodeData = createTabNode({
-                    id: baseNode ? baseNode.data.id! + i + 1 : MockTreeBuilder.DEFAULT_ID + i,
-                    windowId: targetWindow.data.windowId ?? MockTreeBuilder.DEFAULT_WINDOW_ID,
-                    index: baseNode
-                        ? baseNode.data.index + i + 1
-                        : MockTreeBuilder.DEFAULT_INDEX + i,
-                    openerTabId,
-                });
-                targetWindow.children!.push(tabNodeData);
-                prevNode = tabNodeData;
-            }
+            const newTabNodeData = createTabNode({
+                id: id++,
+                windowId,
+                index: index++,
+                openerTabId,
+            });
+            prevNode.children!.push(newTabNodeData);
+            prevNode = newTabNodeData;
+            siblingsTabNodeData.push(newTabNodeData);
         }
         return this;
     }
 
-    addWindowNode(props: Partial<TreeNode<WindowData>>): MockTreeBuilder {
-        this.treeData.push(createWindowNode(props));
+    addWindowNode(addToPrevWindow = false): MockTreeBuilder {
+        const windowId = Object.keys(this.windowIdToWindowNodeData).length + 1;
+        let lastWindowIdStr: string | undefined;
+        if (addToPrevWindow) {
+            lastWindowIdStr = Object.keys(this.windowIdToWindowNodeData).at(-1);
+            if (!lastWindowIdStr) {
+                throw new Error('No window to add to');
+            } else if (this.windowIdToTabNodeData[+lastWindowIdStr].length === 0) {
+                throw new Error('No tab to add to');
+            }
+        }
+        const newWindowNodeData = createWindowNode({ windowId });
+        const toAddArr: TreeNode<TreeData>[] = lastWindowIdStr
+            ? this.windowIdToTabNodeData[+lastWindowIdStr].at(-1)!.children!
+            : this.treeData;
+        this.windowIdToTabNodeData[windowId] = [];
+        this.windowIdToWindowNodeData[windowId] = newWindowNodeData;
+        toAddArr.push(newWindowNodeData);
         return this;
     }
 

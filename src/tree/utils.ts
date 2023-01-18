@@ -1,6 +1,8 @@
 import _ from 'lodash/index';
 import { windows } from 'webextension-polyfill';
 
+import type { TreeData, TreeNode } from './nodes/nodes';
+
 const lazyLogCache: any = {};
 /* Log if value changed, nor more than interval/sec. */
 export const logLazy = (name: string, value: any, interval: number, msg: string) => {
@@ -99,5 +101,33 @@ export const NodeUtils = {
             children.forEach((child) => child.moveTo(node, 'after'));
             node.expanded = true;
         }
+    },
+    traverse(
+        nodeDataArr: TreeNode<TreeData>[],
+        callback: (node: TreeNode<TreeData>) => void,
+    ): void {
+        nodeDataArr.forEach((nodeData) => {
+            callback(nodeData);
+            if (nodeData.children) {
+                NodeUtils.traverse(nodeData.children, callback);
+            }
+        });
+    },
+    findFirst(
+        nodeDataArr: TreeNode<TreeData>[],
+        predicate: (node: TreeNode<TreeData>) => boolean,
+    ): TreeNode<TreeData> | undefined {
+        for (const nodeData of nodeDataArr) {
+            if (predicate(nodeData)) {
+                return nodeData;
+            }
+            if (nodeData.children) {
+                const result = NodeUtils.findFirst(nodeData.children, predicate);
+                if (result) {
+                    return result;
+                }
+            }
+        }
+        return undefined;
     },
 };
