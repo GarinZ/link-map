@@ -20,12 +20,12 @@ describe('close node', () => {
         const tree = initTabMasterTree(treeData).tree;
         FancyTabMasterTree.closeNodes(tree.getNodeByKey(targetNodeKey));
         expect(browser.tabs.remove.callCount).toBe(1);
-        expect(browser.tabs.remove.getCall(0).args[0]).toBe(11);
+        expect(browser.tabs.remove.getCall(0).calledWith([11])).toBeTruthy();
         const windowNode = tree.getRootNode().children[0];
         expect(windowNode.children).toHaveLength(1);
         expect(windowNode.children[0].key).toBe('11');
         expect(windowNode.children[0].data.closed).toBe(true);
-        console.log(toAsciiTree(tree.toDict()));
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
     });
 
     it('close expanded opened window node, with two window in tree', () => {
@@ -37,16 +37,15 @@ describe('close node', () => {
         const tree = initTabMasterTree(treeData).tree;
         const targetNode = tree.getNodeByKey(`${1}`);
         FancyTabMasterTree.closeNodes(targetNode);
-        expect(browser.windows.remove.callCount).toBe(1);
-        expect(browser.windows.remove.getCall(0).args[0]).toBe(targetNode.data.id);
+        expect(browser.tabs.remove.callCount).toBe(1);
+        expect(browser.tabs.remove.calledWith([11])).toBeTruthy();
         expect(targetNode.data.closed).toBe(true);
         expect(targetNode.children).toHaveLength(1);
         expect(targetNode.children[0].data.closed).toBe(true);
         const anotherWindowNode = tree.getNodeByKey(`${2}`);
-        expect(anotherWindowNode.data.closed).toBe(false);
-        expect(anotherWindowNode.children).toHaveLength(2);
-        expect(anotherWindowNode.children[0].data.closed).toBe(false);
-        expect(anotherWindowNode.children[1].data.closed).toBe(false);
+        anotherWindowNode.visit((node) => {
+            expect(node.data.closed).toBe(false);
+        }, true);
 
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
     });
@@ -64,9 +63,7 @@ describe('close node', () => {
         FancyTabMasterTree.closeNodes(targetNode);
         // expect(browser.tabs.remove.callCount).toBe(1);
         expect(browser.tabs.remove.calledOnce).toBe(true);
-        expect(browser.tabs.remove.getCall(0).calledWith([11, 13, 14])).toBe(true);
-        expect(browser.windows.remove.calledOnce).toBe(true);
-        expect(browser.windows.remove.getCall(0).calledWith(2)).toBe(true);
+        expect(browser.tabs.remove.getCall(0).calledWith([11, 13, 14, 21, 22])).toBe(true);
         targetNode.visit((node) => {
             expect(node.data.closed).toBe(true);
         }, true);
@@ -85,10 +82,8 @@ describe('close node', () => {
         targetNode.setExpanded(false);
         FancyTabMasterTree.closeNodes(targetNode);
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
-        expect(browser.tabs.remove.callCount).toBe(0);
-        expect(browser.windows.remove.callCount).toBe(2);
-        expect(browser.windows.remove.getCall(0).args[0]).toBe(1);
-        expect(browser.windows.remove.getCall(1).args[0]).toBe(2);
+        expect(browser.tabs.remove.calledOnce).toBe(true);
+        expect(browser.tabs.remove.getCall(0).calledWith([11, 12, 13, 14, 21, 22])).toBe(true);
         targetNode.visit((node) => {
             expect(node.data.closed).toBe(true);
         });

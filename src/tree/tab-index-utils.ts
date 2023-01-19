@@ -24,7 +24,7 @@ export const ViewTabIndexUtils = {
     ) => {
         const parentNode = tree.getNodeByKey(`${windowId}`);
         parentNode.visit((node) => {
-            if (node.data.nodeType !== 'tab' || node.data.close === true) {
+            if (node.data.nodeType !== 'tab' || node.data.closed === true) {
                 return true;
             }
             if (node.data.index === oldIndex) {
@@ -49,7 +49,7 @@ export const ViewTabIndexUtils = {
             if (
                 node.data.nodeType !== 'tab' ||
                 node.data.windowId !== windowId ||
-                node.data.close === true
+                node.data.closed === true
             ) {
                 return true;
             }

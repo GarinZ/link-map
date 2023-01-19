@@ -2,7 +2,7 @@ import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
 import { DND5_CONFIG } from './configs';
-import type { NodeType, TreeData, TreeNode } from './nodes/nodes';
+import type { TreeData, TreeNode } from './nodes/nodes';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import { WindowNodeOperations } from './nodes/window-node-operations';
 import { ViewTabIndexUtils } from './tab-index-utils';
@@ -128,7 +128,9 @@ export class FancyTabMasterTree {
 
     public removeWindow(windowId: number): void {
         const toRemoveNode = this.tree.getNodeByKey(`${windowId}`);
-        if (toRemoveNode) toRemoveNode.remove();
+        if (toRemoveNode && !toRemoveNode.data.closed) {
+            toRemoveNode.remove();
+        }
     }
 
     public async windowFocus(windowId: number): Promise<void> {
@@ -176,45 +178,18 @@ FancyTabMasterTree.onDbClick = (_event: JQueryEventObject, _data: Fancytree.Even
 
 /**
  * 关闭节点
- * 更好的方式是，如果是window节点，直接关闭window，不管其下面的tab
  */
 FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
-    const targetNodeType: NodeType = targetNode.data.nodeType;
-    if (targetNode.expanded === undefined || targetNode.expanded) {
-        // 1. node展开：只处理头节点
-        if (targetNodeType === 'window') {
-            WindowNodeOperations.closeItem(targetNode);
-            targetNode.visit((node) => {
-                if (node.data.nodeType === 'tab' && node.data.windowId === targetNode.data.windowId)
-                    TabNodeOperations.closeItem(node);
-            });
-            browser.windows.remove(targetNode.data.id);
-        } else if (targetNodeType === 'tab') {
-            TabNodeOperations.closeItem(targetNode);
-            browser.tabs.remove(targetNode.data.id);
-        } else {
-            throw new Error('invalid node type');
-        }
-    } else {
-        // 2. node合起：处理子节点
-        const toRemovedTabIds: number[] = [];
-        const toRemoveWindowIds: number[] = [];
-
-        targetNode.visit((node) => {
-            const { nodeType, id, windowId } = node.data;
-            // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
-            if (nodeType === 'tab') {
-                const result = TabNodeOperations.closeItem(node);
-                if (result && windowId === targetNode.data.windowId && targetNodeType === 'tab') {
-                    toRemovedTabIds.push(id);
-                }
-            } else if (nodeType === 'window') {
-                WindowNodeOperations.closeItem(node) && toRemoveWindowIds.push(id);
-            }
-            return true;
-        }, true);
-        // 3. 调用window/tabs.remove方法(批量)
-        toRemovedTabIds.length > 0 && browser.tabs.remove(toRemovedTabIds);
-        toRemoveWindowIds.forEach((windowId) => browser.windows.remove(windowId));
-    }
+    // 1. 更新tabNodes的closed状态
+    const closedTabNodes = TabNodeOperations.close(targetNode);
+    // 2. 更新windowNodes的closed状态
+    const windowIdSet = new Set<number>();
+    const tabIdSet = new Set<number>();
+    closedTabNodes.forEach((node) => {
+        windowIdSet.add(node.data.windowId);
+        tabIdSet.add(node.data.id);
+    });
+    WindowNodeOperations.close(targetNode.tree, windowIdSet);
+    tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
+    // close状态修改的TabNode对应的WindowNode需要更新其closed值
 };

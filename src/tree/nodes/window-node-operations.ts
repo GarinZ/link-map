@@ -60,4 +60,25 @@ export const WindowNodeOperations = {
         targetNode.renderTitle();
         return targetNode;
     },
+    close(tree: Fancytree.Fancytree, windowIdSet: Set<number>): FancytreeNode[] {
+        // window是否close需要通过子tabNode的closed状态计算
+        // 1. 找到所有windowNode及其子tabNode
+        const windowNode2TabNodes = new Map<FancytreeNode, FancytreeNode[]>();
+        windowIdSet.forEach((windowId) => {
+            const windowNode = tree.getNodeByKey(`${windowId}`);
+            const tabNodes = windowNode.findAll(
+                (node) => node.data.nodeType === 'tab' && node.data.windowId === windowId,
+            );
+            windowNode2TabNodes.set(windowNode, tabNodes ?? []);
+        });
+        // 2. 遍历并计算windowNode的closed状态
+        const closedWindowNodes: FancytreeNode[] = [];
+        windowNode2TabNodes.forEach((tabNodes, windowNode) => {
+            const closed = tabNodes.every((tabNode) => tabNode.data.closed);
+            if (closed && !windowNode.data.closed) closedWindowNodes.push(windowNode);
+            windowNode.data.closed = closed;
+            windowNode.renderTitle();
+        });
+        return closedWindowNodes;
+    },
 };

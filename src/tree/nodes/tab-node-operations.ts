@@ -97,4 +97,37 @@ export const TabNodeOperations = {
         node.renderTitle();
         return node;
     },
+    /** 更新Tab的closed状态 */
+    close(fromNode: FancytreeNode): FancytreeNode[] {
+        // 只管更新targetNode自身及其子节点的closed状态
+        const toCloseNodes: FancytreeNode[] = [];
+        const expanded = fromNode.expanded === undefined || fromNode.expanded;
+        if (expanded && fromNode.data.nodeType === 'tab') {
+            // 只关闭当前tab节点
+            const toCloseNode = TabNodeOperations.closeItem(fromNode);
+            toCloseNode && toCloseNodes.push(toCloseNode);
+        } else if (expanded && fromNode.data.nodeType === 'window') {
+            fromNode.visit((node) => {
+                const { nodeType, windowId } = node.data;
+                // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
+                if (nodeType === 'tab' && windowId === fromNode.data.windowId) {
+                    const result = TabNodeOperations.closeItem(node);
+                    result && toCloseNodes.push(result);
+                }
+                return true;
+            }, true);
+        } else {
+            // 2. node合起：关闭下面所有tab节点
+            fromNode.visit((node) => {
+                const { nodeType } = node.data;
+                // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
+                if (nodeType === 'tab') {
+                    const result = TabNodeOperations.closeItem(node);
+                    result && toCloseNodes.push(result);
+                }
+                return true;
+            }, true);
+        }
+        return toCloseNodes;
+    },
 };
