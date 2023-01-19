@@ -89,6 +89,22 @@ describe('close node', () => {
         });
     });
 
+    it('close every tab in window', () => {
+        const treeData = new MockTreeBuilder().addTabChildren(2).build();
+        const tree = initTabMasterTree(treeData).tree;
+        const targetNode = tree.getNodeByKey(`${1}`);
+        targetNode.setExpanded(true);
+        FancyTabMasterTree.closeNodes(tree.getNodeByKey(`${11}`));
+        FancyTabMasterTree.closeNodes(tree.getNodeByKey(`${12}`));
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        expect(browser.tabs.remove.calledTwice).toBe(true);
+        expect(browser.tabs.remove.getCall(0).calledWith([11])).toBe(true);
+        expect(browser.tabs.remove.getCall(1).calledWith([12])).toBe(true);
+        targetNode.visit((node) => {
+            expect(node.data.closed).toBe(true);
+        }, true);
+    });
+
     afterEach(() => {
         browser.flush();
     });
