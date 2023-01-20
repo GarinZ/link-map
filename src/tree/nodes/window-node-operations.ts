@@ -44,15 +44,10 @@ export const WindowNodeOperations = {
 
         return node;
     },
-    updatePartial(
-        tree: Fancytree.Fancytree,
-        windowId: number,
-        updateProperties: Partial<WindowData>,
-    ): void {
-        const windowNode = tree.getNodeByKey(`${windowId}`);
-        if (windowNode) {
-            windowNode.data = { ...windowNode.data, ...updateProperties };
-        }
+    updatePartial(windowNode: FancytreeNode, updateProperties: Partial<WindowData>): void {
+        const { id } = updateProperties;
+        if (id) windowNode.key = `${id}`;
+        windowNode.data = { ...windowNode.data, ...updateProperties };
     },
     closeItem(targetNode: FancytreeNode): FancytreeNode | null {
         if (targetNode.data.closed) return null;

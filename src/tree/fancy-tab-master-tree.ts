@@ -22,7 +22,7 @@ export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
     static closeNodes: (targetNode: FancytreeNode) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
-    static onDbClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
+    static onDbClick: (event: JQueryEventObject, data: Fancytree.EventData) => Promise<void>;
 
     constructor(selector: JQuery.Selector = '#tree') {
         $(selector).fancytree({
@@ -40,7 +40,10 @@ export class FancyTabMasterTree {
             },
             renderTitle,
             click: FancyTabMasterTree.onClick,
-            dblclick: FancyTabMasterTree.onDbClick,
+            dblclick: (event, data) => {
+                FancyTabMasterTree.onDbClick(event, data);
+                return false;
+            },
             defaultKey: (node) => `${node.data.id}`,
             dnd5: DND5_CONFIG,
         });
@@ -60,11 +63,15 @@ export class FancyTabMasterTree {
     }
 
     public createTab(tab: Tabs.Tab): FancytreeNode {
+        const targetNode = this.tree.getNodeByKey(`${tab.id}`);
+        if (targetNode) return targetNode;
         const newNode = TabNodeOperations.createData(tab);
         return TabNodeOperations.add(this.tree, newNode, tab.active);
     }
 
     public createWindow(window: Windows.Window): FancytreeNode {
+        const targetNode = this.tree.getNodeByKey(`${window.id}`);
+        if (targetNode) return targetNode;
         return this.tree.getRootNode().addNode(WindowNodeOperations.createData(window));
     }
 
@@ -168,12 +175,75 @@ FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventDat
     return true;
 };
 
-FancyTabMasterTree.onDbClick = (_event: JQueryEventObject, _data: Fancytree.EventData): boolean => {
-    // const targetNode = data.node;
-    // 1. windowNode
-
-    // 2. tabNode
-    return true;
+FancyTabMasterTree.onDbClick = async (
+    _event: JQueryEventObject,
+    data: Fancytree.EventData,
+): Promise<void> => {
+    const targetNode = data.node;
+    const tree = data.tree;
+    if (targetNode.data.nodeType === 'tab') {
+        // 1. 如果TabNode是打开状态，直接激活
+        if (!targetNode.data.closed) {
+            await browser.tabs.update(targetNode.data.id, { active: true });
+            return;
+        }
+        // 2. TabNode关闭
+        const windowNode = tree.getNodeByKey(`${targetNode.data.windowId}`);
+        const { url } = targetNode.data;
+        // 2.1 如果没有WindowNode，创建一个
+        if (!windowNode) {
+            const newWindow = await browser.windows.create({ url });
+            TabNodeOperations.updatePartial(targetNode, newWindow.tabs![0]);
+            targetNode.data.closed = false;
+            const newWindowNode = targetNode.addNode(
+                WindowNodeOperations.createData(newWindow),
+                'before',
+            );
+            targetNode.moveTo(newWindowNode, 'firstChild');
+            newWindowNode.setExpanded(true);
+        }
+        // 2.2 WindowNode存在
+        if (windowNode.data.closed) {
+            // 2.2.1 如果WindowNode是关闭状态，打开WindowNode
+            const newWindow = await browser.windows.create({ url });
+            WindowNodeOperations.updatePartial(windowNode, newWindow);
+            TabNodeOperations.updatePartial(targetNode, newWindow.tabs![0]);
+            targetNode.data.closed = false;
+            targetNode.renderTitle();
+            windowNode.data.closed = false;
+            windowNode.renderTitle();
+        } else {
+            // 2.2.1 如果WindowNode是打开状态，创建TabNode
+            const newTab = await browser.tabs.create({ url, windowId: windowNode.data.id });
+            TabNodeOperations.updatePartial(targetNode, newTab);
+            targetNode.data.closed = false;
+            targetNode.renderTitle();
+        }
+    } else if (targetNode.data.nodeType === 'window') {
+        // 1. 如果WindowNode是打开状态，直接激活
+        if (!targetNode.data.closed) {
+            await browser.windows.update(targetNode.data.id, { focused: true });
+            return;
+        }
+        // 2. WindowNode关闭
+        const { windowId } = targetNode.data;
+        const subTabNodes = targetNode.findAll(
+            (node) => node.data.nodeType === 'tab' && node.data.windowId === windowId,
+        );
+        const urlList = subTabNodes.map((item) => item.data.url);
+        const newWindow = await browser.windows.create({
+            url: urlList,
+            titlePreface: targetNode.title,
+        });
+        WindowNodeOperations.updatePartial(targetNode, newWindow);
+        newWindow.tabs!.forEach((tab, index) => {
+            TabNodeOperations.updatePartial(subTabNodes[index], tab);
+            subTabNodes[index].data.closed = false;
+            subTabNodes[index].renderTitle();
+        });
+        targetNode.data.closed = false;
+        targetNode.renderTitle();
+    }
 };
 
 /**

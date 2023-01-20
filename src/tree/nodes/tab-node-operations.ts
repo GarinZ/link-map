@@ -83,7 +83,8 @@ export const TabNodeOperations = {
         if (toRemoveNode) toRemoveNode.remove();
     },
     updatePartial(toUpdateNode: FancytreeNode, updateProps: Partial<TabData>) {
-        const { title, favIconUrl } = updateProps;
+        const { title, favIconUrl, id } = updateProps;
+        if (id) toUpdateNode.key = `${id}`;
         if (title) toUpdateNode.setTitle(title);
         if (favIconUrl) toUpdateNode.icon = favIconUrl;
         const restValidKeys: (keyof TabData)[] = ['status', 'url', 'discarded'];
