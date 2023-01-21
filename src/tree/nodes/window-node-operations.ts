@@ -40,14 +40,19 @@ export const WindowNodeOperations = {
         // 删除data.tabs
         delete node.data.tabs;
         // PS: openerTabId是空的，所以无法通过openerTabId构建Tab树
-        if (tabs) node.children = tabs.map((tab) => TabNodeOperations.createData(tab));
+        if (tabs)
+            node.children = tabs.map((tab) => {
+                const tabNode = TabNodeOperations.createData(tab);
+                if (tab.active) tabNode.extraClasses = 'tab-active';
+                return tabNode;
+            });
 
         return node;
     },
     updatePartial(windowNode: FancytreeNode, updateProperties: Partial<WindowData>): void {
         const { id } = updateProperties;
         if (id) windowNode.key = `${id}`;
-        windowNode.data = { ...windowNode.data, ...updateProperties };
+        windowNode.data = { ...windowNode.data, ...updateProperties, windowId: id };
     },
     closeItem(targetNode: FancytreeNode): FancytreeNode | null {
         if (targetNode.data.closed) return null;
@@ -75,5 +80,11 @@ export const WindowNodeOperations = {
             windowNode.renderTitle();
         });
         return closedWindowNodes;
+    },
+    findAllSubTabNodes(windowNode: FancytreeNode): FancytreeNode[] {
+        return windowNode.findAll(
+            (node) =>
+                node.data.nodeType === 'tab' && node.data.windowId === windowNode.data.windowId,
+        );
     },
 };

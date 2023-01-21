@@ -63,13 +63,15 @@ export class FancyTabMasterTree {
     }
 
     public createTab(tab: Tabs.Tab): FancytreeNode {
+        // TabNode存在则不再创建：UI Event会触发onCreate回调，需要流程是可重入的
         const targetNode = this.tree.getNodeByKey(`${tab.id}`);
         if (targetNode) return targetNode;
-        const newNode = TabNodeOperations.createData(tab);
-        return TabNodeOperations.add(this.tree, newNode, tab.active);
+        const newNodeData = TabNodeOperations.createData(tab);
+        return TabNodeOperations.add(this.tree, newNodeData, tab.active);
     }
 
     public createWindow(window: Windows.Window): FancytreeNode {
+        // WindowNode存在则不再创建：UI Event会触发onCreate回调，需要流程是可重入的
         const targetNode = this.tree.getNodeByKey(`${window.id}`);
         if (targetNode) return targetNode;
         return this.tree.getRootNode().addNode(WindowNodeOperations.createData(window));
@@ -78,8 +80,7 @@ export class FancyTabMasterTree {
     public activeTab(windowId: number, tabId: number): void {
         // devtools的windowId为-1，不做处理
         if (windowId < 0) return;
-        TabNodeOperations.active(this.tree, tabId);
-        // WindowNodeOperations.updatePartial(this.tree, windowId, { activeTabId: tabId });
+        TabNodeOperations.active(this.tree, tabId, this.tree.getNodeByKey(`${windowId}`));
     }
 
     public moveTab(windowId: number, tabId: number, fromIndex: number, toIndex: number): void {
@@ -143,7 +144,8 @@ export class FancyTabMasterTree {
     public async windowFocus(windowId: number): Promise<void> {
         // devtools的windowId为-1，不做处理
         if (windowId < 0) return;
-        await this.syncActiveTab(windowId);
+        const windowNode = this.tree.getNodeByKey(`${windowId}`);
+        windowNode.scrollIntoView();
     }
 
     public toJsonObj(includeRoot = false): TreeNode<TreeData>[] {
@@ -169,6 +171,7 @@ FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventDat
 
     switch (target.attr(TYPE_ATTR)) {
         case NODE_CLOSE:
+            console.log('[tree]: close button clicked');
             FancyTabMasterTree.closeNodes(data.node);
             break;
     }
@@ -185,11 +188,12 @@ FancyTabMasterTree.onDbClick = async (
         // 1. 如果TabNode是打开状态，直接激活
         if (!targetNode.data.closed) {
             await browser.tabs.update(targetNode.data.id, { active: true });
+            await browser.windows.update(targetNode.data.windowId, { focused: true });
             return;
         }
         // 2. TabNode关闭
         const windowNode = tree.getNodeByKey(`${targetNode.data.windowId}`);
-        const { url } = targetNode.data;
+        const { url, index } = targetNode.data;
         // 2.1 如果没有WindowNode，创建一个
         if (!windowNode) {
             const newWindow = await browser.windows.create({ url });
@@ -206,6 +210,10 @@ FancyTabMasterTree.onDbClick = async (
         if (windowNode.data.closed) {
             // 2.2.1 如果WindowNode是关闭状态，打开WindowNode
             const newWindow = await browser.windows.create({ url });
+            // 这里还需要修改所有subTabNode的windowId
+            WindowNodeOperations.findAllSubTabNodes(windowNode).forEach((tabNode) => {
+                tabNode.data.windowId = newWindow.id!;
+            });
             WindowNodeOperations.updatePartial(windowNode, newWindow);
             TabNodeOperations.updatePartial(targetNode, newWindow.tabs![0]);
             targetNode.data.closed = false;
@@ -214,7 +222,7 @@ FancyTabMasterTree.onDbClick = async (
             windowNode.renderTitle();
         } else {
             // 2.2.1 如果WindowNode是打开状态，创建TabNode
-            const newTab = await browser.tabs.create({ url, windowId: windowNode.data.id });
+            const newTab = await browser.tabs.create({ url, windowId: windowNode.data.id, index });
             TabNodeOperations.updatePartial(targetNode, newTab);
             targetNode.data.closed = false;
             targetNode.renderTitle();
@@ -231,10 +239,7 @@ FancyTabMasterTree.onDbClick = async (
             (node) => node.data.nodeType === 'tab' && node.data.windowId === windowId,
         );
         const urlList = subTabNodes.map((item) => item.data.url);
-        const newWindow = await browser.windows.create({
-            url: urlList,
-            titlePreface: targetNode.title,
-        });
+        const newWindow = await browser.windows.create({ url: urlList });
         WindowNodeOperations.updatePartial(targetNode, newWindow);
         newWindow.tabs!.forEach((tab, index) => {
             TabNodeOperations.updatePartial(subTabNodes[index], tab);

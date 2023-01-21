@@ -57,22 +57,24 @@ export const TabNodeOperations = {
             createdNode = windowNode.addChildren(newNode);
         }
         if (active) {
-            // WindowNodeOperations.updatePartial(tree, windowId, { activeTabId: id });
-            createdNode.setActive(true);
+            this.active(tree, createdNode.data.id, windowNode);
         }
         return createdNode;
     },
-    active(tree: Fancytree.Fancytree, id: number, windowNode?: FancytreeNode): void {
-        try {
-            const toActiveNode = tree.getNodeByKey(`${id}`, windowNode);
-            if (!toActiveNode) return;
-            toActiveNode.setActive();
-        } catch (error) {
-            console.log(error);
-        }
-        // WindowNodeOperations.updatePartial(tree, toActiveNode.data.windowId, {
-        //     activeTabId: id,
-        // });
+    /** 设置tab的tab-active，并关闭其他tab的tab-active */
+    active(tree: Fancytree.Fancytree, id: number, windowNode: FancytreeNode): void {
+        const toActiveNode = tree.getNodeByKey(`${id}`, windowNode);
+        if (!toActiveNode) return;
+        toActiveNode.data.tabActive = true;
+        toActiveNode.addClass('tab-active');
+        // window树中其他节点设置为非active
+        windowNode.visit((node) => {
+            if (node.key !== toActiveNode.key) {
+                node.data.tabActive = false;
+                node.removeClass('tab-active');
+            }
+        });
+        console.log(toActiveNode.extraClasses);
     },
     remove(tree: Fancytree.Fancytree, toRemoveNode: FancytreeNode): void {
         // 1. 保留子元素：提升children作为siblings
@@ -87,10 +89,7 @@ export const TabNodeOperations = {
         if (id) toUpdateNode.key = `${id}`;
         if (title) toUpdateNode.setTitle(title);
         if (favIconUrl) toUpdateNode.icon = favIconUrl;
-        const restValidKeys: (keyof TabData)[] = ['status', 'url', 'discarded'];
-        restValidKeys.forEach((k) => {
-            if (updateProps[k]) toUpdateNode.data[k] = updateProps[k];
-        });
+        toUpdateNode.data = { ...toUpdateNode.data, ...updateProps };
     },
     closeItem(node: FancytreeNode): FancytreeNode | null {
         if (node.data.closed) return null;

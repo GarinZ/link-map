@@ -87,7 +87,7 @@ browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
  *
  */
 browser.tabs.onAttached.addListener(async (tabId, { newPosition, newWindowId }) => {
-    console.log('attached');
+    console.log('[bg]: attached');
     await sendMessageToExt('attach-tab', {
         windowId: newWindowId,
         tabId,
@@ -96,7 +96,7 @@ browser.tabs.onAttached.addListener(async (tabId, { newPosition, newWindowId }) 
 });
 
 browser.tabs.onDetached.addListener(async (tabId) => {
-    console.log('detached');
+    console.log('[bg]: detached');
     await sendMessageToExt('detach-tab', { tabId });
 });
 
@@ -107,7 +107,7 @@ browser.tabs.onReplaced.addListener((addedTabId, removedTabId) => {
  * detach tab的时候会触发这个事件
  */
 browser.windows.onCreated.addListener(async (window) => {
-    console.log('window create!');
+    console.log('[bg]: window create!');
     // Tab detach的时候也会发这个Event
     sendMessageToExt('add-window', window);
 });
@@ -115,11 +115,12 @@ browser.windows.onCreated.addListener(async (window) => {
  * 最后一个tab合并到另一个window时会发这个Event
  */
 browser.windows.onRemoved.addListener((windowId) => {
-    console.log('window remove!');
+    console.log('[bg]: window remove!');
     sendMessageToExt('remove-window', { windowId });
 });
 
 browser.windows.onFocusChanged.addListener(async (windowId) => {
+    console.log('[bg]: window focus changed!');
     await sendMessageToExt('window-focus', { windowId });
 });
 
