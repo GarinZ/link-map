@@ -66,6 +66,7 @@ export const DEFAULT_TAB_NODE = {
         closed: false,
         parentId: 1,
         nodeType: 'tab',
+        active: true,
     },
 } as TreeNode<TabData>;
 
