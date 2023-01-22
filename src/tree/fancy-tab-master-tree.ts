@@ -192,7 +192,9 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
         const { url, index } = targetNode.data;
         // 2.1 如果没有WindowNode，创建一个
         if (!windowNode) {
-            const newWindow = await browser.windows.create({ url });
+            const newWindow = await browser.windows.create(
+                WindowNodeOperations.buildCreateWindowProps(windowNode, url),
+            );
             TabNodeOperations.updatePartial(targetNode, newWindow.tabs![0]);
             targetNode.data.closed = false;
             const newWindowNode = targetNode.addNode(
@@ -205,7 +207,9 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
         // 2.2 WindowNode存在
         if (windowNode.data.closed) {
             // 2.2.1 如果WindowNode是关闭状态，打开WindowNode
-            const newWindow = await browser.windows.create({ url });
+            const newWindow = await browser.windows.create(
+                WindowNodeOperations.buildCreateWindowProps(windowNode, url),
+            );
             // 这里还需要修改所有subTabNode的windowId
             WindowNodeOperations.findAllSubTabNodes(windowNode).forEach((tabNode) => {
                 tabNode.data.windowId = newWindow.id!;
@@ -235,7 +239,9 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
             (node) => node.data.nodeType === 'tab' && node.data.windowId === windowId,
         );
         const urlList = subTabNodes.map((item) => item.data.url);
-        const newWindow = await browser.windows.create({ url: urlList });
+        const newWindow = await browser.windows.create(
+            WindowNodeOperations.buildCreateWindowProps(targetNode, urlList),
+        );
         WindowNodeOperations.updatePartial(targetNode, newWindow);
         newWindow.tabs!.forEach((tab, index) => {
             TabNodeOperations.updatePartial(subTabNodes[index], tab);

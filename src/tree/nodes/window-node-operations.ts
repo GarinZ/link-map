@@ -90,4 +90,19 @@ export const WindowNodeOperations = {
                 node.data.nodeType === 'tab' && node.data.windowId === windowNode.data.windowId,
         );
     },
+    buildCreateWindowProps(
+        windowNode: FancytreeNode,
+        url: string | string[],
+    ): Windows.CreateCreateDataType {
+        const data = windowNode.data;
+        return {
+            url,
+            incognito: data.incognito,
+            type: data.type,
+            left: data.left,
+            top: data.top,
+            width: data.width,
+            height: data.height,
+        };
+    },
 };
