@@ -83,7 +83,7 @@ export class MockTreeBuilder {
     addTabChildren(
         count: number,
         windowId: number = MockTreeBuilder.DEFAULT_WINDOW_ID,
-        openerTabId?: number,
+        props?: Partial<TabData>,
     ): MockTreeBuilder {
         const targetWindow = this.windowIdToWindowNodeData[windowId];
         if (!targetWindow) {
@@ -100,7 +100,7 @@ export class MockTreeBuilder {
                 id: id++,
                 windowId,
                 index: index++,
-                openerTabId,
+                ...props,
             });
             targetWindow.children!.push(newTabNodeData);
             siblingsTabNodeData.push(newTabNodeData);
@@ -111,7 +111,7 @@ export class MockTreeBuilder {
     addNestedTabChildren(
         count: number,
         windowId: number = MockTreeBuilder.DEFAULT_WINDOW_ID,
-        openerTabId?: number,
+        props?: Partial<TabData>,
     ): MockTreeBuilder {
         const targetWindow = this.windowIdToWindowNodeData[windowId];
         if (!targetWindow) {
@@ -129,7 +129,7 @@ export class MockTreeBuilder {
                 id: id++,
                 windowId,
                 index: index++,
-                openerTabId,
+                ...props,
             });
             prevNode.children!.push(newTabNodeData);
             prevNode = newTabNodeData;

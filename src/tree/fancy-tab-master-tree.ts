@@ -22,7 +22,7 @@ export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
     static closeNodes: (targetNode: FancytreeNode) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
-    static onDbClick: (event: JQueryEventObject, data: Fancytree.EventData) => Promise<void>;
+    static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
 
     constructor(selector: JQuery.Selector = '#tree') {
         $(selector).fancytree({
@@ -40,8 +40,8 @@ export class FancyTabMasterTree {
             },
             renderTitle,
             click: FancyTabMasterTree.onClick,
-            dblclick: (event, data) => {
-                FancyTabMasterTree.onDbClick(event, data);
+            dblclick: (_event, data) => {
+                FancyTabMasterTree.onDbClick(data.node);
                 return false;
             },
             defaultKey: (node) => `${node.data.id}`,
@@ -178,12 +178,8 @@ FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventDat
     return true;
 };
 
-FancyTabMasterTree.onDbClick = async (
-    _event: JQueryEventObject,
-    data: Fancytree.EventData,
-): Promise<void> => {
-    const targetNode = data.node;
-    const tree = data.tree;
+FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> => {
+    const tree = targetNode.tree;
     if (targetNode.data.nodeType === 'tab') {
         // 1. 如果TabNode是打开状态，直接激活
         if (!targetNode.data.closed) {

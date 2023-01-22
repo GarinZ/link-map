@@ -5,6 +5,8 @@
 import browser from 'sinon-chrome';
 
 import { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
+import { TabNodeOperations } from '@/tree/nodes/tab-node-operations';
+import { WindowNodeOperations } from '@/tree/nodes/window-node-operations';
 
 import { initTabMasterTree, MockTreeBuilder } from '../../utils/gen-utils';
 import { toAsciiTree } from '../../utils/print-utils';
@@ -104,6 +106,80 @@ describe('close node', () => {
             expect(node.data.closed).toBe(true);
         }, true);
     });
+
+    afterEach(() => {
+        browser.flush();
+    });
+});
+
+describe('db click', () => {
+    beforeEach(() => {
+        browser.flush();
+    });
+
+    it('db click on opened tab node, with opened window', async () => {
+        const treeData = new MockTreeBuilder().addTabChildren(2).build();
+        const tree = initTabMasterTree(treeData).tree;
+        TabNodeOperations.updatePartial(tree.getNodeByKey(`${12}`), { active: true });
+        await FancyTabMasterTree.onDbClick(tree.getNodeByKey(`${11}`));
+        expect(browser.tabs.update.callCount).toBe(1);
+        expect(browser.tabs.update.getCall(0).calledWith(11, { active: true })).toBeTruthy();
+        expect(browser.windows.update.callCount).toBe(1);
+        expect(browser.windows.update.getCall(0).calledWith(1, { focused: true })).toBeTruthy();
+    });
+
+    it('db click on closed tab node, with opened window', async () => {
+        const treeData = new MockTreeBuilder().addTabChildren(2).build();
+        const tree = initTabMasterTree(treeData).tree;
+        TabNodeOperations.updatePartial(tree.getNodeByKey(`${12}`), { closed: true });
+        const toClickNode = tree.getNodeByKey(`${12}`);
+        const { url, index, windowId } = toClickNode.data;
+        browser.tabs.create.returns(Promise.resolve({ id: 13, url, index, windowId }));
+        await FancyTabMasterTree.onDbClick(tree.getNodeByKey(`${12}`));
+        expect(browser.tabs.create.callCount).toBe(1);
+        expect(browser.tabs.create.getCall(0).calledWith({ url, index, windowId })).toBeTruthy();
+        expect(toClickNode.data.closed).toBe(false);
+        expect(toClickNode.key).toBe('13');
+        // eslint-disable-next-line unicorn/consistent-destructuring
+        expect(toClickNode.data.id).toBe(13);
+    });
+
+    it('db click on closed tab node, with closed window', async () => {
+        const treeData = new MockTreeBuilder().addTabChildren(2).build();
+        const tree = initTabMasterTree(treeData).tree;
+        WindowNodeOperations.updatePartial(tree.getNodeByKey(`${1}`), { closed: true });
+        TabNodeOperations.updatePartial(tree.getNodeByKey(`${11}`), { closed: true });
+        TabNodeOperations.updatePartial(tree.getNodeByKey(`${12}`), { closed: true });
+        const windowNode = tree.getNodeByKey(`${1}`);
+        const modifiedWindowId = 2;
+        const toClickNode = tree.getNodeByKey(`${11}`);
+        const { url } = toClickNode.data;
+        browser.windows.create.returns(
+            Promise.resolve({
+                id: modifiedWindowId,
+                tabs: [{ id: 21, url, index: 0, windowId: modifiedWindowId }],
+            }),
+        );
+        await FancyTabMasterTree.onDbClick(tree.getNodeByKey(`${11}`));
+
+        expect(browser.windows.create.callCount).toBe(1);
+        expect(browser.windows.create.getCall(0).calledWith({ url })).toBeTruthy();
+        expect(windowNode.data.closed).toBe(false);
+        expect(windowNode.key).toBe(`${modifiedWindowId}`);
+        expect(windowNode.data.id).toBe(modifiedWindowId);
+        expect(toClickNode.data.closed).toBe(false);
+        expect(toClickNode.key).toBe('21');
+        // eslint-disable-next-line unicorn/consistent-destructuring
+        expect(toClickNode.data.id).toBe(21);
+    });
+
+    // it('db click on window node', () => {
+    //     const treeData = new MockTreeBuilder().addTabChildren(2).build();
+    //     const tree = initTabMasterTree(treeData).tree;
+    //     FancyTabMasterTree.dbClick(tree.getNodeByKey(`${1}`));
+    //     expect(browser.windows.update.callCount).toBe(1);
+    //     expect(browser.windows.update.getCall(0).calledWith(1, { focused: true })).toBeTruthy();
+    // });
 
     afterEach(() => {
         browser.flush();
