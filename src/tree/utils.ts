@@ -78,7 +78,7 @@ export const FancyTreeUtils = {
     /** 查找当前元素的windowNode */
     findWindowNode(node: Fancytree.FancytreeNode) {
         let windowNode = node;
-        while (windownode.data.nodeType !== 'window') {
+        while (windowNode.data.nodeType !== 'window') {
             windowNode = windowNode.parent;
         }
         return windowNode;

@@ -6,7 +6,7 @@ import type { TreeData, TreeNode } from './nodes';
 
 type FancytreeNode = Fancytree.FancytreeNode;
 
-export interface TabData extends Omit<Tabs.Tab, 'active'>, TreeData {
+export interface TabData extends Tabs.Tab, TreeData {
     windowId: number;
     nodeType: 'tab';
 }
@@ -57,24 +57,9 @@ export const TabNodeOperations = {
             createdNode = windowNode.addChildren(newNode);
         }
         if (active) {
-            this.active(tree, createdNode.data.id, windowNode);
+            this.updatePartial(createdNode, { active: true });
         }
         return createdNode;
-    },
-    /** 设置tab的tab-active，并关闭其他tab的tab-active */
-    active(tree: Fancytree.Fancytree, id: number, windowNode: FancytreeNode): void {
-        const toActiveNode = tree.getNodeByKey(`${id}`, windowNode);
-        if (!toActiveNode) return;
-        toActiveNode.data.tabActive = true;
-        toActiveNode.addClass('tab-active');
-        // window树中其他节点设置为非active
-        windowNode.visit((node) => {
-            if (node.key !== toActiveNode.key) {
-                node.data.tabActive = false;
-                node.removeClass('tab-active');
-            }
-        });
-        console.log(toActiveNode.extraClasses);
     },
     remove(tree: Fancytree.Fancytree, toRemoveNode: FancytreeNode): void {
         // 1. 保留子元素：提升children作为siblings
@@ -85,11 +70,22 @@ export const TabNodeOperations = {
         if (toRemoveNode) toRemoveNode.remove();
     },
     updatePartial(toUpdateNode: FancytreeNode, updateProps: Partial<TabData>) {
-        const { title, favIconUrl, id } = updateProps;
+        const { title, favIconUrl, id, active } = updateProps;
+        toUpdateNode.data = { ...toUpdateNode.data, ...updateProps };
         if (id) toUpdateNode.key = `${id}`;
         if (title) toUpdateNode.setTitle(title);
         if (favIconUrl) toUpdateNode.icon = favIconUrl;
-        toUpdateNode.data = { ...toUpdateNode.data, ...updateProps };
+        if (active) {
+            // 设置tab的tab-active，并关闭其他tab的tab-active
+            toUpdateNode.data.tabActive = true;
+            toUpdateNode.addClass('tab-active');
+            toUpdateNode.tree.getNodeByKey(`${toUpdateNode.data.windowId}`).visit((node) => {
+                if (node.key !== toUpdateNode.key) {
+                    node.data.tabActive = false;
+                    node.removeClass('tab-active');
+                }
+            });
+        }
     },
     closeItem(node: FancytreeNode): FancytreeNode | null {
         if (node.data.closed) return null;
