@@ -106,8 +106,6 @@ export class FancyTabMasterTree {
 
     public async removeTab(tabId: number): Promise<void> {
         const toRemoveNode = this.tree.getNodeByKey(`${tabId}`);
-        // 1. 状态为closed的节点不做删除
-        if (toRemoveNode.data.closed === true) return;
         const windowId = toRemoveNode.data.windowId;
         TabNodeOperations.remove(this.tree, toRemoveNode);
         await this.syncActiveTab(windowId);
@@ -136,9 +134,7 @@ export class FancyTabMasterTree {
 
     public removeWindow(windowId: number): void {
         const toRemoveNode = this.tree.getNodeByKey(`${windowId}`);
-        if (toRemoveNode && !toRemoveNode.data.closed) {
-            toRemoveNode.remove();
-        }
+        WindowNodeOperations.remove(toRemoveNode);
     }
 
     public async windowFocus(windowId: number): Promise<void> {

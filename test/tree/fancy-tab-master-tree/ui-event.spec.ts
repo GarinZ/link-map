@@ -163,7 +163,11 @@ describe('db click', () => {
         await FancyTabMasterTree.onDbClick(toClickNode);
 
         expect(browser.windows.create.callCount).toBe(1);
-        expect(browser.windows.create.getCall(0).calledWith({ url })).toBeTruthy();
+        const createWindowArg = browser.windows.create.getCall(0).args[0];
+        Object.entries(createWindowArg).forEach(([key, value]) => {
+            if (key === 'url') expect(value).toBe(url);
+            else expect(value).toBe(windowNode.data[key]);
+        });
         expect(windowNode.data.closed).toBe(false);
         expect(windowNode.key).toBe(`${modifiedWindowId}`);
         expect(windowNode.data.id).toBe(modifiedWindowId);
@@ -202,11 +206,12 @@ describe('db click', () => {
         );
         await FancyTabMasterTree.onDbClick(tree.getNodeByKey(`${1}`));
         expect(browser.windows.create.callCount).toBe(1);
-        expect(
-            browser.windows.create
-                .getCall(0)
-                .calledWith({ url: [firstTabNode.data.url, secondTabNode.data.url] }),
-        ).toBeTruthy();
+        const createWindowArg = browser.windows.create.getCall(0).args[0];
+        Object.entries(createWindowArg).forEach(([key, value]) => {
+            if (key === 'url')
+                expect(value).toStrictEqual([firstTabNode.data.url, secondTabNode.data.url]);
+            else expect(value).toBe(windowNode.data[key]);
+        });
         expect(windowNode.data.closed).toBe(false);
         expect(windowNode.key).toBe(`${modifiedWindowId}`);
         expect(windowNode.data.id).toBe(modifiedWindowId);

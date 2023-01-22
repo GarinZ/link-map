@@ -1,5 +1,6 @@
 import type { Windows } from 'webextension-polyfill';
 
+import { NodeUtils } from '../utils';
 import type { TreeData, TreeNode } from './nodes';
 import { TabNodeOperations } from './tab-node-operations';
 
@@ -55,6 +56,14 @@ export const WindowNodeOperations = {
         if (id) {
             windowNode.key = `${id}`;
             windowNode.data.windowId = id;
+        }
+    },
+    remove(targetNode: FancytreeNode): void {
+        targetNode.children.reverse().forEach((child) => {
+            child.moveTo(targetNode, 'after');
+        });
+        if (targetNode && NodeUtils.canRemove(targetNode)) {
+            targetNode.remove();
         }
     },
     closeItem(targetNode: FancytreeNode): FancytreeNode | null {

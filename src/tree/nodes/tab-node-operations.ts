@@ -62,9 +62,11 @@ export const TabNodeOperations = {
         return createdNode;
     },
     remove(tree: Fancytree.Fancytree, toRemoveNode: FancytreeNode): void {
-        // 1. 保留子元素：提升children作为siblings
+        // 1. 状态为closed的节点不做删除
+        if (NodeUtils.canRemove(toRemoveNode)) return;
+        // 2. 保留子元素：提升children作为siblings
         NodeUtils.moveChildrenAsNextSiblings(toRemoveNode);
-        // 2. 删除节点
+        // 3. 删除节点
         const windowNode = tree.getNodeByKey(`${toRemoveNode.data.windowId}`);
         ViewTabIndexUtils.decreaseIndex(tree, windowNode.data.id, toRemoveNode.data.index);
         if (toRemoveNode) toRemoveNode.remove();

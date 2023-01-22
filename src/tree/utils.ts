@@ -130,4 +130,8 @@ export const NodeUtils = {
         }
         return undefined;
     },
+    canRemove(node: Fancytree.FancytreeNode) {
+        const { closed, alias } = node.data;
+        return !closed && !alias;
+    },
 };
