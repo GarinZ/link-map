@@ -100,9 +100,15 @@ export class FancyTabMasterTree {
             toMoveNode.moveTo(windowNode, 'firstChild');
             return;
         }
-        const prevNode = windowNode.findFirst((node) => node.data.index === toIndex - 1);
-        const nextNode = prevNode.findFirst((node) => node.data.nodeType === 'tab');
-        nextNode ? toMoveNode.moveTo(nextNode, 'before') : toMoveNode.moveTo(prevNode, 'after');
+        const prevOpenedTabNode = windowNode.findFirst(
+            (node) => node.data.index === toIndex - 1 && !node.data.closed,
+        );
+        const nextOpenedTabNodeChild = prevOpenedTabNode.findFirst(
+            (node) => node.data.nodeType === 'tab' && !node.data.closed,
+        );
+        nextOpenedTabNodeChild
+            ? toMoveNode.moveTo(nextOpenedTabNodeChild, 'before')
+            : toMoveNode.moveTo(prevOpenedTabNode, 'after');
     }
 
     public async removeTab(tabId: number): Promise<void> {
@@ -186,7 +192,7 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
         }
         // 2. TabNode关闭
         const windowNode = tree.getNodeByKey(`${targetNode.data.windowId}`);
-        const { url, index } = targetNode.data;
+        const { url } = targetNode.data;
         if (!windowNode) {
             // 2.1 如果没有WindowNode，创建一个
             const newWindow = await browser.windows.create(
@@ -216,7 +222,11 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
             windowNode.renderTitle();
         } else {
             // 2.3 WindowNode存在 && 打开 => 创建TabNode
+            const prevOpenedTabNode = NodeUtils.getPrevOpenedTabNode(targetNode);
+            const index = prevOpenedTabNode ? prevOpenedTabNode.data.index + 1 : 0;
+            ViewTabIndexUtils.increaseIndex(tree, windowNode.data.id, index);
             const newTab = await browser.tabs.create({ url, windowId: windowNode.data.id, index });
+            // TODO 修改前后的index值
             TabNodeOperations.updatePartial(targetNode, newTab);
             targetNode.data.closed = false;
             targetNode.renderTitle();

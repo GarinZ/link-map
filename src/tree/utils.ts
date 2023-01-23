@@ -113,25 +113,22 @@ export const NodeUtils = {
             }
         });
     },
-    findFirst(
-        nodeDataArr: TreeNode<TreeData>[],
-        predicate: (node: TreeNode<TreeData>) => boolean,
-    ): TreeNode<TreeData> | undefined {
-        for (const nodeData of nodeDataArr) {
-            if (predicate(nodeData)) {
-                return nodeData;
-            }
-            if (nodeData.children) {
-                const result = NodeUtils.findFirst(nodeData.children, predicate);
-                if (result) {
-                    return result;
-                }
-            }
-        }
-        return undefined;
-    },
     canRemove(node: Fancytree.FancytreeNode) {
         const { closed, alias } = node.data;
         return !closed && !alias;
+    },
+    getPrevOpenedTabNode(node: Fancytree.FancytreeNode): Fancytree.FancytreeNode | null {
+        const windowNode = node.tree.getNodeByKey(`${node.data.windowId}`);
+        let prevNode = null;
+        windowNode.visit((n) => {
+            if (n === node) {
+                return false;
+            }
+            if (n.data.nodeType === 'tab' && !n.data.closed) {
+                prevNode = n;
+            }
+            return true;
+        });
+        return prevNode;
     },
 };
