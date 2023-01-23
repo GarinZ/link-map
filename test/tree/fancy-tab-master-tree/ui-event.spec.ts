@@ -132,17 +132,20 @@ describe('db click', () => {
     it('db click on closed tab node, with opened window node', async () => {
         const treeData = new MockTreeBuilder().addTabChildren(2).build();
         const tree = initTabMasterTree(treeData).tree;
-        const toClickNode = tree.getNodeByKey(`${11}`);
-        TabNodeOperations.updatePartial(toClickNode, { closed: true });
-        const { url, index, windowId } = toClickNode.data;
+        const firstNode = tree.getNodeByKey(`${11}`);
+        const secondNode = tree.getNodeByKey(`${12}`);
+        TabNodeOperations.updatePartial(firstNode, { closed: true, index: 0 });
+        TabNodeOperations.updatePartial(secondNode, { closed: false, index: 0 });
+        const { url, index, windowId } = firstNode.data;
         browser.tabs.create.returns(Promise.resolve({ id: 13, url, index, windowId }));
-        await FancyTabMasterTree.onDbClick(toClickNode);
+        await FancyTabMasterTree.onDbClick(firstNode);
         expect(browser.tabs.create.callCount).toBe(1);
         expect(browser.tabs.create.getCall(0).calledWith({ url, index, windowId })).toBeTruthy();
-        expect(toClickNode.data.closed).toBe(false);
-        expect(toClickNode.key).toBe('13');
+        expect(firstNode.data.closed).toBe(false);
+        expect(firstNode.key).toBe('13');
         // eslint-disable-next-line unicorn/consistent-destructuring
-        expect(toClickNode.data.id).toBe(13);
+        expect(firstNode.data.id).toBe(13);
+        expect(secondNode.data.index).toBe(1);
     });
 
     it('db click on closed tab node, with closed window', async () => {
