@@ -79,7 +79,8 @@ export class FancyTabMasterTree {
 
     public activeTab(windowId: number, tabId: number): void {
         // devtools的windowId为-1，不做处理
-        if (windowId < 0) return;
+        const tabNode = this.tree.getNodeByKey(`${tabId}`);
+        if (windowId < 0 || !tabNode) return;
         TabNodeOperations.updatePartial(this.tree.getNodeByKey(`${tabId}`), { active: true });
     }
 

@@ -1,3 +1,4 @@
+import { clone } from 'lodash';
 import type { Windows } from 'webextension-polyfill';
 
 import { NodeUtils } from '../utils';
@@ -59,10 +60,11 @@ export const WindowNodeOperations = {
         }
     },
     remove(targetNode: FancytreeNode): void {
-        targetNode.children.reverse().forEach((child) => {
-            child.moveTo(targetNode, 'after');
-        });
         if (targetNode && NodeUtils.canRemove(targetNode)) {
+            const children = targetNode.children ? clone(targetNode.children?.reverse()) : [];
+            children.forEach((child) => {
+                child.moveTo(targetNode, 'after');
+            });
             targetNode.remove();
         }
     },
