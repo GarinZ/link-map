@@ -18,7 +18,7 @@ onMessage('remove-window', (msg) => {
 onMessage('move-tab', async (msg) => {
     const { windowId, fromIndex, toIndex, tabId } = msg.data;
     // 2. 移动元素
-    tree.moveTab(windowId, tabId, toIndex, fromIndex);
+    tree.moveTab(windowId, tabId, fromIndex, toIndex);
 });
 onMessage('update-tab', (msg) => {
     tree.updateTab(msg.data);

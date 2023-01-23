@@ -40,7 +40,9 @@ export const TabNodeOperations = {
         const { windowId, index, openerTabId } = newNode.data;
         const windowNode = tree.getNodeByKey(`${windowId}`);
         // 1. 先根据index - 1找到前一个节点
-        const prevNode = windowNode.findFirst((node) => node.data.index === index - 1);
+        const prevNode = windowNode.findFirst(
+            (node) => node.data.index === index - 1 && !node.data.closed,
+        );
         ViewTabIndexUtils.increaseIndex(tree, windowNode.data.id, index);
         // 2. 如果index - 1不存在，说明是第一个节点，直接添加为windowNode的子节点
         let createdNode = null;
@@ -48,7 +50,7 @@ export const TabNodeOperations = {
             createdNode = windowNode.addNode(newNode, 'firstChild');
         } else if (prevNode.data.id === openerTabId) {
             // 3.1 如果相等，说明是openerTab的子节点，直接添加为openerTab的子节点
-            createdNode = prevNode.addNode(newNode, 'child');
+            createdNode = prevNode.addNode(newNode, 'firstChild');
         } else if (!prevNode.data.openerTabId || prevNode.data.openerTabId === openerTabId) {
             // 3.2 prevNode有openerTabId，但是不等于newTab的openerTabId，说明newTab是prevNode的兄弟节点
             createdNode = prevNode.addNode(newNode, 'after');
