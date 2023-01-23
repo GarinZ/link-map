@@ -53,11 +53,14 @@ export const WindowNodeOperations = {
         return node;
     },
     updatePartial(windowNode: FancytreeNode, updateProperties: Partial<WindowData>): void {
-        const { id } = updateProperties;
+        const { id, closed } = updateProperties;
         windowNode.data = { ...windowNode.data, ...updateProperties };
         if (id) {
             windowNode.key = `${id}`;
             windowNode.data.windowId = id;
+        }
+        if (closed !== undefined) {
+            windowNode.renderTitle();
         }
     },
     remove(targetNode: FancytreeNode): void {
@@ -91,8 +94,7 @@ export const WindowNodeOperations = {
         windowNode2TabNodes.forEach((tabNodes, windowNode) => {
             const closed = tabNodes.every((tabNode) => tabNode.data.closed);
             if (closed && !windowNode.data.closed) closedWindowNodes.push(windowNode);
-            windowNode.data.closed = closed;
-            windowNode.renderTitle();
+            this.updatePartial(windowNode, { closed });
         });
         return closedWindowNodes;
     },

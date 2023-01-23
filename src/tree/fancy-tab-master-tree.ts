@@ -9,7 +9,7 @@ import { ViewTabIndexUtils } from './tab-index-utils';
 import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
 import { NodeUtils } from './utils';
 
-const { TYPE_ATTR, NODE_CLOSE } = TPL_CONSTANTS;
+const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE } = TPL_CONSTANTS;
 
 type FancytreeNode = Fancytree.FancytreeNode;
 
@@ -20,7 +20,7 @@ type FancytreeNode = Fancytree.FancytreeNode;
  */
 export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
-    static closeNodes: (targetNode: FancytreeNode) => void;
+    static closeNodes: (targetNode: FancytreeNode, updateClosed?: boolean) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
 
@@ -113,6 +113,7 @@ export class FancyTabMasterTree {
 
     public async removeTab(tabId: number): Promise<void> {
         const toRemoveNode = this.tree.getNodeByKey(`${tabId}`);
+        if (!toRemoveNode) return;
         const windowId = toRemoveNode.data.windowId;
         TabNodeOperations.remove(this.tree, toRemoveNode);
         await this.syncActiveTab(windowId);
@@ -176,6 +177,10 @@ FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventDat
         case NODE_CLOSE:
             console.log('[tree]: close button clicked');
             FancyTabMasterTree.closeNodes(data.node);
+            break;
+        case NODE_REMOVE:
+            console.log('[tree]: remove button clicked');
+            FancyTabMasterTree.closeNodes(data.node, false);
             break;
     }
     return true;
@@ -260,9 +265,9 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
 /**
  * 关闭节点
  */
-FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
+FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode, updateClosed = true) => {
     // 1. 更新tabNodes的closed状态
-    const closedTabNodes = TabNodeOperations.close(targetNode);
+    const closedTabNodes = TabNodeOperations.close(targetNode, updateClosed);
     // 2. 更新windowNodes的closed状态
     const windowIdSet = new Set<number>();
     const tabIdSet = new Set<number>();
@@ -270,7 +275,9 @@ FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
         windowIdSet.add(node.data.windowId);
         tabIdSet.add(node.data.id);
     });
-    WindowNodeOperations.close(targetNode.tree, windowIdSet);
+    if (updateClosed) {
+        WindowNodeOperations.close(targetNode.tree, windowIdSet);
+    }
     tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
     // close状态修改的TabNode对应的WindowNode需要更新其closed值
 };

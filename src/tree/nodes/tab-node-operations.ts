@@ -74,11 +74,14 @@ export const TabNodeOperations = {
         if (toRemoveNode) toRemoveNode.remove();
     },
     updatePartial(toUpdateNode: FancytreeNode, updateProps: Partial<TabData>) {
-        const { title, favIconUrl, id, active } = updateProps;
+        const { title, favIconUrl, id, active, closed } = updateProps;
         toUpdateNode.data = { ...toUpdateNode.data, ...updateProps };
         if (id) toUpdateNode.key = `${id}`;
         if (title) toUpdateNode.setTitle(title);
         if (favIconUrl) toUpdateNode.icon = favIconUrl;
+        if (closed !== undefined) {
+            toUpdateNode.renderTitle();
+        }
         if (active) {
             // 设置tab的tab-active，并关闭其他tab的tab-active
             toUpdateNode.data.tabActive = true;
@@ -91,27 +94,26 @@ export const TabNodeOperations = {
             });
         }
     },
-    closeItem(node: FancytreeNode): FancytreeNode | null {
+    closeItem(node: FancytreeNode, updateClosed): FancytreeNode | null {
         if (node.data.closed) return null;
-        node.data.closed = true;
-        node.renderTitle();
+        if (updateClosed) this.updatePartial(node, { closed: true });
         return node;
     },
     /** 更新Tab的closed状态 */
-    close(fromNode: FancytreeNode): FancytreeNode[] {
+    close(fromNode: FancytreeNode, updateClosed = true): FancytreeNode[] {
         // 只管更新targetNode自身及其子节点的closed状态
         const toCloseNodes: FancytreeNode[] = [];
         const expanded = fromNode.expanded === undefined || fromNode.expanded;
         if (expanded && fromNode.data.nodeType === 'tab') {
             // 只关闭当前tab节点
-            const toCloseNode = TabNodeOperations.closeItem(fromNode);
+            const toCloseNode = TabNodeOperations.closeItem(fromNode, updateClosed);
             toCloseNode && toCloseNodes.push(toCloseNode);
         } else if (expanded && fromNode.data.nodeType === 'window') {
             fromNode.visit((node) => {
                 const { nodeType, windowId } = node.data;
                 // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
                 if (nodeType === 'tab' && windowId === fromNode.data.windowId) {
-                    const result = TabNodeOperations.closeItem(node);
+                    const result = TabNodeOperations.closeItem(node, updateClosed);
                     result && toCloseNodes.push(result);
                 }
                 return true;
@@ -122,7 +124,7 @@ export const TabNodeOperations = {
                 const { nodeType } = node.data;
                 // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
                 if (nodeType === 'tab') {
-                    const result = TabNodeOperations.closeItem(node);
+                    const result = TabNodeOperations.closeItem(node, updateClosed);
                     result && toCloseNodes.push(result);
                 }
                 return true;

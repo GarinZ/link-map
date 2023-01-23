@@ -138,6 +138,23 @@ export class MockTreeBuilder {
         return this;
     }
 
+    addSubTabNode(count: number, windowId = MockTreeBuilder.DEFAULT_WINDOW_ID): MockTreeBuilder {
+        const parentNode = this.getPrevTab(windowId);
+        if (!parentNode) {
+            return this.addTabChildren(count, windowId);
+        }
+        for (let i = 0; i < count; i++) {
+            const newTabNodeData = createTabNode({
+                id: parentNode.data.id! + i + 1,
+                windowId,
+                index: parentNode.data.index + i + 1,
+            });
+            parentNode.children!.push(newTabNodeData);
+            this.windowIdToTabNodeData[windowId].push(newTabNodeData);
+        }
+        return this;
+    }
+
     addWindowNode(addToPrevWindow = false): MockTreeBuilder {
         const windowId = Object.keys(this.windowIdToWindowNodeData).length + 1;
         let lastWindowIdStr: string | undefined;
@@ -157,6 +174,12 @@ export class MockTreeBuilder {
         this.windowIdToWindowNodeData[windowId] = newWindowNodeData;
         toAddArr.push(newWindowNodeData);
         return this;
+    }
+
+    private getPrevTab(windowId: number): TreeNode<TabData> | undefined {
+        return this.windowIdToTabNodeData[windowId].reduce((maxNode, tabNode) => {
+            return maxNode.data.id! < tabNode.data.id! ? tabNode : maxNode;
+        });
     }
 
     build(): TreeNode<TreeData>[] {
