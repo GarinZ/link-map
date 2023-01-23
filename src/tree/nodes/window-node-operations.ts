@@ -17,7 +17,7 @@ export interface WindowData extends Omit<Windows.Window, ''>, TreeData {
 }
 
 export const WindowNodeOperations = {
-    createData(window: Windows.Window): TreeNode<WindowData> {
+    createData(window: Windows.Window, createTab = true): TreeNode<WindowData> {
         const { id, type, tabs } = window;
         const isBackgroundPage =
             !!tabs && type === 'popup' && tabs[0].title === BACKGROUND_PAGE_TITLE;
@@ -42,12 +42,13 @@ export const WindowNodeOperations = {
         // 删除data.tabs
         delete node.data.tabs;
         // PS: openerTabId是空的，所以无法通过openerTabId构建Tab树
-        if (tabs)
+        if (tabs && createTab) {
             node.children = tabs.map((tab) => {
                 const tabNode = TabNodeOperations.createData(tab);
                 if (tab.active) tabNode.extraClasses = 'tab-active';
                 return tabNode;
             });
+        }
 
         return node;
     },
@@ -102,18 +103,24 @@ export const WindowNodeOperations = {
         );
     },
     buildCreateWindowProps(
-        windowNode: FancytreeNode,
         url: string | string[],
+        windowNode?: FancytreeNode,
     ): Windows.CreateCreateDataType {
-        const data = windowNode.data;
-        return {
+        let props: Windows.CreateCreateDataType = {
             url,
-            incognito: data.incognito,
-            type: data.type,
-            left: data.left,
-            top: data.top,
-            width: data.width,
-            height: data.height,
         };
+        if (windowNode) {
+            const { incognito, type, left, top, width, height } = windowNode.data;
+            props = {
+                ...props,
+                incognito,
+                type,
+                left,
+                top,
+                width,
+                height,
+            };
+        }
+        return props;
     },
 };
