@@ -10,6 +10,7 @@ import { WindowNodeOperations } from '@/tree/nodes/window-node-operations';
 
 import { initTabMasterTree, MockTreeBuilder } from '../../utils/gen-utils';
 import { toAsciiTree } from '../../utils/print-utils';
+import { DEFAULT_TAB_NODE } from './mock-data';
 
 describe('close node', () => {
     beforeEach(() => {
@@ -117,7 +118,7 @@ describe('db click', () => {
         browser.flush();
     });
 
-    it('db click on opened tab node, with opened window', async () => {
+    it('db click on opened tab node, with opened window node', async () => {
         const treeData = new MockTreeBuilder().addTabChildren(2).build();
         const tree = initTabMasterTree(treeData).tree;
         TabNodeOperations.updatePartial(tree.getNodeByKey(`${12}`), { active: true });
@@ -128,7 +129,7 @@ describe('db click', () => {
         expect(browser.windows.update.getCall(0).calledWith(1, { focused: true })).toBeTruthy();
     });
 
-    it('db click on closed tab node, with opened window', async () => {
+    it('db click on closed tab node, with opened window node', async () => {
         const treeData = new MockTreeBuilder().addTabChildren(2).build();
         const tree = initTabMasterTree(treeData).tree;
         const toClickNode = tree.getNodeByKey(`${11}`);
@@ -175,6 +176,28 @@ describe('db click', () => {
         expect(toClickNode.key).toBe('21');
         // eslint-disable-next-line unicorn/consistent-destructuring
         expect(toClickNode.data.id).toBe(21);
+    });
+
+    it('db click on closed tab without window node', async () => {
+        const tree = initTabMasterTree([DEFAULT_TAB_NODE]).tree;
+        const toClickNode = tree.getNodeByKey(DEFAULT_TAB_NODE.key);
+        const modifiedWindowId = 2;
+        TabNodeOperations.updatePartial(toClickNode, { closed: true });
+        const { url } = toClickNode.data;
+        browser.windows.create.returns(
+            Promise.resolve({
+                id: modifiedWindowId,
+                tabs: [{ id: 21, url, index: 0, windowId: modifiedWindowId }],
+            }),
+        );
+        await FancyTabMasterTree.onDbClick(toClickNode);
+        expect(browser.windows.create.callCount).toBe(1);
+        expect(browser.windows.create.getCall(0).calledWith({ url })).toBeTruthy();
+        expect(toClickNode.data.closed).toBe(false);
+        expect(toClickNode.key).toBe('21');
+        // eslint-disable-next-line unicorn/consistent-destructuring
+        expect(toClickNode.data.id).toBe(21);
+        expect(toClickNode.getParent().data.windowId).toBe(modifiedWindowId);
     });
 
     it('db click on opened window node', () => {
