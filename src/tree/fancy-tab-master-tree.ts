@@ -23,6 +23,8 @@ export class FancyTabMasterTree {
     static closeNodes: (targetNode: FancytreeNode, updateClosed?: boolean) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
+    static reopenWindow: (windowNode: FancytreeNode) => void;
+    static createWindowNodeAsParent: (childNode: FancytreeNode) => void;
 
     constructor(selector: JQuery.Selector = '#tree') {
         $(selector).fancytree({
@@ -208,6 +210,7 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
             );
             targetNode.moveTo(newWindowNode, 'firstChild');
             TabNodeOperations.updatePartial(targetNode, { ...newWindow.tabs![0], closed: false });
+            // TODO 这里还需要修改所有subTabNode的windowId
             newWindowNode.setExpanded(true);
         } else if (windowNode.data.closed) {
             // 2.2 WindowNode存在 && 关闭  => 打开WindowNode
@@ -279,4 +282,19 @@ FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode, updateClosed = true)
     }
     tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
     // close状态修改的TabNode对应的WindowNode需要更新其closed值
+};
+
+FancyTabMasterTree.reopenWindowNode = (windowNode: FancytreeNode): void => {};
+
+FancyTabMasterTree.createWindowNodeAsParent = async (tabNode: FancytreeNode): Promise<void> => {
+    const { url, windowId: prevWindowId } = tabNode.data;
+    const newWindow = await browser.windows.create(
+        WindowNodeOperations.buildCreateWindowProps(url),
+    );
+    const newWindowNode = tabNode.addNode(
+        WindowNodeOperations.createData(newWindow, false),
+        'before',
+    );
+    tabNode.moveTo(newWindowNode, 'firstChild');
+    TabNodeOperations.updatePartial(tabNode, { ...newWindow.tabs![0], closed: false });
 };

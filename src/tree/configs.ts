@@ -1,3 +1,7 @@
+import browser from 'webextension-polyfill';
+
+import { WindowNodeOperations } from './nodes/window-node-operations';
+
 interface DND5Data {
     dataTransfer: {
         dropEffect: 'none';
@@ -94,18 +98,21 @@ async function tabMoveOnDrop(sourceNode: Fancytree.FancytreeNode): Promise<void>
         }
         return true;
     });
+    if (targetWindowNode === null) {
+        // 2. 移动到无窗口位置或窗口关闭：需要新建窗口
+        const window = await browser.windows.create();
+        const windowData = WindowNodeOperations.createData(window, false);
+        targetWindowNode = sourceNode.addNode(windowData, 'before');
+        sourceNode.moveTo(targetWindowNode, 'child');
+    } else if (targetWindowNode.data.closed) {
+        // 3. 移动到已关闭窗口：需要新建窗口并更新属性
+        const window = await browser.windows.create();
+        WindowNodeOperations.updatePartial(targetWindowNode, window);
+    }
 
-    // if (targetWindowNode === null) {
-    //     // 移动到无窗口位置或窗口关闭：需要新建窗口
-    //     const window = await browser.windows.create();
-    //     const windowData = WindowNodeOperations.createData(window, false);
-    // } else if (targetWindowNode.data.closed) {
-    //
-    // }
-    //
-    // if (targetWindowNode.data.windowId === sourceWindowId) {
-    //     // 同窗口移动：移动tab
-    // } else if (targetWindowNode.data.windowId !== sourceWindowId) {
-    //     // 跨窗口移动：跨窗口移动tab
-    // }
+    if (targetWindowNode.data.windowId === sourceWindowId) {
+        // 同窗口移动：移动tab
+    } else if (targetWindowNode.data.windowId !== sourceWindowId) {
+        // 跨窗口移动：跨窗口移动tab
+    }
 }
