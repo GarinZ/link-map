@@ -1,7 +1,3 @@
-import { tabs } from 'webextension-polyfill';
-
-import { BrowserExtensionUtils, FancyTreeUtils, logLazy } from './utils';
-
 interface DND5Data {
     dataTransfer: {
         dropEffect: 'none';
@@ -27,92 +23,43 @@ interface DND5Data {
 
 /** Drag&Drop HTML5 Config */
 export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
-    // autoExpandMS: 400,
-    // preventForeignNodes: true,
-    // preventNonNodes: true,
+    autoExpandMS: 400,
+    preventNonNodes: true,
     preventRecursion: true, // Prevent dropping nodes on own descendants
-    // preventSameParent: true,
     preventVoidMoves: true, // Prevent moving nodes 'before self', etc.
-    // effectAllowed: "all",
-    // dropEffectDefault: "move", // "auto",
+    effectAllowed: 'all',
+    dropEffectDefault: 'move', // "auto",
+    scroll: true,
+    multiSource: false,
 
-    dragStart(node: Fancytree.FancytreeNode, data: DND5Data) {
-        data.effectAllowed = 'all';
-        data.dropEffect = 'move';
+    dragStart(_node: Fancytree.FancytreeNode, _data: DND5Data) {
         return true;
     },
-    dragDrag(_node: Fancytree.FancytreeNode, data: DND5Data) {
-        logLazy(
-            'dragDrag',
-            null,
-            2000,
-            `${'T1: dragDrag: ' + 'data: '}${data.dropEffect}/${
-                data.effectAllowed
-            }, dataTransfer: ${data.dataTransfer.dropEffect}/${data.dataTransfer.effectAllowed}`,
-        );
-    },
-    // dragEnd: function(node, data) {
-    //   node.debug( "T1: dragEnd: " + "data: " + data.dropEffect + "/" + data.effectAllowed +
-    //     ", dataTransfer: " + data.dataTransfer.dropEffect + "/" + data.dataTransfer.effectAllowed, data);
-    //     alert("T1: dragEnd")
-    // },
-
-    // --- Drop-support:
-
-    dragEnter(node: Fancytree.FancytreeNode, data: DND5Data) {
-        node.debug(
-            `${'T1: dragEnter: ' + 'data: '}${data.dropEffect}/${
-                data.effectAllowed
-            }, dataTransfer: ${data.dataTransfer.dropEffect}/${data.dataTransfer.effectAllowed}`,
-        );
-
-        // data.dropEffect = "copy";
+    dragDrag(_node: Fancytree.FancytreeNode, _data: DND5Data) {},
+    dragEnter(_node: Fancytree.FancytreeNode, _data: DND5Data) {
         return true;
     },
     dragOver(_node: Fancytree.FancytreeNode, data: DND5Data) {
-        logLazy(
-            'dragOver',
-            null,
-            2000,
-            `${'T1: dragOver: ' + 'data: '}${data.dropEffect}/${
-                data.effectAllowed
-            }, dataTransfer: ${data.dataTransfer.dropEffect}/${data.dataTransfer.effectAllowed}`,
-        );
-
         // Assume typical mapping for modifier keys
         data.dropEffect = data.dropEffectSuggested;
         // data.dropEffect = "move";
     },
     dragDrop(targetNode: Fancytree.FancytreeNode, data: DND5Data) {
-        /* This function MUST be defined to enable dropping of items on
-         * the tree.
-         */
-        let newNode;
+        // This function MUST be defined to enable dropping of items on the tree.
         const transfer = data.dataTransfer;
-        let sourceNodes = data.otherNodeList;
         const mode = data.dropEffect;
-        // 1. 若hitMode设置为after，直接
-        if (data.hitMode === 'after') {
-            // If node are inserted directly after target node one-by-one,
-            // this would reverse them. So we compensate:
-            sourceNodes = sourceNodes.reverse();
-        }
         // 2. 从当前树中移动节点（没有跨树移动），移动节点中包含子树
-        if (data.otherNode) {
+        const sameTree = data.otherNode.tree === data.tree;
+        if (data.otherNode && sameTree) {
             // Drop another Fancytree node from same frame (maybe a different tree however)
-            const sameTree = data.otherNode.tree === data.tree;
             if (mode === 'move') {
                 data.otherNode.moveTo(targetNode, data.hitMode);
-                if (data.othernode.data.nodeType === 'window') {
-                    // 若移动的是windowNode，什么也不做
-                    return;
-                }
-                sortOnDrop(targetNode, sourceNodes);
+                tabMoveOnDrop(data.otherNode);
             } else {
-                newNode = data.otherNode.copyTo(targetNode, data.hitMode);
-                if (mode === 'link') newNode.setTitle(`Link to ${newNode.title}`);
-                else newNode.setTitle(`Copy of ${newNode.title}`);
+                throw new Error('Not implemented other dropEffect');
             }
+        } else if (data.otherNode && !sameTree) {
+            throw new Error('Not implemented cross tree move');
         } else if (data.otherNodeData) {
             // 若node是从其他frame或window拖拽进来的
             // Drop Fancytree node from different frame or window, so we only have
@@ -126,25 +73,39 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
     },
 };
 
-async function sortOnDrop(
-    targetNode: Fancytree.FancytreeNode,
-    dropNodeList: Fancytree.FancytreeNode[],
-): Promise<void> {
-    // 1. 先对window.children校正一下index字段
-    const windowNode = FancyTreeUtils.findWindowNode(targetNode);
-    console.log('windowNode:', windowNode);
-    const tabId2Index = await BrowserExtensionUtils.getTabId2Index(windowNode.data.id);
-    FancyTreeUtils.resetNodeIndex(targetNode.tree, windowNode.data.id, tabId2Index);
-    // 2. 逐个设置index字段
-    // const tabId2TargetIndex = {}
-    const targetNodeIndex = targetNode.data.index;
-    const tabIds = dropNodeList.map((item) => item.data.id);
-    tabs.move(tabIds, { index: targetNodeIndex + 1 });
-    // 3. 根据修改后的index字段调用API修改顺序
-}
+async function tabMoveOnDrop(sourceNode: Fancytree.FancytreeNode): Promise<void> {
+    // 1. 非tabNode移动：什么都不用做
+    if (sourceNode.data.nodeType !== 'tab') return;
+    const sourceWindowId = sourceNode.data.windowId;
+    const toMoveTabNodeList = [];
+    sourceNode.visit((node) => {
+        const { windowId, nodeType, closed } = node.data;
+        if (nodeType === 'window' && !closed && windowId === sourceWindowId) {
+            toMoveTabNodeList.push(node);
+        }
+        return true;
+    }, true);
+    if (toMoveTabNodeList.length === 0) return;
+    let targetWindowNode: Fancytree.FancytreeNode | null = null;
+    sourceNode.visitParents((parent) => {
+        if (parent.data.nodeType === 'window') {
+            targetWindowNode = parent;
+            return false;
+        }
+        return true;
+    });
 
-type MoveType =
-    | 'moveToClosedWindow'
-    | 'moveInsideWindow'
-    | 'moveToAnotherWindow'
-    | 'moveToNewWindow';
+    // if (targetWindowNode === null) {
+    //     // 移动到无窗口位置或窗口关闭：需要新建窗口
+    //     const window = await browser.windows.create();
+    //     const windowData = WindowNodeOperations.createData(window, false);
+    // } else if (targetWindowNode.data.closed) {
+    //
+    // }
+    //
+    // if (targetWindowNode.data.windowId === sourceWindowId) {
+    //     // 同窗口移动：移动tab
+    // } else if (targetWindowNode.data.windowId !== sourceWindowId) {
+    //     // 跨窗口移动：跨窗口移动tab
+    // }
+}

@@ -87,7 +87,7 @@ browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
  *
  */
 browser.tabs.onAttached.addListener(async (tabId, { newPosition, newWindowId }) => {
-    console.log('[bg]: attached');
+    console.log('[bg]: attached, tabId:', tabId);
     await sendMessageToExt('attach-tab', {
         windowId: newWindowId,
         tabId,
@@ -96,7 +96,7 @@ browser.tabs.onAttached.addListener(async (tabId, { newPosition, newWindowId }) 
 });
 
 browser.tabs.onDetached.addListener(async (tabId) => {
-    console.log('[bg]: detached');
+    console.log('[bg]: detached, tabId:', tabId);
     await sendMessageToExt('detach-tab', { tabId });
 });
 

@@ -94,7 +94,7 @@ export const TabNodeOperations = {
             });
         }
     },
-    closeItem(node: FancytreeNode, updateClosed): FancytreeNode | null {
+    closeItem(node: FancytreeNode, updateClosed: boolean): FancytreeNode | null {
         if (node.data.closed) return null;
         if (updateClosed) this.updatePartial(node, { closed: true });
         return node;

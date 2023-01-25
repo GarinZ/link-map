@@ -129,7 +129,6 @@ export class FancyTabMasterTree {
         const tab = await browser.tabs.get(tabId);
         this.createTab(tab);
         this.moveTab(windowId, tabId, fromIndex, tab.index);
-        // await this.syncActiveTab(windowId);
     }
 
     public detachTab(tabId: number): void {
