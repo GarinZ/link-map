@@ -117,18 +117,4 @@ export const NodeUtils = {
         const { closed, alias } = node.data;
         return !closed && !alias;
     },
-    getPrevOpenedTabNode(node: Fancytree.FancytreeNode): Fancytree.FancytreeNode | null {
-        const windowNode = node.tree.getNodeByKey(`${node.data.windowId}`);
-        let prevNode = null;
-        windowNode.visit((n) => {
-            if (n === node) {
-                return false;
-            }
-            if (n.data.nodeType === 'tab' && !n.data.closed) {
-                prevNode = n;
-            }
-            return true;
-        });
-        return prevNode;
-    },
 };

@@ -169,7 +169,7 @@ describe('db click', () => {
         expect(browser.windows.create.callCount).toBe(1);
         const createWindowArg = browser.windows.create.getCall(0).args[0];
         Object.entries(createWindowArg).forEach(([key, value]) => {
-            if (key === 'url') expect(value).toBe(url);
+            if (key === 'url') expect(value).toStrictEqual([url]);
             else expect(value).toBe(windowNode.data[key]);
         });
         expect(windowNode.data.closed).toBe(false);
@@ -179,6 +179,8 @@ describe('db click', () => {
         expect(toClickNode.key).toBe('21');
         // eslint-disable-next-line unicorn/consistent-destructuring
         expect(toClickNode.data.id).toBe(21);
+        // eslint-disable-next-line unicorn/consistent-destructuring
+        expect(toClickNode.data.windowId).toBe(modifiedWindowId);
     });
 
     it('db click on closed tab without window node', async () => {
@@ -201,6 +203,8 @@ describe('db click', () => {
         // eslint-disable-next-line unicorn/consistent-destructuring
         expect(toClickNode.data.id).toBe(21);
         expect(toClickNode.getParent().data.windowId).toBe(modifiedWindowId);
+        // eslint-disable-next-line unicorn/consistent-destructuring
+        expect(toClickNode.data.windowId).toBe(modifiedWindowId);
     });
 
     it('db click on opened window node', () => {
@@ -244,9 +248,11 @@ describe('db click', () => {
         expect(firstTabNode.data.closed).toBe(false);
         expect(firstTabNode.key).toBe('21');
         expect(firstTabNode.data.id).toBe(21);
+        expect(firstTabNode.data.windowId).toBe(modifiedWindowId);
         expect(secondTabNode.data.closed).toBe(false);
         expect(secondTabNode.key).toBe('22');
         expect(secondTabNode.data.id).toBe(22);
+        expect(secondTabNode.data.windowId).toBe(modifiedWindowId);
     });
 
     afterEach(() => {

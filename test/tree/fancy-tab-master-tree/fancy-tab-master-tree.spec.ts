@@ -11,7 +11,7 @@ import type { TreeNode } from '@/tree/nodes/nodes';
 import type { TabData } from '@/tree/nodes/tab-node-operations';
 import type { WindowData } from '@/tree/nodes/window-node-operations';
 
-import { createTab, initTabMasterTree } from '../../utils/gen-utils';
+import { createTab, initTabMasterTree, MockTreeBuilder } from '../../utils/gen-utils';
 import { toAsciiTree } from '../../utils/print-utils';
 import { SINGLE_TAB_WINDOW } from './mock-data';
 
@@ -286,18 +286,32 @@ describe('attach tab', () => {
         browser.flush();
     });
 
-    it('attach to first', async () => {
-        const attachedTab = createTab(FIRST_TID + 1, WID, 0);
+    it('attach to first', () => {
+        const treeData = new MockTreeBuilder()
+            .addTabChildren(2)
+            .addWindowNode()
+            .addTabChildren(2, 2)
+            .build();
+        const tree = initTabMasterTree(treeData);
+        const attachedTab = createTab(11, 1, 1);
         browser.tabs.get.resolves(attachedTab);
         browser.tabs.query.resolves([attachedTab]);
-        await tree.attachTab(WID, FIRST_TID + 1, FIRST_INDEX + 1);
+        console.log(toAsciiTree(tree.toJsonObj(), ['expanded'], ['closed', 'windowId']));
+        tree.attachTab(2, 11, 1);
+        console.log(toAsciiTree(tree.toJsonObj(), ['expanded'], ['closed', 'windowId']));
         const windowNode = tree.toJsonObj()[0] as TreeNode<WindowData>;
         const children = windowNode.children! as TreeNode<TabData>[];
-        expect(children.length).toEqual(2);
-        expect(children[0].data.id).toEqual(FIRST_TID + 1);
+        expect(children.length).toEqual(1);
+        expect(children[0].data.id).toEqual(12);
         expect(children[0].data.index).toEqual(0);
-        expect(children[1].data.id).toEqual(FIRST_TID);
-        expect(children[1].data.index).toEqual(1);
+        const secondWindowNode = tree.toJsonObj()[1] as TreeNode<WindowData>;
+        const secondWindowChildren = secondWindowNode.children! as TreeNode<TabData>[];
+        expect(secondWindowChildren.length).toEqual(3);
+        expect(secondWindowChildren[0].data.id).toEqual(21);
+        expect(secondWindowChildren[0].data.index).toEqual(0);
+        expect(secondWindowChildren[1].data.id).toEqual(11);
+        expect(secondWindowChildren[1].data.index).toEqual(1);
+        expect(secondWindowChildren[2].data.id).toEqual(22);
     });
 
     afterEach(() => {

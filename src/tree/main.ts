@@ -28,8 +28,8 @@ onMessage('activated-tab', (msg) => {
     tree.activeTab(windowId, tabId);
 });
 onMessage('attach-tab', (msg) => {
-    const { tabId, windowId, fromIndex } = msg.data;
-    tree.attachTab(windowId, tabId, fromIndex);
+    const { tabId, windowId, newIndex } = msg.data;
+    tree.attachTab(windowId, tabId, newIndex);
 });
 onMessage('detach-tab', (msg) => {
     const { tabId } = msg.data;

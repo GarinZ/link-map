@@ -132,4 +132,65 @@ export const TabNodeOperations = {
         }
         return toCloseNodes;
     },
+    findWindowNode(targetNode: FancytreeNode): FancytreeNode | null {
+        if (targetNode.data.nodeType === 'window') throw new Error('targetNode is window node');
+        let windowNode = null;
+        targetNode.visitParents((parent) => {
+            if (parent.data.nodeType === 'window') {
+                windowNode = parent;
+                return false;
+            }
+            return true;
+        });
+        return windowNode;
+    },
+    findPrevOpenedTabNode(tabNode: Fancytree.FancytreeNode): Fancytree.FancytreeNode | null {
+        if (tabNode.data.nodeType === 'window') throw new Error('targetNode is window node');
+        const windowNode = tabNode.tree.getNodeByKey(`${tabNode.data.windowId}`);
+        let prevNode = null;
+        windowNode.visit((n) => {
+            if (n === tabNode) return false;
+            if (n.data.nodeType === 'tab' && !n.data.closed) prevNode = n;
+            return true;
+        });
+        return prevNode;
+    },
+    /** 兼容同窗口/跨窗口移动 */
+    move(toMoveNode: FancytreeNode, fromIndex: number, toIndex: number, toWindowId?: number): void {
+        // 1. 更新index和属性
+        let targetWindowNode = toMoveNode.tree.getNodeByKey(`${toMoveNode.data.windowId}`);
+        if (toWindowId) {
+            const oldWindowId = toMoveNode.data.windowId;
+            targetWindowNode = toMoveNode.tree.getNodeByKey(`${toWindowId}`);
+            ViewTabIndexUtils.increaseIndex(toMoveNode.tree, toWindowId, toIndex);
+            ViewTabIndexUtils.decreaseIndex(toMoveNode.tree, oldWindowId, fromIndex);
+            this.updatePartial(toMoveNode, { windowId: toWindowId, index: toIndex });
+        } else {
+            toMoveNode.data.index = fromIndex;
+            ViewTabIndexUtils.changeIndex(
+                toMoveNode.tree,
+                targetWindowNode.data.id,
+                fromIndex,
+                toIndex,
+            );
+        }
+        // 2. 移动节点
+        NodeUtils.moveChildrenAsNextSiblings(toMoveNode);
+        if (toIndex === 0) {
+            toMoveNode.moveTo(targetWindowNode, 'firstChild');
+            return;
+        }
+        const prevOpenedTabNode = targetWindowNode.findFirst(
+            (node) =>
+                node.data.nodeType === 'tab' &&
+                node.data.index === toIndex - 1 &&
+                !node.data.closed,
+        );
+        const nextOpenedTabNodeChild = prevOpenedTabNode.findFirst(
+            (node) => node.data.nodeType === 'tab' && !node.data.closed,
+        );
+        nextOpenedTabNodeChild
+            ? toMoveNode.moveTo(nextOpenedTabNodeChild, 'before')
+            : toMoveNode.moveTo(prevOpenedTabNode, 'after');
+    },
 };

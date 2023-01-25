@@ -1,6 +1,7 @@
 export const ViewTabIndexUtils = {
     increaseIndex: (tree: Fancytree.Fancytree, windowId: number, index: number) => {
         const parentNode = tree.getNodeByKey(`${windowId}`);
+        if (!parentNode) return;
         parentNode.visit((node) => {
             if (
                 node.data.nodeType !== 'tab' ||
@@ -23,6 +24,7 @@ export const ViewTabIndexUtils = {
         newIndex: number,
     ) => {
         const parentNode = tree.getNodeByKey(`${windowId}`);
+        if (!parentNode) return;
         parentNode.visit((node) => {
             if (node.data.nodeType !== 'tab' || node.data.closed === true) {
                 return true;
@@ -45,6 +47,7 @@ export const ViewTabIndexUtils = {
     ): Fancytree.FancytreeNode[] => {
         const changedNode: Fancytree.FancytreeNode[] = [];
         const parentNode = tree.getNodeByKey(`${windowId}`);
+        if (!parentNode) return changedNode;
         parentNode.visit((node) => {
             if (
                 node.data.nodeType !== 'tab' ||

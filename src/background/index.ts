@@ -91,7 +91,7 @@ browser.tabs.onAttached.addListener(async (tabId, { newPosition, newWindowId }) 
     await sendMessageToExt('attach-tab', {
         windowId: newWindowId,
         tabId,
-        newPosition,
+        newIndex: newPosition,
     });
 });
 

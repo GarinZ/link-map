@@ -125,4 +125,11 @@ export const WindowNodeOperations = {
         }
         return props;
     },
+    updateSubTabWindowId(windowNode: FancytreeNode, oldWindowId: number): void {
+        windowNode
+            .findAll((node) => node.data.nodeType === 'tab' && node.data.windowId === oldWindowId)
+            .forEach((tabNode) => {
+                TabNodeOperations.updatePartial(tabNode, { windowId: windowNode.data.windowId });
+            });
+    },
 };

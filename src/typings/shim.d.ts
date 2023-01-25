@@ -25,7 +25,7 @@ declare module '@garinz/webext-bridge' {
             windowId: number;
             tabId: number;
         };
-        'attach-tab': { windowId: number; tabId: number; fromIndex: number };
+        'attach-tab': { windowId: number; tabId: number; newIndex: number };
         'detach-tab': { tabId: number };
         'add-window': Windows.Window;
         'remove-window': { windowId: number };
