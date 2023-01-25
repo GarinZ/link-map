@@ -19,7 +19,7 @@ browser.action.onClicked.addListener(async () => {
     let extIdPair = await getExtIdPairAPIByBrowserAPI();
     if (extIdPair != null) {
         // 页面已打开，则窗口focused
-        browser.windows.update(extIdPair.windowId, { focused: true });
+        await browser.windows.update(extIdPair.windowId, { focused: true });
         return;
     }
     const extWindow = await browser.windows.create({
