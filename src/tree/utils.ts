@@ -3,6 +3,8 @@ import { windows } from 'webextension-polyfill';
 
 import type { TreeData, TreeNode } from './nodes/nodes';
 
+type FancytreeNode = Fancytree.FancytreeNode;
+
 const lazyLogCache: any = {};
 /* Log if value changed, nor more than interval/sec. */
 export const logLazy = (name: string, value: any, interval: number, msg: string) => {
@@ -95,7 +97,7 @@ export const BrowserExtensionUtils = {
 };
 
 export const NodeUtils = {
-    moveChildrenAsNextSiblings(node: Fancytree.FancytreeNode) {
+    moveChildrenAsNextSiblings(node: FancytreeNode) {
         if (node.children && node.children.length > 0) {
             const children = _.clone(node.children.reverse());
             children.forEach((child) => child.moveTo(node, 'after'));
@@ -113,8 +115,18 @@ export const NodeUtils = {
             }
         });
     },
-    canRemove(node: Fancytree.FancytreeNode) {
+    canRemove(node: FancytreeNode) {
         const { closed, alias } = node.data;
         return !closed && !alias;
+    },
+    flatTabNodes(windowNode: FancytreeNode): FancytreeNode[] {
+        const tabNodes: FancytreeNode[] = [];
+        windowNode.visit((node) => {
+            if (node.data.nodeType === 'tab' && !node.data.closed) {
+                tabNodes.push(node);
+            }
+            return true;
+        });
+        return tabNodes;
     },
 };

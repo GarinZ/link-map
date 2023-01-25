@@ -9,6 +9,7 @@ type FancytreeNode = Fancytree.FancytreeNode;
 export interface TabData extends Tabs.Tab, TreeData {
     windowId: number;
     nodeType: 'tab';
+    moved?: boolean; // 用于拖拽后设置的flag，避免回调再次move一次
 }
 
 export const TabNodeOperations = {
@@ -144,9 +145,13 @@ export const TabNodeOperations = {
         });
         return windowNode;
     },
-    findPrevOpenedTabNode(tabNode: Fancytree.FancytreeNode): Fancytree.FancytreeNode | null {
+    findPrevOpenedTabNode(
+        tabNode: Fancytree.FancytreeNode,
+        windowId?: number,
+    ): Fancytree.FancytreeNode | null {
         if (tabNode.data.nodeType === 'window') throw new Error('targetNode is window node');
-        const windowNode = tabNode.tree.getNodeByKey(`${tabNode.data.windowId}`);
+        const windowNode = tabNode.tree.getNodeByKey(`${windowId ?? tabNode.data.windowId}`);
+        if (!windowNode) return null;
         let prevNode = null;
         windowNode.visit((n) => {
             if (n === tabNode) return false;
@@ -173,6 +178,11 @@ export const TabNodeOperations = {
                 fromIndex,
                 toIndex,
             );
+        }
+        // 这里兼容拖拽，不再做节点移动
+        if (toMoveNode.data.moved) {
+            this.updatePartial(toMoveNode, { moved: false });
+            return;
         }
         // 2. 移动节点
         NodeUtils.moveChildrenAsNextSiblings(toMoveNode);

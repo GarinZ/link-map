@@ -7,6 +7,7 @@ import { TabNodeOperations } from './nodes/tab-node-operations';
 import { WindowNodeOperations } from './nodes/window-node-operations';
 import { ViewTabIndexUtils } from './tab-index-utils';
 import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
+import { NodeUtils } from './utils';
 
 const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE } = TPL_CONSTANTS;
 
@@ -22,11 +23,22 @@ export class FancyTabMasterTree {
     static closeNodes: (targetNode: FancytreeNode, updateClosed?: boolean) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
-    static createWindowNodeAsParent: (childNode: FancytreeNode) => Promise<FancytreeNode>;
+    static createWindowNodeAsParent: (
+        tabNode: FancytreeNode,
+        needCreateTab?: boolean,
+        needUpdateTabProps?: boolean,
+    ) => Promise<{ windowNode: FancytreeNode; window: Windows.Window }>;
+
     static reopenWindowNode: (
         windowNode: FancytreeNode,
         toOpenSubTabNodes: FancytreeNode[],
-    ) => Promise<FancytreeNode>;
+    ) => Promise<Windows.Window>;
+
+    static openWindow: (
+        toAddNode: FancytreeNode,
+        mode: string,
+        url: string | string[],
+    ) => Promise<{ windowNode: FancytreeNode; window: Windows.Window }>;
 
     constructor(selector: JQuery.Selector = '#tree') {
         $(selector).fancytree({
@@ -101,6 +113,7 @@ export class FancyTabMasterTree {
         if (!toRemoveNode) return;
         const windowId = toRemoveNode.data.windowId;
         TabNodeOperations.remove(this.tree, toRemoveNode);
+        // tab remove不会触发tab active事件，需要手动更新
         await this.syncActiveTab(windowId);
     }
 
@@ -112,11 +125,8 @@ export class FancyTabMasterTree {
 
     public attachTab(newWindowId: number, tabId: number, newIndex: number): void {
         const toAttachNode = this.tree.getNodeByKey(`${tabId}`);
-        // 兼容拖拽
-        const windowNode = TabNodeOperations.findWindowNode(toAttachNode);
-        if (windowNode!.data.id === newWindowId) return;
+        // attach/detach会触发active事件，不需要再次更新
         TabNodeOperations.move(toAttachNode, toAttachNode.data.index, newIndex, newWindowId);
-        this.activeTab(newWindowId, tabId);
     }
 
     public detachTab(_tabId: number): void {
@@ -193,7 +203,13 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
         } else {
             // 2.3 WindowNode存在 && 打开 => 创建TabNode
             const prevOpenedTabNode = TabNodeOperations.findPrevOpenedTabNode(targetNode);
-            const index = prevOpenedTabNode ? prevOpenedTabNode.data.index + 1 : 0;
+            let index = 0;
+            if (prevOpenedTabNode) {
+                const flatTabNodes = NodeUtils.flatTabNodes(windowNode);
+                index =
+                    flatTabNodes.findIndex((node) => node.data.id === prevOpenedTabNode.data.id) +
+                    1;
+            }
             ViewTabIndexUtils.increaseIndex(tree, windowNode.data.id, index);
             const newTab = await browser.tabs.create({ url, windowId: windowNode.data.id, index });
             TabNodeOperations.updatePartial(targetNode, { ...newTab, closed: false });
@@ -236,8 +252,9 @@ FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode, updateClosed = true)
 /** 打开windowNode和指定的subTabNodes */
 FancyTabMasterTree.reopenWindowNode = async (
     windowNode: FancytreeNode,
-    toOpenSubTabNodes: FancytreeNode[],
-): Promise<FancytreeNode> => {
+    toOpenSubTabNodes: FancytreeNode[] = [],
+    needUpdateTabProps = true,
+): Promise<Windows.Window> => {
     if (!windowNode.data.closed) throw new Error('windowNode is not closed');
     const oldWindowId = windowNode.data.id;
     // 1. 打开window和tab
@@ -247,31 +264,42 @@ FancyTabMasterTree.reopenWindowNode = async (
     );
     // 2. 更新windowNode状态并更新其子节点
     WindowNodeOperations.updatePartial(windowNode, { ...newWindow, closed: false });
-    WindowNodeOperations.updateSubTabWindowId(windowNode, oldWindowId);
-    toOpenSubTabNodes.forEach((tabNode, index) => {
-        TabNodeOperations.updatePartial(tabNode, { ...newWindow.tabs![index], closed: false });
-    });
-    return windowNode;
+    if (needUpdateTabProps) {
+        WindowNodeOperations.updateSubTabWindowId(windowNode, oldWindowId);
+        toOpenSubTabNodes.forEach((tabNode, index) => {
+            TabNodeOperations.updatePartial(tabNode, { ...newWindow.tabs![index], closed: false });
+        });
+    }
+    return newWindow;
 };
 
 /** 创建新的window和windowNode，并将tabNode挂到其下面，更新子tab属性 */
 FancyTabMasterTree.createWindowNodeAsParent = async (
     tabNode: FancytreeNode,
-): Promise<FancytreeNode> => {
+): Promise<{ windowNode: FancytreeNode; window: Windows.Window }> => {
     // 1. 创建window和windowNode
     const { url, windowId: oldWindowId } = tabNode.data;
+    const { windowNode, window } = await FancyTabMasterTree.openWindow(tabNode, 'before', url);
+    // 2. 将tabNode挂到windowNode下
+    tabNode.moveTo(windowNode, 'firstChild');
+    // 3. 更新TabNode属性和子tabNode的windowId
+    TabNodeOperations.updatePartial(tabNode, { ...window.tabs![0], closed: false });
+    WindowNodeOperations.updateSubTabWindowId(windowNode, oldWindowId);
+    return { windowNode, window };
+};
+
+FancyTabMasterTree.openWindow = async (
+    toAddNode: FancytreeNode,
+    mode: string,
+    url: string | string[],
+): Promise<{ windowNode: FancytreeNode; window: Windows.Window }> => {
     const newWindow = await browser.windows.create(
         WindowNodeOperations.buildCreateWindowProps(url),
     );
-    const newWindowNode = tabNode.addNode(
+    const newWindowNode = toAddNode.addNode(
         WindowNodeOperations.createData(newWindow, false),
-        'before',
+        mode,
     );
     newWindowNode.setExpanded(true);
-    // 2. 将tabNode挂到windowNode下
-    tabNode.moveTo(newWindowNode, 'firstChild');
-    // 3. 更新TabNode属性和子tabNode的windowId
-    TabNodeOperations.updatePartial(tabNode, { ...newWindow.tabs![0], closed: false });
-    WindowNodeOperations.updateSubTabWindowId(newWindowNode, oldWindowId);
-    return newWindowNode;
+    return { windowNode: newWindowNode, window: newWindow };
 };

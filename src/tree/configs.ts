@@ -2,6 +2,9 @@ import browser from 'webextension-polyfill';
 
 import { FancyTabMasterTree } from './fancy-tab-master-tree';
 import { TabNodeOperations } from './nodes/tab-node-operations';
+import { NodeUtils } from './utils';
+
+type hitMode = 'over' | 'before' | 'after';
 
 interface DND5Data {
     dataTransfer: {
@@ -13,7 +16,7 @@ interface DND5Data {
     dropEffect: 'move' | 'link' | 'drop' | 'none'; // ('move', 'copy', or 'link') access the requested drop effect
     dropEffectSuggested: 'move' | 'link' | 'drop'; // Recommended effect derived from a common key mapping
     files: File[]; // list of `File` objects if any were dropped (may be [])
-    hitMode: 'over' | 'after' | 'before';
+    hitMode: hitMode;
     isCancelled: boolean; // Set for dragend and drop events
     isMove: boolean; // false for copy or link effects
     node: Fancytree.FancytreeNode; // The node that the event refers to (also passed as first argument)
@@ -58,8 +61,7 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
         if (data.otherNode && sameTree) {
             // Drop another Fancytree node from same frame (maybe a different tree however)
             if (mode === 'move') {
-                data.otherNode.moveTo(targetNode, data.hitMode);
-                tabMoveOnDrop(data.otherNode);
+                tabMoveOnDrop(data.otherNode, targetNode, data.hitMode);
             } else {
                 throw new Error('Not implemented other dropEffect');
             }
@@ -78,7 +80,12 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
     },
 };
 
-async function tabMoveOnDrop(sourceNode: Fancytree.FancytreeNode): Promise<void> {
+async function tabMoveOnDrop(
+    sourceNode: Fancytree.FancytreeNode,
+    targetNode: Fancytree.FancytreeNode,
+    hitMode: hitMode,
+): Promise<void> {
+    sourceNode.moveTo(targetNode, hitMode);
     // 1. 非tabNode移动：什么都不用做
     if (sourceNode.data.nodeType !== 'tab') return;
     // 2. 移动tabNode
@@ -93,20 +100,36 @@ async function tabMoveOnDrop(sourceNode: Fancytree.FancytreeNode): Promise<void>
         return true;
     }, true);
     if (toMoveTabNodeList.length === 0) return;
-    // 2.2 找到需要移动到的window
+    // 2.2 找到需要移动到的window，没有就建一个
     let targetWindowNode: Fancytree.FancytreeNode | null =
         TabNodeOperations.findWindowNode(sourceNode);
+    let newWindowId = targetWindowNode ? targetWindowNode.data.id : null;
+    let needToRemoveTabId = null;
     if (targetWindowNode === null) {
         // 2. 移动到无窗口位置需要新建窗口
-        targetWindowNode = await FancyTabMasterTree.createWindowNodeAsParent(sourceNode);
+        const { windowNode, window } = await FancyTabMasterTree.openWindow(
+            sourceNode,
+            'before',
+            [],
+        );
+        sourceNode.moveTo(windowNode, 'child');
+        newWindowId = window.id;
+        needToRemoveTabId = window.tabs![0].id;
+        targetWindowNode = windowNode;
     } else if (targetWindowNode.data.closed) {
         // 3. 移动到已关闭窗口：需要新建窗口并更新属性
-        await FancyTabMasterTree.reopenWindowNode(targetWindowNode, toMoveTabNodeList);
+        const newWindow = await FancyTabMasterTree.reopenWindowNode(targetWindowNode, []);
+        newWindowId = newWindow.id;
+        needToRemoveTabId = newWindow.tabs![0].id;
     }
-    const newWindowId = targetWindowNode.data.windowId;
     const toMoveTabIds = toMoveTabNodeList.map((node) => node.data.id);
-    const prevOpenedTabNode = TabNodeOperations.findPrevOpenedTabNode(sourceNode);
-    const toIndex = prevOpenedTabNode ? prevOpenedTabNode.getIndex() + 1 : 0;
+    // TODO 移动后的index没更新，导致计算后的index可能是错的
+    const flatTabNodes = NodeUtils.flatTabNodes(targetWindowNode);
+    const toIndex = flatTabNodes.findIndex((node) => node.data.id === sourceNode.data.id);
+    // const toIndex = prevOpenedTabNode ? prevOpenedTabNode.data.index + 1 : 0;
+    toMoveTabNodeList.forEach((node) => (node.data.moved = true));
     await browser.tabs.move(toMoveTabIds, { windowId: newWindowId, index: toIndex });
-    // TODO index变化是否可以通过回调做兼容？
+    if (needToRemoveTabId) {
+        await browser.tabs.remove(needToRemoveTabId);
+    }
 }

@@ -107,10 +107,6 @@ describe('close node', () => {
             expect(node.data.closed).toBe(true);
         }, true);
     });
-
-    afterEach(() => {
-        browser.flush();
-    });
 });
 
 describe('db click', () => {
@@ -253,9 +249,5 @@ describe('db click', () => {
         expect(secondTabNode.key).toBe('22');
         expect(secondTabNode.data.id).toBe(22);
         expect(secondTabNode.data.windowId).toBe(modifiedWindowId);
-    });
-
-    afterEach(() => {
-        browser.flush();
     });
 });

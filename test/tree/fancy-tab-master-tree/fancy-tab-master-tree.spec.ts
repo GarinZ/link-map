@@ -182,6 +182,7 @@ describe('move tab', () => {
     let tree: FancyTabMasterTree;
     beforeEach(() => {
         tree = initTabMasterTree(SINGLE_TAB_WINDOW);
+        browser.flush();
     });
 
     it('middle move to first', async () => {
@@ -280,9 +281,7 @@ describe('move tab', () => {
 });
 
 describe('attach tab', () => {
-    let tree: FancyTabMasterTree;
     beforeEach(() => {
-        tree = initTabMasterTree(SINGLE_TAB_WINDOW);
         browser.flush();
     });
 
