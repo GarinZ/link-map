@@ -2,6 +2,8 @@ import _ from 'lodash/index';
 import { windows } from 'webextension-polyfill';
 
 import type { TreeData, TreeNode } from './nodes/nodes';
+import type { TabData } from './nodes/tab-node-operations';
+import type { WindowData } from './nodes/window-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
 
@@ -126,6 +128,16 @@ export const NodeUtils = {
                 tabNodes.push(node);
             }
             return true;
+        });
+        return tabNodes;
+    },
+    flatTabData(windowData: TreeNode<WindowData>): TreeNode<TabData>[] {
+        const tabNodes: TreeNode<TabData>[] = [];
+        NodeUtils.traverse(windowData.children!, (node) => {
+            const { nodeType, closed } = node.data as TabData;
+            if (nodeType === 'tab' && !closed) {
+                tabNodes.push(node as TreeNode<TabData>);
+            }
         });
         return tabNodes;
     },

@@ -2,6 +2,7 @@ import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
 import { DND5_CONFIG } from './configs';
+import { DB_KEY, TabMasterDB } from './database';
 import type { TreeData, TreeNode } from './nodes/nodes';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import { WindowNodeOperations } from './nodes/window-node-operations';
@@ -20,6 +21,7 @@ type FancytreeNode = Fancytree.FancytreeNode;
  */
 export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
+    db: TabMasterDB;
     static closeNodes: (targetNode: FancytreeNode, updateClosed?: boolean) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
@@ -64,6 +66,7 @@ export class FancyTabMasterTree {
             dnd5: DND5_CONFIG,
         });
         this.tree = $.ui.fancytree.getTree('#tree');
+        this.db = new TabMasterDB();
     }
 
     public async initTree(source?: TreeNode<TreeData>[]) {
@@ -75,7 +78,47 @@ export class FancyTabMasterTree {
         const unknown = browserWindowPromise as unknown;
         const windows = unknown as Windows.Window[];
         const nodes = windows.map((w) => WindowNodeOperations.createData(w));
-        this.tree.reload(nodes);
+        const snapshot = await this.db.snapshot.get(DB_KEY);
+        if (snapshot) {
+            // 存在snapshot，先将snapshot加载到tree中
+            // TODO 这里可能需要数据检查
+            await this.tree.reload(snapshot.data);
+            let extPage: FancytreeNode | null = null;
+            this.tree.visit((node) => {
+                if (node.data.nodeType === 'tab' || node.data.nodeType === 'window') {
+                    node.data.closed = true;
+                }
+                if (node.data.nodeType === 'window' && node.data.isBackgroundPage) {
+                    extPage = node;
+                }
+                return true;
+            });
+            extPage && extPage.remove();
+            nodes.forEach((windowNode) => {
+                const windowNodeInTree = this.tree.getNodeByKey(`${windowNode.key}`);
+                if (windowNodeInTree) {
+                    WindowNodeOperations.updatePartial(windowNodeInTree, {
+                        ...windowNode.data,
+                        closed: false,
+                    });
+                    const tabDataList = NodeUtils.flatTabData(windowNode);
+                    tabDataList.forEach((tabData) => {
+                        const tabNodeInTree = this.tree.getNodeByKey(`${tabData.key}`);
+                        if (tabNodeInTree) {
+                            TabNodeOperations.updatePartial(tabNodeInTree, {
+                                ...tabData.data,
+                                closed: false,
+                            });
+                        }
+                    });
+                } else {
+                    this.tree.rootNode.addNode(windowNode, 'child');
+                }
+            });
+        } else {
+            await this.tree.reload(nodes);
+        }
+        await this.db.updateByTree(this.tree);
     }
 
     public createTab(tab: Tabs.Tab): FancytreeNode {

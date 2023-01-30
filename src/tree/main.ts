@@ -5,6 +5,10 @@ import { FancyTabMasterTree } from './fancy-tab-master-tree';
 const tree = new FancyTabMasterTree('#tree');
 tree.initTree();
 
+$('window').on('beforeunload', async () => {
+    await tree.db.updateByTree(tree.tree);
+});
+
 onMessage('add-tab', (msg) => {
     tree.createTab(msg.data);
 });

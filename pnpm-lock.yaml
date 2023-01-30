@@ -56,6 +56,7 @@ specifiers:
   css-loader: 6.7.2
   css-minimizer-webpack-plugin: 4.2.2
   dayjs: 1.11.6
+  dexie: 3.2.3
   eslint: 8.28.0
   exit-hook: 2.2.1
   express: 4.18.2
@@ -177,6 +178,7 @@ devDependencies:
   cross-env: 7.0.3
   css-loader: 6.7.2_webpack@5.75.0
   css-minimizer-webpack-plugin: 4.2.2_3cvwaxcgn4v2lvgp65nwgdyvc4
+  dexie: 3.2.3
   eslint: 8.28.0
   exit-hook: 2.2.1
   express: 4.18.2
@@ -4679,6 +4681,11 @@ packages:
     resolution: {integrity: sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==}
     dev: true
     optional: true
+
+  /dexie/3.2.3:
+    resolution: {integrity: sha512-iHayBd4UYryDCVUNa3PMsJMEnd8yjyh5p7a+RFeC8i8n476BC9wMhVvqiImq5zJZJf5Tuer+s4SSj+AA3x+ZbQ==}
+    engines: {node: '>=6.0'}
+    dev: true
 
   /diff-sequences/29.3.1:
     resolution: {integrity: sha512-hlM3QR272NXCi4pq+N4Kok4kOp6EsgOM3ZSpJI7Da3UAs+Ttsi8MRmB6trM/lhyzUxGfOgnpkHtgqm5Q/CTcfQ==}
