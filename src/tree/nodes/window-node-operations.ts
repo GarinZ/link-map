@@ -64,7 +64,7 @@ export const WindowNodeOperations = {
         }
     },
     remove(targetNode: FancytreeNode): void {
-        if (targetNode && NodeUtils.canRemove(targetNode)) {
+        if (targetNode && NodeUtils.canRemove(targetNode) && targetNode.children.length === 0) {
             const children = targetNode.children ? clone(targetNode.children?.reverse()) : [];
             children.forEach((child) => {
                 child.moveTo(targetNode, 'after');

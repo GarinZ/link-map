@@ -42,6 +42,8 @@ export class FancyTabMasterTree {
         url: string | string[],
     ) => Promise<{ windowNode: FancytreeNode; window: Windows.Window }>;
 
+    static removeNodes: (targetNode: FancytreeNode) => void;
+
     constructor(selector: JQuery.Selector = '#tree') {
         $(selector).fancytree({
             active: true,
@@ -189,7 +191,9 @@ export class FancyTabMasterTree {
         // devtools的windowId为-1，不做处理
         if (windowId < 0) return;
         const windowNode = this.tree.getNodeByKey(`${windowId}`);
-        windowNode.scrollIntoView();
+        if (!windowNode.data.isBackgroundPage) {
+            windowNode.scrollIntoView();
+        }
     }
 
     public toJsonObj(includeRoot = false): TreeNode<TreeData>[] {
@@ -220,7 +224,8 @@ FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventDat
             break;
         case NODE_REMOVE:
             console.log('[tree]: remove button clicked');
-            FancyTabMasterTree.closeNodes(data.node, false);
+            // TODO 已经关闭的Node，应该直接做remove
+            FancyTabMasterTree.removeNodes(data.node);
             break;
     }
     return true;
@@ -345,4 +350,23 @@ FancyTabMasterTree.openWindow = async (
     );
     newWindowNode.setExpanded(true);
     return { windowNode: newWindowNode, window: newWindow };
+};
+
+FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode) => {
+    if (targetNode.expanded && targetNode.data.closed) {
+        NodeUtils.moveChildrenAsNextSiblings(targetNode);
+        targetNode.remove();
+    } else if (!targetNode.expanded) {
+        const closedNodes: FancytreeNode[] = [];
+        targetNode.visit((node) => {
+            if (node.data.closed) {
+                closedNodes.push(node);
+            }
+        }, true);
+        closedNodes.reverse().forEach((node) => {
+            NodeUtils.moveChildrenAsNextSiblings(node);
+            node.remove();
+        });
+    }
+    FancyTabMasterTree.closeNodes(targetNode, false);
 };
