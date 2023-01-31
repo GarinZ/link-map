@@ -18,16 +18,21 @@ describe('close node', () => {
     });
 
     it('close expanded opened tab node with children', () => {
-        const treeData = new MockTreeBuilder().addNestedTabChildren(2).build();
-        const targetNodeKey = treeData[0].children![0].key;
+        const treeData = new MockTreeBuilder().addNestedTabChildren(5).build();
         const tree = initTabMasterTree(treeData).tree;
-        FancyTabMasterTree.closeNodes(tree.getNodeByKey(targetNodeKey));
+        const targetNode = tree.getNodeByKey(`11`);
+        FancyTabMasterTree.closeNodes(tree.getNodeByKey(targetNode.key));
         expect(browser.tabs.remove.callCount).toBe(1);
         expect(browser.tabs.remove.getCall(0).calledWith([11])).toBeTruthy();
         const windowNode = tree.getRootNode().children[0];
         expect(windowNode.children).toHaveLength(1);
         expect(windowNode.children[0].key).toBe('11');
         expect(windowNode.children[0].data.closed).toBe(true);
+        let index = 0;
+        targetNode.visit((node) => {
+            expect(node.data.index).toBe(index++);
+        });
+
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
     });
 
@@ -105,6 +110,127 @@ describe('close node', () => {
         targetNode.visit((node) => {
             expect(node.data.closed).toBe(true);
         }, true);
+    });
+});
+
+describe('remove node', () => {
+    beforeEach(async () => {
+        browser.flush();
+    });
+
+    it('remove expand closed tab node', () => {
+        const treeData = new MockTreeBuilder().addNestedTabChildren(3).build();
+        const tree = initTabMasterTree(treeData).tree;
+        const windowNode = tree.getNodeByKey(`1`);
+        const targetNode = tree.getNodeByKey(`12`);
+        targetNode.data.closed = true;
+        FancyTabMasterTree.removeNodes(targetNode);
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        expect(browser.tabs.remove.called).toBe(false);
+        expect(windowNode.countChildren(true)).toBe(2);
+        expect(windowNode.children[0].key).toBe('11');
+        expect(windowNode.children[0].children[0].key).toBe('13');
+    });
+
+    it('remove expand open tab node, window node need to close', () => {
+        const treeData = new MockTreeBuilder().addNestedTabChildren(2).build();
+        const tree = initTabMasterTree(treeData).tree;
+        const windowNode = tree.getNodeByKey(`1`);
+        tree.getNodeByKey(`12`).data.closed = true;
+        const targetNode = tree.getNodeByKey(`11`);
+        FancyTabMasterTree.removeNodes(targetNode);
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        expect(browser.tabs.remove.getCall(0).calledWith([11])).toBe(true);
+        expect(windowNode.countChildren(true)).toBe(1);
+        expect(windowNode.children[0].key).toBe('12');
+        expect(windowNode.data.closed).toBe(true);
+    });
+
+    it('remove expand open tab node', () => {
+        const treeData = new MockTreeBuilder().addNestedTabChildren(3).build();
+        const tree = initTabMasterTree(treeData).tree;
+        const windowNode = tree.getNodeByKey(`1`);
+        const targetNode = tree.getNodeByKey(`12`);
+        FancyTabMasterTree.removeNodes(targetNode);
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        expect(browser.tabs.remove.calledOnce).toBe(true);
+        expect(browser.tabs.remove.getCall(0).calledWith([12])).toBe(true);
+        expect(windowNode.countChildren(true)).toBe(2);
+        expect(windowNode.children[0].key).toBe('11');
+        expect(windowNode.children[0].children[0].key).toBe('13');
+        expect(windowNode.children[0].children[0].data.index).toBe(1);
+    });
+
+    it('remove un-expand open tab node', () => {
+        const treeData = new MockTreeBuilder().addNestedTabChildren(3).addTabChildren(1, 1).build();
+        const tree = initTabMasterTree(treeData).tree;
+        const windowNode = tree.getNodeByKey(`1`);
+        const targetNode = tree.getNodeByKey(`12`);
+        targetNode.setExpanded(false);
+        FancyTabMasterTree.removeNodes(targetNode);
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        expect(browser.tabs.remove.calledOnce).toBe(true);
+        expect(browser.tabs.remove.getCall(0).calledWith([12, 13])).toBe(true);
+        expect(windowNode.countChildren(true)).toBe(2);
+        expect(windowNode.children[0].key).toBe('11');
+        expect(windowNode.children[0].data.index).toBe(0);
+        expect(windowNode.children[1].key).toBe('14');
+        expect(windowNode.children[1].data.index).toBe(1);
+    });
+
+    it('remove expand open window node', async () => {
+        const treeData = new MockTreeBuilder()
+            .addNestedTabChildren(4)
+            .addWindowNode(true)
+            .addTabChildren(2, 2)
+            .build();
+        const tabMasterTree = initTabMasterTree(treeData);
+        const tree = tabMasterTree.tree;
+        const windowNode = tree.getNodeByKey(`1`);
+        const firstTabNode = tree.getNodeByKey(`11`);
+        firstTabNode.data.closed = true;
+        const forthTabNode = tree.getNodeByKey(`14`);
+        forthTabNode.data.closed = true;
+
+        // mock browser callback
+        await browser.tabs.remove.onFirstCall().callsFake(async (toRemovedTabIds: number[]) => {
+            await Promise.all(
+                toRemovedTabIds.map(async (tabId) => await tabMasterTree.removeTab(tabId)),
+            );
+        });
+        browser.tabs.query.returns(Promise.resolve([]));
+        FancyTabMasterTree.removeNodes(windowNode);
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        expect(browser.tabs.remove.calledOnce).toBe(true);
+        expect(browser.tabs.remove.getCall(0).calledWith([12, 13])).toBe(true);
+        expect(tree.rootNode.countChildren(true)).toBe(5);
+        expect(tree.rootNode.children[0].key).toBe('11');
+        expect(tree.rootNode.children[0].children[0].key).toBe('14');
+    });
+
+    it('remove un-expand open window node', async () => {
+        const treeData = new MockTreeBuilder().addNestedTabChildren(4).build();
+        const tabMasterTree = initTabMasterTree(treeData);
+        const tree = tabMasterTree.tree;
+        const windowNode = tree.getNodeByKey(`1`);
+        windowNode.expanded = false;
+        const firstTabNode = tree.getNodeByKey(`11`);
+        firstTabNode.data.closed = true;
+        const forthTabNode = tree.getNodeByKey(`14`);
+        forthTabNode.data.closed = true;
+
+        // mock browser callback
+        await browser.tabs.remove.onFirstCall().callsFake(async (toRemovedTabIds: number[]) => {
+            await Promise.all(
+                toRemovedTabIds.map(async (tabId) => await tabMasterTree.removeTab(tabId)),
+            );
+        });
+        browser.tabs.query.returns(Promise.resolve([]));
+        FancyTabMasterTree.removeNodes(windowNode);
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        expect(browser.tabs.remove.calledOnce).toBe(true);
+        expect(browser.tabs.remove.getCall(0).calledWith([12, 13])).toBe(true);
+        expect(tree.rootNode.countChildren(true)).toBe(0);
     });
 });
 

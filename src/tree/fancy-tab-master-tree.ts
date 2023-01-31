@@ -66,6 +66,7 @@ export class FancyTabMasterTree {
             },
             defaultKey: (node) => `${node.data.id}`,
             dnd5: DND5_CONFIG,
+            debugLevel: 0,
         });
         this.tree = $.ui.fancytree.getTree('#tree');
         this.db = new TabMasterDB();
@@ -360,10 +361,10 @@ FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode) => {
         tabIdSet.add(node.data.id);
         ViewTabIndexUtils.decreaseIndex(node.tree, node.data.windowId, node.data.index);
     });
-    WindowNodeOperations.updateCloseStatus(targetNode.tree, windowIdSet);
     if (targetNode.expanded) {
         NodeUtils.moveChildrenAsNextSiblings(targetNode);
     }
     targetNode.remove();
+    WindowNodeOperations.updateCloseStatus(targetNode.tree, windowIdSet);
     tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
 };

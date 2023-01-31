@@ -1,4 +1,4 @@
-import _ from 'lodash/index';
+import { clone } from 'lodash';
 import { windows } from 'webextension-polyfill';
 
 import type { TreeData, TreeNode } from './nodes/nodes';
@@ -101,7 +101,7 @@ export const BrowserExtensionUtils = {
 export const NodeUtils = {
     moveChildrenAsNextSiblings(node: FancytreeNode) {
         if (node.children && node.children.length > 0) {
-            const children = _.clone(node.children.reverse());
+            const children = clone(node.children.reverse());
             children.forEach((child) => child.moveTo(node, 'after'));
             node.expanded = true;
         }

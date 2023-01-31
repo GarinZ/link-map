@@ -86,6 +86,7 @@ export const WindowNodeOperations = {
         const windowNode2TabNodes = new Map<FancytreeNode, FancytreeNode[]>();
         windowIdSet.forEach((windowId) => {
             const windowNode = tree.getNodeByKey(`${windowId}`);
+            if (!windowNode) return;
             windowNode2TabNodes.set(windowNode, this.findAllSubTabNodes(windowNode));
         });
         // 2. 遍历并计算windowNode的closed状态

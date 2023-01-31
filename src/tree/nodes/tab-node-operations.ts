@@ -124,7 +124,7 @@ export const TabNodeOperations = {
                 }
                 return true;
             });
-        } else {
+        } else if (!expanded) {
             // 2. node合起：关闭下面所有tab节点
             fromNode.visit((node) => {
                 const { nodeType } = node.data;
