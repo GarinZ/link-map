@@ -2,7 +2,7 @@ import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
 import { DND5_CONFIG } from './configs';
-import { DB_KEY, TabMasterDB } from './database';
+import { TabMasterDB } from './database';
 import type { TreeData, TreeNode } from './nodes/nodes';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import { WindowNodeOperations } from './nodes/window-node-operations';
@@ -80,47 +80,47 @@ export class FancyTabMasterTree {
         const unknown = browserWindowPromise as unknown;
         const windows = unknown as Windows.Window[];
         const nodes = windows.map((w) => WindowNodeOperations.createData(w));
-        const snapshot = await this.db.snapshot.get(DB_KEY);
-        if (snapshot) {
-            // 存在snapshot，先将snapshot加载到tree中
-            // TODO 这里可能需要数据检查
-            await this.tree.reload(snapshot.data);
-            let extPage: FancytreeNode | null = null;
-            this.tree.visit((node) => {
-                if (node.data.nodeType === 'tab' || node.data.nodeType === 'window') {
-                    node.data.closed = true;
-                }
-                if (node.data.nodeType === 'window' && node.data.isBackgroundPage) {
-                    extPage = node;
-                }
-                return true;
-            });
-            extPage && extPage.remove();
-            nodes.forEach((windowNode) => {
-                const windowNodeInTree = this.tree.getNodeByKey(`${windowNode.key}`);
-                if (windowNodeInTree) {
-                    WindowNodeOperations.updatePartial(windowNodeInTree, {
-                        ...windowNode.data,
-                        closed: false,
-                    });
-                    const tabDataList = NodeUtils.flatTabData(windowNode);
-                    tabDataList.forEach((tabData) => {
-                        const tabNodeInTree = this.tree.getNodeByKey(`${tabData.key}`);
-                        if (tabNodeInTree) {
-                            TabNodeOperations.updatePartial(tabNodeInTree, {
-                                ...tabData.data,
-                                closed: false,
-                            });
-                        }
-                    });
-                } else {
-                    this.tree.rootNode.addNode(windowNode, 'child');
-                }
-            });
-        } else {
-            await this.tree.reload(nodes);
-        }
-        await this.db.updateByTree(this.tree);
+        // const snapshot = await this.db.snapshot.get(DB_KEY);
+        // if (snapshot) {
+        //     // 存在snapshot，先将snapshot加载到tree中
+        //     // TODO 这里可能需要数据检查
+        //     await this.tree.reload(snapshot.data);
+        //     let extPage: FancytreeNode | null = null;
+        //     this.tree.visit((node) => {
+        //         if (node.data.nodeType === 'tab' || node.data.nodeType === 'window') {
+        //             TabNodeOperations.updatePartial(node, { closed: true });
+        //         }
+        //         if (node.data.nodeType === 'window' && node.data.isBackgroundPage) {
+        //             extPage = node;
+        //         }
+        //         return true;
+        //     });
+        //     extPage && extPage.remove();
+        //     nodes.forEach((windowNode) => {
+        //         const windowNodeInTree = this.tree.getNodeByKey(`${windowNode.key}`);
+        //         if (windowNodeInTree) {
+        //             WindowNodeOperations.updatePartial(windowNodeInTree, {
+        //                 ...windowNode.data,
+        //                 closed: false,
+        //             });
+        //             const tabDataList = NodeUtils.flatTabData(windowNode);
+        //             tabDataList.forEach((tabData) => {
+        //                 const tabNodeInTree = this.tree.getNodeByKey(`${tabData.key}`);
+        //                 if (tabNodeInTree) {
+        //                     TabNodeOperations.updatePartial(tabNodeInTree, {
+        //                         ...tabData.data,
+        //                         closed: false,
+        //                     });
+        //                 }
+        //             });
+        //         } else {
+        //             this.tree.rootNode.addNode(windowNode, 'child');
+        //         }
+        //     });
+        // } else {
+        await this.tree.reload(nodes);
+        // }
+        // await this.db.updateByTree(this.tree);
     }
 
     public createTab(tab: Tabs.Tab): FancytreeNode {
@@ -157,7 +157,7 @@ export class FancyTabMasterTree {
         const toRemoveNode = this.tree.getNodeByKey(`${tabId}`);
         if (!toRemoveNode) return;
         const windowId = toRemoveNode.data.windowId;
-        TabNodeOperations.remove(this.tree, toRemoveNode);
+        TabNodeOperations.removeItem(toRemoveNode);
         // tab remove不会触发tab active事件，需要手动更新
         await this.syncActiveTab(windowId);
     }
@@ -280,19 +280,18 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
 /**
  * 关闭节点
  */
-FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode, updateClosed = true) => {
+FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
     // 1. 更新tabNodes的closed状态
-    const closedTabNodes = TabNodeOperations.close(targetNode, updateClosed);
-    // 2. 更新windowNodes的closed状态
+    const toClosedTabNodes = TabNodeOperations.getToCloseTabNodes(targetNode);
     const windowIdSet = new Set<number>();
     const tabIdSet = new Set<number>();
-    closedTabNodes.forEach((node) => {
+    toClosedTabNodes.forEach((node) => {
         windowIdSet.add(node.data.windowId);
         tabIdSet.add(node.data.id);
+        ViewTabIndexUtils.decreaseIndex(node.tree, node.data.windowId, node.data.index);
+        TabNodeOperations.updatePartial(node, { closed: true });
     });
-    if (updateClosed) {
-        WindowNodeOperations.close(targetNode.tree, windowIdSet);
-    }
+    WindowNodeOperations.updateCloseStatus(targetNode.tree, windowIdSet);
     tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
     // close状态修改的TabNode对应的WindowNode需要更新其closed值
 };
@@ -353,20 +352,18 @@ FancyTabMasterTree.openWindow = async (
 };
 
 FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode) => {
-    if (targetNode.expanded && targetNode.data.closed) {
+    const toCloseTabNodes = TabNodeOperations.getToCloseTabNodes(targetNode);
+    const windowIdSet = new Set<number>();
+    const tabIdSet = new Set<number>();
+    toCloseTabNodes.forEach((node) => {
+        windowIdSet.add(node.data.windowId);
+        tabIdSet.add(node.data.id);
+        ViewTabIndexUtils.decreaseIndex(node.tree, node.data.windowId, node.data.index);
+    });
+    WindowNodeOperations.updateCloseStatus(targetNode.tree, windowIdSet);
+    if (targetNode.expanded) {
         NodeUtils.moveChildrenAsNextSiblings(targetNode);
-        targetNode.remove();
-    } else if (!targetNode.expanded) {
-        const closedNodes: FancytreeNode[] = [];
-        targetNode.visit((node) => {
-            if (node.data.closed) {
-                closedNodes.push(node);
-            }
-        }, true);
-        closedNodes.reverse().forEach((node) => {
-            NodeUtils.moveChildrenAsNextSiblings(node);
-            node.remove();
-        });
     }
-    FancyTabMasterTree.closeNodes(targetNode, false);
+    targetNode.remove();
+    tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
 };

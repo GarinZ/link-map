@@ -16,6 +16,7 @@ module.exports = {
             '@garinz/webext-bridge' +
             '|.pnpm/nanoevents@6.0.2/node_modules/nanoevents' +
             '|.pnpm/serialize-error@9.1.1/node_modules/serialize-error' +
+            '|.pnpm/dexie@3.2.3/node_modules/dexie' +
             '))',
     ], // 忽略一些node_modules的编译
     collectCoverage: true,

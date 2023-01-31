@@ -2,6 +2,7 @@ import browser from 'webextension-polyfill';
 
 import { FancyTabMasterTree } from './fancy-tab-master-tree';
 import { TabNodeOperations } from './nodes/tab-node-operations';
+import { WindowNodeOperations } from './nodes/window-node-operations';
 import { NodeUtils } from './utils';
 
 type hitMode = 'over' | 'before' | 'after';
@@ -116,6 +117,7 @@ async function tabMoveOnDrop(
         newWindowId = window.id;
         needToRemoveTabId = window.tabs![0].id;
         targetWindowNode = windowNode;
+        WindowNodeOperations.updateSubTabWindowId(targetWindowNode, oldWindowId);
     } else if (targetWindowNode.data.closed) {
         // 3. 移动到已关闭窗口：需要新建窗口并更新属性
         const newWindow = await FancyTabMasterTree.reopenWindowNode(targetWindowNode, []);

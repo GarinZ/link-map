@@ -1,4 +1,4 @@
-import Dexie from 'dexie';
+import { Dexie } from 'dexie';
 
 const DB_VERSION = 1;
 export const DB_KEY = 'snapshot';

@@ -63,14 +63,16 @@ export const WindowNodeOperations = {
             windowNode.renderTitle();
         }
     },
-    remove(targetNode: FancytreeNode): void {
-        if (targetNode && NodeUtils.canRemove(targetNode) && targetNode.children.length === 0) {
-            const children = targetNode.children ? clone(targetNode.children?.reverse()) : [];
-            children.forEach((child) => {
-                child.moveTo(targetNode, 'after');
-            });
-            targetNode.remove();
+    remove(targetNode: FancytreeNode, force = false): void {
+        if (!targetNode) {
+            return;
         }
+        if (!force && (!NodeUtils.canRemove(targetNode) || targetNode.children?.length > 0)) {
+            return;
+        }
+        const children = targetNode.children ? clone(targetNode.children?.reverse()) : [];
+        children.forEach((child) => child.moveTo(targetNode, 'after'));
+        targetNode.remove();
     },
     closeItem(targetNode: FancytreeNode): FancytreeNode | null {
         if (targetNode.data.closed) return null;
@@ -78,16 +80,13 @@ export const WindowNodeOperations = {
         targetNode.renderTitle();
         return targetNode;
     },
-    close(tree: Fancytree.Fancytree, windowIdSet: Set<number>): FancytreeNode[] {
+    updateCloseStatus(tree: Fancytree.Fancytree, windowIdSet: Set<number>): FancytreeNode[] {
         // window是否close需要通过子tabNode的closed状态计算
         // 1. 找到所有windowNode及其子tabNode
         const windowNode2TabNodes = new Map<FancytreeNode, FancytreeNode[]>();
         windowIdSet.forEach((windowId) => {
             const windowNode = tree.getNodeByKey(`${windowId}`);
-            const tabNodes = windowNode.findAll(
-                (node) => node.data.nodeType === 'tab' && node.data.windowId === windowId,
-            );
-            windowNode2TabNodes.set(windowNode, tabNodes ?? []);
+            windowNode2TabNodes.set(windowNode, this.findAllSubTabNodes(windowNode));
         });
         // 2. 遍历并计算windowNode的closed状态
         const closedWindowNodes: FancytreeNode[] = [];
@@ -99,9 +98,11 @@ export const WindowNodeOperations = {
         return closedWindowNodes;
     },
     findAllSubTabNodes(windowNode: FancytreeNode): FancytreeNode[] {
-        return windowNode.findAll(
-            (node) =>
-                node.data.nodeType === 'tab' && node.data.windowId === windowNode.data.windowId,
+        return (
+            windowNode.findAll(
+                (node) =>
+                    node.data.nodeType === 'tab' && node.data.windowId === windowNode.data.windowId,
+            ) ?? []
         );
     },
     buildCreateWindowProps(
@@ -131,5 +132,9 @@ export const WindowNodeOperations = {
             .forEach((tabNode) => {
                 TabNodeOperations.updatePartial(tabNode, { windowId: windowNode.data.windowId });
             });
+    },
+    updateClosedStatus(windowNode: FancytreeNode): void {
+        const closed = this.findAllSubTabNodes(windowNode).every((tabNode) => tabNode.data.closed);
+        this.updatePartial(windowNode, { closed });
     },
 };

@@ -64,7 +64,6 @@ describe('close node', () => {
         targetNode.setExpanded(false);
         targetNode.children[0].data.closed = true;
         FancyTabMasterTree.closeNodes(targetNode);
-        // expect(browser.tabs.remove.callCount).toBe(1);
         expect(browser.tabs.remove.calledOnce).toBe(true);
         expect(browser.tabs.remove.getCall(0).calledWith([11, 13, 14, 21, 22])).toBe(true);
         targetNode.visit((node) => {

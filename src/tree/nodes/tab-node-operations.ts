@@ -3,6 +3,7 @@ import type { Tabs } from 'webextension-polyfill';
 import { ViewTabIndexUtils } from '../tab-index-utils';
 import { NodeUtils } from '../utils';
 import type { TreeData, TreeNode } from './nodes';
+import { WindowNodeOperations } from './window-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
 
@@ -64,15 +65,25 @@ export const TabNodeOperations = {
         }
         return createdNode;
     },
-    remove(tree: Fancytree.Fancytree, toRemoveNode: FancytreeNode): void {
+    removeItem(toRemoveNode: FancytreeNode, force = false): number | null {
         // 1. 状态为closed的节点不做删除
-        if (!NodeUtils.canRemove(toRemoveNode)) return;
+        if (toRemoveNode && !force && !NodeUtils.canRemove(toRemoveNode)) return null;
         // 2. 保留子元素：提升children作为siblings
         NodeUtils.moveChildrenAsNextSiblings(toRemoveNode);
         // 3. 删除节点
-        const windowNode = tree.getNodeByKey(`${toRemoveNode.data.windowId}`);
-        ViewTabIndexUtils.decreaseIndex(tree, windowNode.data.id, toRemoveNode.data.index);
-        if (toRemoveNode) toRemoveNode.remove();
+        const windowNode = this.findWindowNode(toRemoveNode);
+        if (windowNode) {
+            ViewTabIndexUtils.decreaseIndex(
+                windowNode.tree,
+                windowNode.data.id,
+                toRemoveNode.data.index,
+            );
+        }
+        const removedOpenedTabId = toRemoveNode.data.closed ? null : toRemoveNode.data.id;
+        toRemoveNode.remove();
+        // 4. 更新windowNode的closed状态
+        if (windowNode) WindowNodeOperations.updateClosedStatus(windowNode);
+        return removedOpenedTabId;
     },
     updatePartial(toUpdateNode: FancytreeNode, updateProps: Partial<TabData>) {
         const { title, favIconUrl, id, active, closed } = updateProps;
@@ -95,43 +106,36 @@ export const TabNodeOperations = {
             });
         }
     },
-    closeItem(node: FancytreeNode, updateClosed: boolean): FancytreeNode | null {
-        if (node.data.closed) return null;
-        if (updateClosed) this.updatePartial(node, { closed: true });
-        return node;
-    },
-    /** 更新Tab的closed状态 */
-    close(fromNode: FancytreeNode, updateClosed = true): FancytreeNode[] {
-        // 只管更新targetNode自身及其子节点的closed状态
-        const toCloseNodes: FancytreeNode[] = [];
+    getToCloseTabNodes(fromNode: FancytreeNode): FancytreeNode[] {
+        const toCloseTabNodes: FancytreeNode[] = [];
         const expanded = fromNode.expanded === undefined || fromNode.expanded;
-        if (expanded && fromNode.data.nodeType === 'tab') {
-            // 只关闭当前tab节点
-            const toCloseNode = TabNodeOperations.closeItem(fromNode, updateClosed);
-            toCloseNode && toCloseNodes.push(toCloseNode);
+        if (expanded && fromNode.data.nodeType === 'tab' && !fromNode.data.closed) {
+            toCloseTabNodes.push(fromNode);
         } else if (expanded && fromNode.data.nodeType === 'window') {
             fromNode.visit((node) => {
                 const { nodeType, windowId } = node.data;
                 // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
-                if (nodeType === 'tab' && windowId === fromNode.data.windowId) {
-                    const result = TabNodeOperations.closeItem(node, updateClosed);
-                    result && toCloseNodes.push(result);
+                if (
+                    nodeType === 'tab' &&
+                    windowId === fromNode.data.windowId &&
+                    !node.data.closed
+                ) {
+                    toCloseTabNodes.push(node);
                 }
                 return true;
-            }, true);
+            });
         } else {
             // 2. node合起：关闭下面所有tab节点
             fromNode.visit((node) => {
                 const { nodeType } = node.data;
                 // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
-                if (nodeType === 'tab') {
-                    const result = TabNodeOperations.closeItem(node, updateClosed);
-                    result && toCloseNodes.push(result);
+                if (nodeType === 'tab' && !node.data.closed) {
+                    toCloseTabNodes.push(node);
                 }
                 return true;
             }, true);
         }
-        return toCloseNodes;
+        return toCloseTabNodes;
     },
     findWindowNode(targetNode: FancytreeNode): FancytreeNode | null {
         if (targetNode.data.nodeType === 'window') throw new Error('targetNode is window node');
@@ -202,5 +206,31 @@ export const TabNodeOperations = {
         nextOpenedTabNodeChild
             ? toMoveNode.moveTo(nextOpenedTabNodeChild, 'before')
             : toMoveNode.moveTo(prevOpenedTabNode, 'after');
+    },
+    remove(targetNode: FancytreeNode): number[] {
+        if (targetNode.data.nodeType !== 'tab') throw new Error('targetNode is not tab node');
+        // 1. 节点展开，就删除单个tabNode
+        if (targetNode.expanded) {
+            const removedOpenedTabId = this.removeItem(targetNode, true);
+            return removedOpenedTabId ? [removedOpenedTabId] : [];
+        }
+        // 2. 节点合起
+        // 2.1. 记录所有open状态的tabNode
+        const windowNode = TabNodeOperations.findWindowNode(targetNode);
+        const removedOpenedTabIds: number[] = [];
+        targetNode.visit((node) => {
+            const { nodeType, closed, id, index } = node.data;
+            if (nodeType === 'tab' && !closed) {
+                removedOpenedTabIds.push(id);
+                if (windowNode && id === targetNode.data.id) {
+                    // TODO 这里由windowNode重新计算比较好
+                    ViewTabIndexUtils.decreaseIndex(windowNode.tree, windowNode.data.id, index);
+                }
+            }
+        }, true);
+        // 2.2. 更新windowNode状态
+        targetNode.remove();
+        if (windowNode) WindowNodeOperations.updateClosedStatus(windowNode);
+        return removedOpenedTabIds;
     },
 };
