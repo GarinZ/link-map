@@ -98,11 +98,13 @@ export const WindowNodeOperations = {
         });
         return closedWindowNodes;
     },
-    findAllSubTabNodes(windowNode: FancytreeNode): FancytreeNode[] {
+    findAllSubTabNodes(windowNode: FancytreeNode, onlyOpened = false): FancytreeNode[] {
         return (
             windowNode.findAll(
                 (node) =>
-                    node.data.nodeType === 'tab' && node.data.windowId === windowNode.data.windowId,
+                    node.data.nodeType === 'tab' &&
+                    node.data.windowId === windowNode.data.windowId &&
+                    (onlyOpened ? !node.data.closed : true),
             ) ?? []
         );
     },
@@ -137,5 +139,14 @@ export const WindowNodeOperations = {
     updateClosedStatus(windowNode: FancytreeNode): void {
         const closed = this.findAllSubTabNodes(windowNode).every((tabNode) => tabNode.data.closed);
         this.updatePartial(windowNode, { closed });
+    },
+    resetSubTabNodeIndex(windowNode: FancytreeNode | FancytreeNode[]) {
+        const windowNodeList = Array.isArray(windowNode) ? windowNode : [windowNode];
+        windowNodeList.forEach((windowNode) => {
+            const openTabNodes = this.findAllSubTabNodes(windowNode, true);
+            openTabNodes.forEach((tabNode, index) => {
+                tabNode.data.index = index;
+            });
+        });
     },
 };

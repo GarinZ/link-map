@@ -130,33 +130,48 @@ describe('add tab', () => {
         expect(children[3].data.index).toEqual(FIRST_INDEX + 3);
     });
 });
-
+/**
+ *  ┬ .
+ *     └─┬ window-1
+ *       ├── 0-11
+ *       ├── 1-12
+ *       └── 2-13
+ *
+ *       ┬ .
+ *     └─┬ window-1
+ *       ├── 0-12
+ *       └── 1-13
+ */
 describe('remove tab', () => {
     let tree: FancyTabMasterTree;
     beforeEach(() => {
+        browser.flush();
         tree = initTabMasterTree(SINGLE_TAB_WINDOW);
     });
 
     it('remove first node', async () => {
-        tree.createTab(createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1));
-        tree.createTab(createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2));
-        browser.tabs.query.returns(
-            Promise.resolve([createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1)]),
-        );
-        await tree.removeTab(FIRST_TID);
-        const children = tree.toJsonObj()[0].children! as TreeNode<TabData>[];
+        const treeData = new MockTreeBuilder().addTabChildren(3).build();
+        const tabMasterTree = initTabMasterTree(treeData);
+        const tree = tabMasterTree.tree;
+        browser.tabs.query.resolves([createTab(12, 1, 0)]);
+        console.log(toAsciiTree(tabMasterTree.toJsonObj()));
+        await tabMasterTree.removeTab(11);
+        console.log(toAsciiTree(tabMasterTree.toJsonObj()));
+        const children = tree.getNodeByKey(`1`).children;
         expect(children.length).toEqual(2);
-        expect(children[0].data.id).toEqual(FIRST_TID + 1);
-        expect(children[0].data.index).toEqual(FIRST_INDEX);
-        expect(children[1].data.id).toEqual(FIRST_TID + 2);
-        expect(children[1].data.index).toEqual(FIRST_INDEX + 1);
+        expect(children[0].data.id).toEqual(12);
+        expect(children[0].data.index).toEqual(0);
+        expect(children[1].data.id).toEqual(13);
+        expect(children[1].data.index).toEqual(1);
     });
 
     it('remove parent node and reserve children', async () => {
         tree.createTab(createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1, FIRST_TID));
         tree.createTab(createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2, FIRST_TID));
+        browser.tabs.query.resolves([createTab(FIRST_TID + 1, WID, 0)]);
         console.log(toAsciiTree(tree.toJsonObj()));
         await tree.removeTab(FIRST_TID);
+        console.log(toAsciiTree(tree.toJsonObj()));
         const windowNode = tree.toJsonObj()[0] as TreeNode<WindowData>;
         const children = windowNode.children! as TreeNode<TabData>[];
         expect(children.length).toEqual(2);
@@ -164,12 +179,12 @@ describe('remove tab', () => {
         expect(children[0].data.index).toEqual(FIRST_INDEX);
         expect(children[1].data.id).toEqual(FIRST_TID + 2);
         expect(children[1].data.index).toEqual(FIRST_INDEX + 1);
-        console.log(toAsciiTree(tree.toJsonObj()));
     });
 
     it('remove closed tab', async () => {
         const newNode = tree.createTab(createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1));
         newNode.data.closed = true;
+        browser.tabs.query.resolves([createTab(FIRST_TID, WID, 0)]);
         await tree.removeTab(FIRST_TID + 1);
         const children = tree.toJsonObj()[0].children! as TreeNode<TabData>[];
         expect(children.length).toEqual(2);
@@ -203,7 +218,9 @@ describe('move tab', () => {
     it('middle move to last', async () => {
         const secondNode = tree.createTab(createTab(FIRST_TID + 1, WID, FIRST_INDEX + 1));
         const thirdNode = tree.createTab(createTab(FIRST_TID + 2, WID, FIRST_INDEX + 2));
+        console.log(toAsciiTree(tree.toJsonObj()));
         tree.moveTab(WID, secondNode.data.id, secondNode.data.index, 2);
+        console.log(toAsciiTree(tree.toJsonObj()));
         const children = tree.toJsonObj()[0].children! as TreeNode<TabData>[];
         expect(children.length).toEqual(3);
         expect(children[1].data.id).toEqual(thirdNode.data.id);
@@ -312,6 +329,8 @@ describe('attach tab', () => {
         expect(secondWindowChildren[1].data.index).toEqual(1);
         expect(secondWindowChildren[2].data.id).toEqual(22);
     });
+
+    // it('', () => {});
 
     afterEach(() => {
         browser.flush();

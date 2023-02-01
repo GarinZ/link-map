@@ -72,17 +72,13 @@ export const TabNodeOperations = {
         NodeUtils.moveChildrenAsNextSiblings(toRemoveNode);
         // 3. 删除节点
         const windowNode = this.findWindowNode(toRemoveNode);
-        if (windowNode) {
-            ViewTabIndexUtils.decreaseIndex(
-                windowNode.tree,
-                windowNode.data.id,
-                toRemoveNode.data.index,
-            );
-        }
         const removedOpenedTabId = toRemoveNode.data.closed ? null : toRemoveNode.data.id;
         toRemoveNode.remove();
-        // 4. 更新windowNode的closed状态
-        if (windowNode) WindowNodeOperations.updateClosedStatus(windowNode);
+        if (windowNode) {
+            // 4. 更新windowNode的closed状态，并重置index
+            WindowNodeOperations.resetSubTabNodeIndex(windowNode);
+            WindowNodeOperations.updateClosedStatus(windowNode);
+        }
         return removedOpenedTabId;
     },
     updatePartial(toUpdateNode: FancytreeNode, updateProps: Partial<TabData>) {
@@ -165,72 +161,54 @@ export const TabNodeOperations = {
         return prevNode;
     },
     /** 兼容同窗口/跨窗口移动 */
-    move(toMoveNode: FancytreeNode, fromIndex: number, toIndex: number, toWindowId?: number): void {
-        // 1. 更新index和属性
-        let targetWindowNode = toMoveNode.tree.getNodeByKey(`${toMoveNode.data.windowId}`);
-        if (toWindowId) {
-            const oldWindowId = toMoveNode.data.windowId;
-            targetWindowNode = toMoveNode.tree.getNodeByKey(`${toWindowId}`);
-            ViewTabIndexUtils.increaseIndex(toMoveNode.tree, toWindowId, toIndex);
-            ViewTabIndexUtils.decreaseIndex(toMoveNode.tree, oldWindowId, fromIndex);
-            this.updatePartial(toMoveNode, { windowId: toWindowId, index: toIndex });
-        } else {
-            toMoveNode.data.index = fromIndex;
-            ViewTabIndexUtils.changeIndex(
-                toMoveNode.tree,
-                targetWindowNode.data.id,
-                fromIndex,
-                toIndex,
-            );
-        }
-        // 这里兼容拖拽，不再做节点移动
-        if (toMoveNode.data.moved) {
-            this.updatePartial(toMoveNode, { moved: false });
-            return;
-        }
-        // 2. 移动节点
-        NodeUtils.moveChildrenAsNextSiblings(toMoveNode);
-        if (toIndex === 0) {
-            toMoveNode.moveTo(targetWindowNode, 'firstChild');
-            return;
-        }
-        const prevOpenedTabNode = targetWindowNode.findFirst(
-            (node) =>
-                node.data.nodeType === 'tab' &&
-                node.data.index === toIndex - 1 &&
-                !node.data.closed,
-        );
-        const nextOpenedTabNodeChild = prevOpenedTabNode.findFirst(
-            (node) => node.data.nodeType === 'tab' && !node.data.closed,
-        );
-        nextOpenedTabNodeChild
-            ? toMoveNode.moveTo(nextOpenedTabNodeChild, 'before')
-            : toMoveNode.moveTo(prevOpenedTabNode, 'after');
-    },
-    remove(targetNode: FancytreeNode): number[] {
-        if (targetNode.data.nodeType !== 'tab') throw new Error('targetNode is not tab node');
-        // 1. 节点展开，就删除单个tabNode
-        if (targetNode.expanded) {
-            const removedOpenedTabId = this.removeItem(targetNode, true);
-            return removedOpenedTabId ? [removedOpenedTabId] : [];
-        }
-        // 2. 节点合起
-        // 2.1. 记录所有open状态的tabNode
-        const windowNode = TabNodeOperations.findWindowNode(targetNode);
-        const removedOpenedTabIds: number[] = [];
-        targetNode.visit((node) => {
-            const { nodeType, closed, id, index } = node.data;
-            if (nodeType === 'tab' && !closed) {
-                removedOpenedTabIds.push(id);
-                if (windowNode && id === targetNode.data.id) {
-                    // TODO 这里由windowNode重新计算比较好
-                    ViewTabIndexUtils.decreaseIndex(windowNode.tree, windowNode.data.id, index);
+    move(
+        toMoveNode: FancytreeNode,
+        _fromIndex: number,
+        toIndex: number,
+        toWindowId?: number,
+    ): void {
+        const tree = toMoveNode.tree;
+        toWindowId = toWindowId ?? toMoveNode.data.windowId;
+        const targetWindowNode = tree.getNodeByKey(`${toWindowId}`);
+        // 1. 按需移动节点
+        if (!toMoveNode.data.moved) {
+            NodeUtils.moveChildrenAsNextSiblings(toMoveNode);
+            if (toIndex === 0) {
+                toMoveNode.moveTo(targetWindowNode, 'firstChild');
+            } else {
+                let prevOpenedTabNode = targetWindowNode.findFirst(
+                    (node) =>
+                        node.data.nodeType === 'tab' &&
+                        node.data.index === toIndex - 1 &&
+                        !node.data.closed,
+                );
+                if (prevOpenedTabNode.key === toMoveNode.key) {
+                    // swap position
+                    prevOpenedTabNode = targetWindowNode.findFirst(
+                        (node) =>
+                            node.data.nodeType === 'tab' &&
+                            node.data.index === toIndex &&
+                            !node.data.closed,
+                    );
                 }
+                const nextOpenedTabNodeChild = prevOpenedTabNode.findFirst(
+                    (node) => node.data.nodeType === 'tab' && !node.data.closed,
+                );
+                nextOpenedTabNodeChild
+                    ? toMoveNode.moveTo(nextOpenedTabNodeChild, 'before')
+                    : toMoveNode.moveTo(prevOpenedTabNode, 'after');
             }
-        }, true);
-        // 2.2. 更新windowNode状态
-        targetNode.remove();
-        if (windowNode) WindowNodeOperations.updateClosedStatus(windowNode);
-        return removedOpenedTabIds;
+        }
+        const oldWindowId = toMoveNode.data.windowId;
+        this.updatePartial(toMoveNode, { windowId: toWindowId });
+        WindowNodeOperations.resetSubTabNodeIndex(targetWindowNode);
+        // 2. 更新index和属性
+        if (toWindowId) {
+            const oldWindowNode = tree.getNodeByKey(`${oldWindowId}`);
+            // 需要先更新windowId，否则会导致index计算错误
+            WindowNodeOperations.resetSubTabNodeIndex(oldWindowNode);
+        }
+        // 重置moved属性
+        this.updatePartial(toMoveNode, { moved: false });
     },
 };

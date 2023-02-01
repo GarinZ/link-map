@@ -8,6 +8,7 @@ import { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
 import { TabNodeOperations } from '@/tree/nodes/tab-node-operations';
 import { WindowNodeOperations } from '@/tree/nodes/window-node-operations';
 
+import { mockTabRemove } from '../../utils/browser-mock';
 import { initTabMasterTree, MockTreeBuilder } from '../../utils/gen-utils';
 import { toAsciiTree } from '../../utils/print-utils';
 import { DEFAULT_TAB_NODE } from './mock-data';
@@ -193,11 +194,7 @@ describe('remove node', () => {
         forthTabNode.data.closed = true;
 
         // mock browser callback
-        await browser.tabs.remove.onFirstCall().callsFake(async (toRemovedTabIds: number[]) => {
-            await Promise.all(
-                toRemovedTabIds.map(async (tabId) => await tabMasterTree.removeTab(tabId)),
-            );
-        });
+        mockTabRemove(tabMasterTree);
         browser.tabs.query.returns(Promise.resolve([]));
         FancyTabMasterTree.removeNodes(windowNode);
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
@@ -220,11 +217,7 @@ describe('remove node', () => {
         forthTabNode.data.closed = true;
 
         // mock browser callback
-        await browser.tabs.remove.onFirstCall().callsFake(async (toRemovedTabIds: number[]) => {
-            await Promise.all(
-                toRemovedTabIds.map(async (tabId) => await tabMasterTree.removeTab(tabId)),
-            );
-        });
+        mockTabRemove(tabMasterTree);
         browser.tabs.query.returns(Promise.resolve([]));
         FancyTabMasterTree.removeNodes(windowNode);
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
@@ -278,15 +271,14 @@ describe('db click', () => {
         WindowNodeOperations.updatePartial(windowNode, { closed: true });
         TabNodeOperations.updatePartial(toClickNode, { closed: true });
         TabNodeOperations.updatePartial(tree.getNodeByKey(`${12}`), { closed: true });
-        const { url } = toClickNode.data;
         browser.windows.create.returns(
             Promise.resolve({
                 id: modifiedWindowId,
-                tabs: [{ id: 21, url, index: 0, windowId: modifiedWindowId }],
+                tabs: [{ id: 21, url: toClickNode.data.url, index: 0, windowId: modifiedWindowId }],
             }),
         );
         await FancyTabMasterTree.onDbClick(toClickNode);
-
+        const { url, id, windowId, index } = toClickNode.data;
         expect(browser.windows.create.callCount).toBe(1);
         const createWindowArg = browser.windows.create.getCall(0).args[0];
         Object.entries(createWindowArg).forEach(([key, value]) => {
@@ -298,10 +290,9 @@ describe('db click', () => {
         expect(windowNode.data.id).toBe(modifiedWindowId);
         expect(toClickNode.data.closed).toBe(false);
         expect(toClickNode.key).toBe('21');
-        // eslint-disable-next-line unicorn/consistent-destructuring
-        expect(toClickNode.data.id).toBe(21);
-        // eslint-disable-next-line unicorn/consistent-destructuring
-        expect(toClickNode.data.windowId).toBe(modifiedWindowId);
+        expect(id).toBe(21);
+        expect(windowId).toBe(modifiedWindowId);
+        expect(index).toBe(0);
     });
 
     it('db click on closed tab without window node', async () => {
@@ -309,23 +300,22 @@ describe('db click', () => {
         const toClickNode = tree.getNodeByKey(DEFAULT_TAB_NODE.key);
         const modifiedWindowId = 2;
         TabNodeOperations.updatePartial(toClickNode, { closed: true });
-        const { url } = toClickNode.data;
         browser.windows.create.returns(
             Promise.resolve({
                 id: modifiedWindowId,
-                tabs: [{ id: 21, url, index: 0, windowId: modifiedWindowId }],
+                tabs: [{ id: 21, url: toClickNode.data.url, index: 0, windowId: modifiedWindowId }],
             }),
         );
         await FancyTabMasterTree.onDbClick(toClickNode);
+        const { url, id, windowId, index } = toClickNode.data;
         expect(browser.windows.create.callCount).toBe(1);
         expect(browser.windows.create.getCall(0).calledWith({ url })).toBeTruthy();
         expect(toClickNode.data.closed).toBe(false);
         expect(toClickNode.key).toBe('21');
-        // eslint-disable-next-line unicorn/consistent-destructuring
-        expect(toClickNode.data.id).toBe(21);
+        expect(id).toBe(21);
         expect(toClickNode.getParent().data.windowId).toBe(modifiedWindowId);
-        // eslint-disable-next-line unicorn/consistent-destructuring
-        expect(toClickNode.data.windowId).toBe(modifiedWindowId);
+        expect(windowId).toBe(modifiedWindowId);
+        expect(index).toBe(0);
     });
 
     it('db click on opened window node', () => {

@@ -81,7 +81,7 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
     },
 };
 
-async function tabMoveOnDrop(
+export async function tabMoveOnDrop(
     sourceNode: Fancytree.FancytreeNode,
     targetNode: Fancytree.FancytreeNode,
     hitMode: hitMode,

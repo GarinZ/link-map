@@ -1,8 +1,8 @@
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
-import { DND5_CONFIG } from './configs';
 import { TabMasterDB } from './database';
+import { DND5_CONFIG } from './dnd';
 import type { TreeData, TreeNode } from './nodes/nodes';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import { WindowNodeOperations } from './nodes/window-node-operations';
@@ -359,12 +359,15 @@ FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode) => {
     toCloseTabNodes.forEach((node) => {
         windowIdSet.add(node.data.windowId);
         tabIdSet.add(node.data.id);
-        ViewTabIndexUtils.decreaseIndex(node.tree, node.data.windowId, node.data.index);
     });
     if (targetNode.expanded) {
         NodeUtils.moveChildrenAsNextSiblings(targetNode);
     }
     targetNode.remove();
+    windowIdSet.forEach((windowId) => {
+        const windowNode = targetNode.tree.getNodeByKey(windowId.toString());
+        if (windowNode) WindowNodeOperations.resetSubTabNodeIndex(windowNode);
+    });
     WindowNodeOperations.updateCloseStatus(targetNode.tree, windowIdSet);
     tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
 };
