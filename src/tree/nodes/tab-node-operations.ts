@@ -1,6 +1,5 @@
 import type { Tabs } from 'webextension-polyfill';
 
-import { ViewTabIndexUtils } from '../tab-index-utils';
 import { NodeUtils } from '../utils';
 import type { TreeData, TreeNode } from './nodes';
 import { WindowNodeOperations } from './window-node-operations';
@@ -45,7 +44,6 @@ export const TabNodeOperations = {
         const prevNode = windowNode.findFirst(
             (node) => node.data.index === index - 1 && !node.data.closed,
         );
-        ViewTabIndexUtils.increaseIndex(tree, windowNode.data.id, index);
         // 2. 如果index - 1不存在，说明是第一个节点，直接添加为windowNode的子节点
         let createdNode = null;
         if (prevNode === null) {
@@ -63,6 +61,7 @@ export const TabNodeOperations = {
         if (active) {
             this.updatePartial(createdNode, { active: true });
         }
+        WindowNodeOperations.updateWindowStatus(windowNode);
         return createdNode;
     },
     removeItem(toRemoveNode: FancytreeNode, force = false): number | null {
@@ -76,8 +75,7 @@ export const TabNodeOperations = {
         toRemoveNode.remove();
         if (windowNode) {
             // 4. 更新windowNode的closed状态，并重置index
-            WindowNodeOperations.resetSubTabNodeIndex(windowNode);
-            WindowNodeOperations.updateClosedStatus(windowNode);
+            WindowNodeOperations.updateWindowStatus(windowNode);
         }
         return removedOpenedTabId;
     },
@@ -201,12 +199,12 @@ export const TabNodeOperations = {
         }
         const oldWindowId = toMoveNode.data.windowId;
         this.updatePartial(toMoveNode, { windowId: toWindowId });
-        WindowNodeOperations.resetSubTabNodeIndex(targetWindowNode);
+        WindowNodeOperations.updateWindowStatus(targetWindowNode);
         // 2. 更新index和属性
         if (toWindowId) {
             const oldWindowNode = tree.getNodeByKey(`${oldWindowId}`);
             // 需要先更新windowId，否则会导致index计算错误
-            WindowNodeOperations.resetSubTabNodeIndex(oldWindowNode);
+            WindowNodeOperations.updateWindowStatus(oldWindowNode);
         }
         // 重置moved属性
         this.updatePartial(toMoveNode, { moved: false });

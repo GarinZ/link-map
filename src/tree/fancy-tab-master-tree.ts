@@ -6,7 +6,6 @@ import { DND5_CONFIG } from './dnd';
 import type { TreeData, TreeNode } from './nodes/nodes';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import { WindowNodeOperations } from './nodes/window-node-operations';
-import { ViewTabIndexUtils } from './tab-index-utils';
 import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
 import { NodeUtils } from './utils';
 
@@ -259,9 +258,9 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
                     flatTabNodes.findIndex((node) => node.data.id === prevOpenedTabNode.data.id) +
                     1;
             }
-            ViewTabIndexUtils.increaseIndex(tree, windowNode.data.id, index);
             const newTab = await browser.tabs.create({ url, windowId: windowNode.data.id, index });
             TabNodeOperations.updatePartial(targetNode, { ...newTab, closed: false });
+            WindowNodeOperations.updateWindowStatus(windowNode);
         }
     } else if (targetNode.data.nodeType === 'window') {
         // 1. 如果WindowNode是打开状态，直接激活
@@ -289,10 +288,13 @@ FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
     toClosedTabNodes.forEach((node) => {
         windowIdSet.add(node.data.windowId);
         tabIdSet.add(node.data.id);
-        ViewTabIndexUtils.decreaseIndex(node.tree, node.data.windowId, node.data.index);
         TabNodeOperations.updatePartial(node, { closed: true });
     });
-    WindowNodeOperations.updateCloseStatus(targetNode.tree, windowIdSet);
+    windowIdSet.forEach((windowId) => {
+        const windowNode = targetNode.tree.getNodeByKey(`${windowId}`);
+        if (!windowNode) return;
+        WindowNodeOperations.updateWindowStatus(windowNode);
+    });
     tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
     // close状态修改的TabNode对应的WindowNode需要更新其closed值
 };
@@ -366,8 +368,8 @@ FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode) => {
     targetNode.remove();
     windowIdSet.forEach((windowId) => {
         const windowNode = targetNode.tree.getNodeByKey(windowId.toString());
-        if (windowNode) WindowNodeOperations.resetSubTabNodeIndex(windowNode);
+        if (!windowNode) return;
+        WindowNodeOperations.updateWindowStatus(windowNode);
     });
-    WindowNodeOperations.updateCloseStatus(targetNode.tree, windowIdSet);
     tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
 };

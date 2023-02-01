@@ -80,24 +80,6 @@ export const WindowNodeOperations = {
         targetNode.renderTitle();
         return targetNode;
     },
-    updateCloseStatus(tree: Fancytree.Fancytree, windowIdSet: Set<number>): FancytreeNode[] {
-        // window是否close需要通过子tabNode的closed状态计算
-        // 1. 找到所有windowNode及其子tabNode
-        const windowNode2TabNodes = new Map<FancytreeNode, FancytreeNode[]>();
-        windowIdSet.forEach((windowId) => {
-            const windowNode = tree.getNodeByKey(`${windowId}`);
-            if (!windowNode) return;
-            windowNode2TabNodes.set(windowNode, this.findAllSubTabNodes(windowNode));
-        });
-        // 2. 遍历并计算windowNode的closed状态
-        const closedWindowNodes: FancytreeNode[] = [];
-        windowNode2TabNodes.forEach((tabNodes, windowNode) => {
-            const closed = tabNodes.every((tabNode) => tabNode.data.closed);
-            if (closed && !windowNode.data.closed) closedWindowNodes.push(windowNode);
-            this.updatePartial(windowNode, { closed });
-        });
-        return closedWindowNodes;
-    },
     findAllSubTabNodes(windowNode: FancytreeNode, onlyOpened = false): FancytreeNode[] {
         return (
             windowNode.findAll(
@@ -136,16 +118,35 @@ export const WindowNodeOperations = {
                 TabNodeOperations.updatePartial(tabNode, { windowId: windowNode.data.windowId });
             });
     },
-    updateClosedStatus(windowNode: FancytreeNode): void {
-        const closed = this.findAllSubTabNodes(windowNode).every((tabNode) => tabNode.data.closed);
-        this.updatePartial(windowNode, { closed });
-    },
     resetSubTabNodeIndex(windowNode: FancytreeNode | FancytreeNode[]) {
         const windowNodeList = Array.isArray(windowNode) ? windowNode : [windowNode];
         windowNodeList.forEach((windowNode) => {
             const openTabNodes = this.findAllSubTabNodes(windowNode, true);
             openTabNodes.forEach((tabNode, index) => {
                 tabNode.data.index = index;
+            });
+        });
+    },
+    updateCloseStatus(windowNode: FancytreeNode): void {
+        // window是否close需要通过子tabNode的closed状态计算
+        if (!windowNode || windowNode.data.nodeType !== 'window')
+            throw new Error('Invalid windowNode');
+        const openedTabNodes = this.findAllSubTabNodes(windowNode, true);
+        this.updatePartial(windowNode, { closed: !openedTabNodes || openedTabNodes.length === 0 });
+    },
+    /**
+     * 更新subTabIndex和windowNode的closed状态
+     * @param windowNode
+     */
+    updateWindowStatus(windowNode: FancytreeNode | FancytreeNode[]): void {
+        const windowNodeList = Array.isArray(windowNode) ? windowNode : [windowNode];
+        windowNodeList.forEach((windowNode) => {
+            const openedTabNodes = this.findAllSubTabNodes(windowNode, true);
+            openedTabNodes.forEach((tabNode, index) => {
+                tabNode.data.index = index;
+            });
+            this.updatePartial(windowNode, {
+                closed: !openedTabNodes || openedTabNodes.length === 0,
             });
         });
     },

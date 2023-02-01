@@ -87,7 +87,7 @@ describe('drag and drop', () => {
         const windowNode1 = tree.getNodeByKey('1');
         const windowNode2 = tree.getNodeByKey('2');
         expect(windowNode1.countChildren()).toBe(1);
-        // expect(windowNode1.data.closed).toBe(true);
+        expect(windowNode1.data.closed).toBe(true);
         expect(windowNode1.children![0].key).toBe('11');
         expect(windowNode1.children![0].data.index).toBe(0);
         expect(windowNode2.countChildren()).toBe(4);

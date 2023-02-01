@@ -8,7 +8,7 @@ import { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
 import { TabNodeOperations } from '@/tree/nodes/tab-node-operations';
 import { WindowNodeOperations } from '@/tree/nodes/window-node-operations';
 
-import { mockTabRemove } from '../../utils/browser-mock';
+import { mockTabCreate, mockTabRemove } from '../../utils/browser-mock';
 import { initTabMasterTree, MockTreeBuilder } from '../../utils/gen-utils';
 import { toAsciiTree } from '../../utils/print-utils';
 import { DEFAULT_TAB_NODE } from './mock-data';
@@ -245,16 +245,18 @@ describe('db click', () => {
 
     it('db click on closed tab node, with opened window node', async () => {
         const treeData = new MockTreeBuilder().addTabChildren(2).build();
-        const tree = initTabMasterTree(treeData).tree;
+        const tabMasterTree = initTabMasterTree(treeData);
+        const tree = tabMasterTree.tree;
         const firstNode = tree.getNodeByKey(`${11}`);
         const secondNode = tree.getNodeByKey(`${12}`);
         TabNodeOperations.updatePartial(firstNode, { closed: true, index: 0 });
         TabNodeOperations.updatePartial(secondNode, { closed: false, index: 0 });
         const { url, index, windowId } = firstNode.data;
-        browser.tabs.create.returns(Promise.resolve({ id: 13, url, index, windowId }));
+        mockTabCreate(tabMasterTree, 13);
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
         await FancyTabMasterTree.onDbClick(firstNode);
-        expect(browser.tabs.create.callCount).toBe(1);
-        expect(browser.tabs.create.getCall(0).calledWith({ url, index, windowId })).toBeTruthy();
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        expect(browser.tabs.create.calledOnceWith({ url, index, windowId })).toBeTruthy();
         expect(firstNode.data.closed).toBe(false);
         expect(firstNode.key).toBe('13');
         // eslint-disable-next-line unicorn/consistent-destructuring

@@ -30,6 +30,13 @@ export const mockTabRemove = (tabMasterTree: FancyTabMasterTree) => {
     });
 };
 
-export const mockTabQuery = (tabMasterTree: FancyTabMasterTree) => {};
+// export const mockTabQuery = (tabMasterTree: FancyTabMasterTree) => {};
 
-export const mockTabGet = (tabMasterTree: FancyTabMasterTree) => {};
+// export const mockTabGet = (tabMasterTree: FancyTabMasterTree) => {};
+
+export const mockTabCreate = (tabMasterTree: FancyTabMasterTree, newTabId: number) => {
+    browser.tabs.create.callsFake(async (createProperties) => {
+        const { windowId, index, url } = createProperties;
+        return { id: newTabId, url, index, windowId };
+    });
+};
