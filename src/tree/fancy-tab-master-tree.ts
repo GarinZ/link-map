@@ -232,7 +232,6 @@ FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventDat
 };
 
 FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> => {
-    const tree = targetNode.tree;
     if (targetNode.data.nodeType === 'tab') {
         // 1. 如果TabNode是打开状态，直接激活
         if (!targetNode.data.closed) {
@@ -241,7 +240,7 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
             return;
         }
         // 2. TabNode关闭
-        const windowNode = tree.getNodeByKey(`${targetNode.data.windowId}`);
+        const windowNode = TabNodeOperations.findWindowNode(targetNode);
         const { url } = targetNode.data;
         if (!windowNode) {
             await FancyTabMasterTree.createWindowNodeAsParent(targetNode);
@@ -253,10 +252,11 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
             const prevOpenedTabNode = TabNodeOperations.findPrevOpenedTabNode(targetNode);
             let index = 0;
             if (prevOpenedTabNode) {
-                const flatTabNodes = NodeUtils.flatTabNodes(windowNode);
+                const openedSubTabNodes = WindowNodeOperations.findAllSubTabNodes(windowNode, true);
                 index =
-                    flatTabNodes.findIndex((node) => node.data.id === prevOpenedTabNode.data.id) +
-                    1;
+                    openedSubTabNodes.findIndex(
+                        (node) => node.data.id === prevOpenedTabNode.data.id,
+                    ) + 1;
             }
             const newTab = await browser.tabs.create({ url, windowId: windowNode.data.id, index });
             TabNodeOperations.updatePartial(targetNode, { ...newTab, closed: false });
@@ -306,7 +306,6 @@ FancyTabMasterTree.reopenWindowNode = async (
     needUpdateTabProps = true,
 ): Promise<Windows.Window> => {
     if (!windowNode.data.closed) throw new Error('windowNode is not closed');
-    const oldWindowId = windowNode.data.id;
     // 1. 打开window和tab
     const urlList = toOpenSubTabNodes.map((item) => item.data.url);
     const newWindow = await browser.windows.create(
@@ -315,7 +314,7 @@ FancyTabMasterTree.reopenWindowNode = async (
     // 2. 更新windowNode状态并更新其子节点
     WindowNodeOperations.updatePartial(windowNode, { ...newWindow, closed: false });
     if (needUpdateTabProps) {
-        WindowNodeOperations.updateSubTabWindowId(windowNode, oldWindowId);
+        WindowNodeOperations.updateSubTabWindowId(windowNode);
         toOpenSubTabNodes.forEach((tabNode, index) => {
             TabNodeOperations.updatePartial(tabNode, { ...newWindow.tabs![index], closed: false });
         });
@@ -328,13 +327,13 @@ FancyTabMasterTree.createWindowNodeAsParent = async (
     tabNode: FancytreeNode,
 ): Promise<{ windowNode: FancytreeNode; window: Windows.Window }> => {
     // 1. 创建window和windowNode
-    const { url, windowId: oldWindowId } = tabNode.data;
+    const { url } = tabNode.data;
     const { windowNode, window } = await FancyTabMasterTree.openWindow(tabNode, 'before', url);
     // 2. 将tabNode挂到windowNode下
     tabNode.moveTo(windowNode, 'firstChild');
     // 3. 更新TabNode属性和子tabNode的windowId
     TabNodeOperations.updatePartial(tabNode, { ...window.tabs![0], closed: false });
-    WindowNodeOperations.updateSubTabWindowId(windowNode, oldWindowId);
+    WindowNodeOperations.updateSubTabWindowId(windowNode);
     return { windowNode, window };
 };
 

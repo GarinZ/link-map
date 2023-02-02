@@ -132,7 +132,7 @@ export const TabNodeOperations = {
         return toCloseTabNodes;
     },
     findWindowNode(targetNode: FancytreeNode): FancytreeNode | null {
-        if (targetNode.data.nodeType === 'window') throw new Error('targetNode is window node');
+        if (targetNode.data.nodeType === 'window') return targetNode;
         let windowNode = null;
         targetNode.visitParents((parent) => {
             if (parent.data.nodeType === 'window') {

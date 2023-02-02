@@ -1,7 +1,6 @@
 import { clone } from 'lodash';
 import type { Windows } from 'webextension-polyfill';
 
-import { NodeUtils } from '../utils';
 import type { TreeData, TreeNode } from './nodes';
 import { TabNodeOperations } from './tab-node-operations';
 
@@ -64,10 +63,8 @@ export const WindowNodeOperations = {
         }
     },
     remove(targetNode: FancytreeNode, force = false): void {
-        if (!targetNode) {
-            return;
-        }
-        if (!force && (!NodeUtils.canRemove(targetNode) || targetNode.children?.length > 0)) {
+        if (!targetNode) return;
+        if (force || (targetNode.children && targetNode.children.length > 0)) {
             return;
         }
         const children = targetNode.children ? clone(targetNode.children?.reverse()) : [];
@@ -80,15 +77,21 @@ export const WindowNodeOperations = {
         targetNode.renderTitle();
         return targetNode;
     },
+    /** 通过树的结构计算windowNode的子tab列表 */
     findAllSubTabNodes(windowNode: FancytreeNode, onlyOpened = false): FancytreeNode[] {
-        return (
-            windowNode.findAll(
-                (node) =>
-                    node.data.nodeType === 'tab' &&
-                    node.data.windowId === windowNode.data.windowId &&
-                    (onlyOpened ? !node.data.closed : true),
-            ) ?? []
-        );
+        const subWindowNodeIdSet = new Set<number>();
+        const subTabNodes: FancytreeNode[] = [];
+        windowNode.visit((node) => {
+            if (node.data.nodeType === 'window') {
+                subWindowNodeIdSet.add(node.data.windowId);
+            } else if (
+                node.data.nodeType === 'tab' &&
+                !subWindowNodeIdSet.has(node.data.windowId)
+            ) {
+                subTabNodes.push(node);
+            }
+        });
+        return subTabNodes.filter((node) => !onlyOpened || !node.data.closed);
     },
     buildCreateWindowProps(
         url: string | string[],
@@ -111,12 +114,18 @@ export const WindowNodeOperations = {
         }
         return props;
     },
-    updateSubTabWindowId(windowNode: FancytreeNode, oldWindowId: number): void {
-        windowNode
-            .findAll((node) => node.data.nodeType === 'tab' && node.data.windowId === oldWindowId)
-            .forEach((tabNode) => {
-                TabNodeOperations.updatePartial(tabNode, { windowId: windowNode.data.windowId });
-            });
+    // updateSubTabWindowId(windowNode: FancytreeNode, oldWindowId: number): void {
+    //     windowNode
+    //         .findAll((node) => node.data.nodeType === 'tab' && node.data.windowId === oldWindowId)
+    //         .forEach((tabNode) => {
+    //             TabNodeOperations.updatePartial(tabNode, { windowId: windowNode.data.windowId });
+    //         });
+    // },
+    /** 通过结构计算并更新windowTabNode */
+    updateSubTabWindowId(windowNode: FancytreeNode): void {
+        this.findAllSubTabNodes(windowNode).forEach((tabNode) => {
+            TabNodeOperations.updatePartial(tabNode, { windowId: windowNode.data.windowId });
+        });
     },
     resetSubTabNodeIndex(windowNode: FancytreeNode | FancytreeNode[]) {
         const windowNodeList = Array.isArray(windowNode) ? windowNode : [windowNode];

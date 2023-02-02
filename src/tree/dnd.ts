@@ -3,7 +3,8 @@ import browser from 'webextension-polyfill';
 import { FancyTabMasterTree } from './fancy-tab-master-tree';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import { WindowNodeOperations } from './nodes/window-node-operations';
-import { NodeUtils } from './utils';
+
+type FancytreeNode = Fancytree.FancytreeNode;
 
 type hitMode = 'over' | 'before' | 'after';
 
@@ -92,15 +93,15 @@ export async function tabMoveOnDrop(
     // 2. 移动tabNode
     // 2.1 先找打开的tabNode
     const oldWindowId = sourceNode.data.windowId;
-    const toMoveTabNodeList: Fancytree.FancytreeNode[] = [];
+    const toMoveOpenedTabNodeList: Fancytree.FancytreeNode[] = [];
     sourceNode.visit((node) => {
         const { windowId, nodeType, closed } = node.data;
         if (nodeType === 'tab' && !closed && windowId === oldWindowId) {
-            toMoveTabNodeList.push(node);
+            toMoveOpenedTabNodeList.push(node);
         }
         return true;
     }, true);
-    if (toMoveTabNodeList.length === 0) return;
+    if (toMoveOpenedTabNodeList.length === 0) return;
     // 2.2 找到需要移动到的window，没有就建一个
     let targetWindowNode: Fancytree.FancytreeNode | null =
         TabNodeOperations.findWindowNode(sourceNode);
@@ -117,21 +118,93 @@ export async function tabMoveOnDrop(
         newWindowId = window.id;
         needToRemoveTabId = window.tabs![0].id;
         targetWindowNode = windowNode;
-        WindowNodeOperations.updateSubTabWindowId(targetWindowNode, oldWindowId);
+        WindowNodeOperations.updateSubTabWindowId(targetWindowNode);
     } else if (targetWindowNode.data.closed) {
         // 3. 移动到已关闭窗口：需要新建窗口并更新属性
         const newWindow = await FancyTabMasterTree.reopenWindowNode(targetWindowNode, []);
         newWindowId = newWindow.id;
         needToRemoveTabId = newWindow.tabs![0].id;
     }
-    const toMoveTabIds = toMoveTabNodeList.map((node) => node.data.id);
+    const toMoveTabIds = toMoveOpenedTabNodeList.map((node) => node.data.id);
     // TODO 移动后的index没更新，导致计算后的index可能是错的
-    const flatTabNodes = NodeUtils.flatTabNodes(targetWindowNode);
+    const flatTabNodes = WindowNodeOperations.findAllSubTabNodes(targetWindowNode, true);
     const toIndex = flatTabNodes.findIndex((node) => node.data.id === sourceNode.data.id);
     // const toIndex = prevOpenedTabNode ? prevOpenedTabNode.data.index + 1 : 0;
-    toMoveTabNodeList.forEach((node) => (node.data.moved = true));
+    toMoveOpenedTabNodeList.forEach((node) => (node.data.moved = true));
     await browser.tabs.move(toMoveTabIds, { windowId: newWindowId, index: toIndex });
     if (needToRemoveTabId) {
         await browser.tabs.remove(needToRemoveTabId);
+    }
+}
+
+export async function tabMoveOnDrop2(
+    sourceNode: Fancytree.FancytreeNode,
+    targetNode: Fancytree.FancytreeNode,
+    hitMode: hitMode,
+) {
+    sourceNode.moveTo(targetNode, hitMode);
+    // 1. 整理数据
+    const wid2WindowNode: { [windowId: number]: FancytreeNode } = {};
+    const wid2TabNode: { [windowId: number]: FancytreeNode[] } = {};
+    sourceNode.visit((node) => {
+        const { windowId, nodeType } = node.data;
+        if (nodeType === 'window') {
+            wid2WindowNode[windowId] = node;
+        } else if (nodeType === 'tab') {
+            Array.isArray(wid2TabNode[windowId])
+                ? wid2TabNode[windowId].push(node)
+                : (wid2TabNode[windowId] = [node]);
+        }
+    }, true);
+    const toMoveTabNodes: FancytreeNode[] = [];
+    const toUpdateWindowIdTabNodes: FancytreeNode[] = [];
+    Object.entries(wid2TabNode).forEach(([wid, tabNodes]) => {
+        if (wid in wid2WindowNode) return;
+        tabNodes.forEach((tabNode) => {
+            if (tabNode.data.closed) {
+                toUpdateWindowIdTabNodes.push(tabNode);
+            } else {
+                toMoveTabNodes.push(tabNode);
+                tabNode.data.moved = true;
+            }
+        });
+    });
+    // 2. 获取移动到窗口
+    if (toMoveTabNodes.length === 0 && toUpdateWindowIdTabNodes.length === 0) return;
+    let windowNode: FancytreeNode | null = TabNodeOperations.findWindowNode(targetNode);
+    if (toMoveTabNodes.length > 0) {
+        // const oldWindowId = toMoveTabNodes[0].data.windowId;
+        if (windowNode && windowNode.data.closed) {
+            // 移动到已关闭窗口
+            const newWindow = await FancyTabMasterTree.reopenWindowNode(windowNode, []);
+            const toMoveTabIds = toMoveTabNodes.map((node) => node.data.id);
+            await browser.tabs.move(toMoveTabIds, { windowId: newWindow.id, index: 0 });
+            await browser.tabs.remove(newWindow.tabs![0].id!);
+        } else if (windowNode) {
+            // 移动到同一个窗口 || 不同窗口
+            const openedSubTabNodes = WindowNodeOperations.findAllSubTabNodes(windowNode, true);
+            const toIndex = openedSubTabNodes.findIndex(
+                (node) => node.data.id === sourceNode.data.id,
+            );
+            const toMoveTabIds = toMoveTabNodes.map((node) => node.data.id);
+            await browser.tabs.move(toMoveTabIds, { index: toIndex, windowId: windowNode.data.id });
+        } else {
+            // 移动到无窗口位置
+            const { windowNode: newWindowNode, window } = await FancyTabMasterTree.openWindow(
+                sourceNode,
+                'before',
+                [],
+            );
+            sourceNode.moveTo(newWindowNode, 'child');
+            windowNode = newWindowNode;
+            await browser.tabs.remove(window.tabs![0].id!);
+        }
+    }
+    if (toUpdateWindowIdTabNodes.length > 0) {
+        toUpdateWindowIdTabNodes.forEach(
+            (node) =>
+                windowNode &&
+                TabNodeOperations.updatePartial(node, { windowId: windowNode.data.id }),
+        );
     }
 }

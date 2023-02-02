@@ -40,3 +40,25 @@ export const mockTabCreate = (tabMasterTree: FancyTabMasterTree, newTabId: numbe
         return { id: newTabId, url, index, windowId };
     });
 };
+
+export const mockWindowCreate = (
+    tabMasterTree: FancyTabMasterTree,
+    newWindowId: number,
+    newTabId = 0,
+) => {
+    browser.windows.create.callsFake(async ({ url, ...otherProps }) => {
+        const urlList = url ? (Array.isArray(url) ? url : [url]) : ['default url'];
+        let index = 0;
+        let tabId = newTabId;
+        return {
+            id: newWindowId,
+            ...otherProps,
+            tabs: urlList.map((url) => ({
+                id: tabId++,
+                url,
+                index: index++,
+                windowId: newWindowId,
+            })),
+        };
+    });
+};

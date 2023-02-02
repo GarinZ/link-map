@@ -8,7 +8,7 @@ import { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
 import { TabNodeOperations } from '@/tree/nodes/tab-node-operations';
 import { WindowNodeOperations } from '@/tree/nodes/window-node-operations';
 
-import { mockTabCreate, mockTabRemove } from '../../utils/browser-mock';
+import { mockTabCreate, mockTabRemove, mockWindowCreate } from '../../utils/browser-mock';
 import { initTabMasterTree, MockTreeBuilder } from '../../utils/gen-utils';
 import { toAsciiTree } from '../../utils/print-utils';
 import { DEFAULT_TAB_NODE } from './mock-data';
@@ -320,10 +320,10 @@ describe('db click', () => {
         expect(index).toBe(0);
     });
 
-    it('db click on opened window node', () => {
+    it('db click on opened window node', async () => {
         const treeData = new MockTreeBuilder().addTabChildren(2).build();
         const tree = initTabMasterTree(treeData).tree;
-        FancyTabMasterTree.onDbClick(tree.getNodeByKey(`${1}`));
+        await FancyTabMasterTree.onDbClick(tree.getNodeByKey(`${1}`));
         expect(browser.windows.update.callCount).toBe(1);
         expect(browser.windows.update.getCall(0).calledWith(1, { focused: true })).toBeTruthy();
     });
@@ -366,5 +366,29 @@ describe('db click', () => {
         expect(secondTabNode.key).toBe('22');
         expect(secondTabNode.data.id).toBe(22);
         expect(secondTabNode.data.windowId).toBe(modifiedWindowId);
+    });
+
+    it('db click on closed tab with no window node', async () => {
+        const treeData = new MockTreeBuilder().addTabChildren(1).build();
+        const tabMasterTree = initTabMasterTree(treeData);
+        const tree = tabMasterTree.tree;
+        const tabNode = tree.getNodeByKey(`${11}`);
+        const windowNode = tree.getNodeByKey(`${1}`);
+        tabNode.moveTo(windowNode, 'after');
+        windowNode.remove();
+        tabNode.data.closed = true;
+        tabNode.data.index = 2;
+
+        mockWindowCreate(tabMasterTree, 2, 21);
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        await FancyTabMasterTree.onDbClick(tree.getNodeByKey(`${11}`));
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+
+        expect(browser.windows.create.calledOnceWith({ url: tabNode.data.url })).toBeTruthy();
+        expect(tabNode.data.closed).toBe(false);
+        expect(tabNode.key).toBe('21');
+        expect(tabNode.data.index).toBe(0);
+        expect(tabNode.data.windowId).toBe(2);
+        expect(tabNode.parent.key).toBe('2');
     });
 });
