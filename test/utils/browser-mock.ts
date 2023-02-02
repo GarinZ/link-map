@@ -23,9 +23,10 @@ export const mockTabMove = (tabMasterTree: FancyTabMasterTree) => {
 };
 
 export const mockTabRemove = (tabMasterTree: FancyTabMasterTree) => {
-    browser.tabs.remove.callsFake(async (tabIds) => {
+    browser.tabs.remove.callsFake(async (tabIds: number | number[]) => {
+        const tabIdList = Array.isArray(tabIds) ? tabIds : [tabIds];
         await Promise.all(
-            tabIds.map(async (tabId: number) => await tabMasterTree.removeTab(tabId)),
+            tabIdList.map(async (tabId: number) => await tabMasterTree.removeTab(tabId)),
         );
     });
 };
@@ -44,10 +45,11 @@ export const mockTabCreate = (tabMasterTree: FancyTabMasterTree, newTabId: numbe
 export const mockWindowCreate = (
     tabMasterTree: FancyTabMasterTree,
     newWindowId: number,
-    newTabId = 0,
+    newTabId = newWindowId * 10 + 1,
 ) => {
     browser.windows.create.callsFake(async ({ url, ...otherProps }) => {
-        const urlList = url ? (Array.isArray(url) ? url : [url]) : ['default url'];
+        const urlList =
+            url && url.length > 0 ? (Array.isArray(url) ? url : [url]) : ['default url'];
         let index = 0;
         let tabId = newTabId;
         return {

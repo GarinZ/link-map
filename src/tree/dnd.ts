@@ -171,9 +171,8 @@ export async function tabMoveOnDrop2(
     });
     // 2. 获取移动到窗口
     if (toMoveTabNodes.length === 0 && toUpdateWindowIdTabNodes.length === 0) return;
-    let windowNode: FancytreeNode | null = TabNodeOperations.findWindowNode(targetNode);
+    let windowNode: FancytreeNode | null = TabNodeOperations.findWindowNode(sourceNode);
     if (toMoveTabNodes.length > 0) {
-        // const oldWindowId = toMoveTabNodes[0].data.windowId;
         if (windowNode && windowNode.data.closed) {
             // 移动到已关闭窗口
             const newWindow = await FancyTabMasterTree.reopenWindowNode(windowNode, []);
@@ -197,6 +196,8 @@ export async function tabMoveOnDrop2(
             );
             sourceNode.moveTo(newWindowNode, 'child');
             windowNode = newWindowNode;
+            const toMoveTabIds = toMoveTabNodes.map((node) => node.data.id);
+            await browser.tabs.move(toMoveTabIds, { index: 0, windowId: windowNode.data.id });
             await browser.tabs.remove(window.tabs![0].id!);
         }
     }
