@@ -9,6 +9,11 @@ import { WindowNodeOperations } from './nodes/window-node-operations';
 import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
 import { NodeUtils } from './utils';
 
+import 'jquery.fancytree';
+import 'jquery.fancytree/dist/modules/jquery.fancytree.dnd5';
+import 'jquery.fancytree/dist/modules/jquery.fancytree.childcounter';
+import 'jquery.fancytree/dist/skin-xp/ui.fancytree.min.css';
+
 const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE } = TPL_CONSTANTS;
 
 type FancytreeNode = Fancytree.FancytreeNode;
@@ -111,6 +116,8 @@ export class FancyTabMasterTree {
         //                         ...tabData.data,
         //                         closed: false,
         //                     });
+        //                 } else {
+        //                     TabNodeOperations.add(this.tree, tabData, tabData.data.active);
         //                 }
         //             });
         //         } else {

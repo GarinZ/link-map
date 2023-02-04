@@ -4,6 +4,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import HtmlWebpackTagsPlugin from 'html-webpack-tags-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import type { Configuration } from 'webpack';
+import { ProvidePlugin } from 'webpack';
 import WebpackBar from 'webpackbar';
 
 import { ENABLE_DEVTOOLS, PROJECT_ROOT } from '../utils/constants';
@@ -50,6 +51,7 @@ const commonConfig: Configuration = {
         extensions: ['.js', '.ts', '.tsx', '.json'],
         alias: {
             '@': resolveSrc(),
+            'jquery': require.resolve('jquery'),
         },
     },
     plugins: [
@@ -95,9 +97,15 @@ const commonConfig: Configuration = {
         new FriendlyErrorsPlugin({
             clearConsole: false,
         }),
+        new ProvidePlugin({
+            // Make jQuery / $ available in every module:
+            $: 'jquery',
+            jQuery: 'jquery',
+            // NOTE: Required to load jQuery Plugins into the *global* jQuery instance:
+            jquery: 'jquery',
+        }),
     ],
     module: {
-        noParse: /jquery/,
         rules: [
             {
                 test: /\.(js|ts|tsx)$/,
