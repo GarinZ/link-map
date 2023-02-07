@@ -102,6 +102,7 @@ specifiers:
   stylelint-scss: 4.3.0
   terser-webpack-plugin: 5.3.6
   ts-node: 10.9.1
+  type-fest: 0.20.2
   typescript: 4.9.3
   wait-on: 6.0.1
   webextension-polyfill: 0.10.0
@@ -136,7 +137,7 @@ devDependencies:
   '@babel/runtime': 7.20.6
   '@garinz/webext-bridge': 5.0.6
   '@nuxt/friendly-errors-webpack-plugin': 2.5.2_webpack@5.75.0
-  '@pmmmwh/react-refresh-webpack-plugin': 0.5.10_i37nu3inj4mau7izq5stih36li
+  '@pmmmwh/react-refresh-webpack-plugin': 0.5.10_573tire66npslecm7bptybdrky
   '@swc/core': 1.3.19
   '@types/chrome': 0.0.203
   '@types/cors': 2.8.12
@@ -218,6 +219,7 @@ devDependencies:
   stylelint-scss: 4.3.0_stylelint@14.15.0
   terser-webpack-plugin: 5.3.6_a7dehehzlg4obffjljtjigk7jq
   ts-node: 10.9.1_cpvkfpwjzivxrhdradu2nwslwq
+  type-fest: 0.20.2
   typescript: 4.9.3
   wait-on: 6.0.1
   webpack: 5.75.0_@swc+core@1.3.19
@@ -2080,7 +2082,7 @@ packages:
       webpack: 5.75.0_@swc+core@1.3.19
     dev: true
 
-  /@pmmmwh/react-refresh-webpack-plugin/0.5.10_i37nu3inj4mau7izq5stih36li:
+  /@pmmmwh/react-refresh-webpack-plugin/0.5.10_573tire66npslecm7bptybdrky:
     resolution: {integrity: sha512-j0Ya0hCFZPd4x40qLzbhGsh9TMtdb+CJQiso+WxLOPNasohq9cc5SNUcwsZaRH6++Xh91Xkm/xHCkuIiIu0LUA==}
     engines: {node: '>= 10.13'}
     peerDependencies:
@@ -2117,6 +2119,7 @@ packages:
       react-refresh: 0.14.0
       schema-utils: 3.1.1
       source-map: 0.7.3
+      type-fest: 0.20.2
       webpack: 5.75.0_@swc+core@1.3.19
       webpack-hot-middleware: 2.25.3
     dev: true

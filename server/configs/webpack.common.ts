@@ -9,7 +9,7 @@ import WebpackBar from 'webpackbar';
 
 import { ENABLE_DEVTOOLS, PROJECT_ROOT } from '../utils/constants';
 import entry from '../utils/entry';
-import { resolveExtension, resolveLib, resolvePublic, resolveSrc } from '../utils/path';
+import { resolveExtension, resolvePublic, resolveSrc } from '../utils/path';
 
 function getCssLoaders(importLoaders: number) {
     return [
@@ -62,10 +62,6 @@ const commonConfig: Configuration = {
                     globOptions: {
                         ignore: ['**/public/*.html'],
                     },
-                },
-                {
-                    from: resolveLib(),
-                    to: resolveExtension('lib'),
                 },
             ],
         }),
