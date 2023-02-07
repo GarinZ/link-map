@@ -4,18 +4,16 @@ import type { JsonValue } from 'type-fest';
 import browser from 'webextension-polyfill';
 
 import { getExtPageInfo } from '../storage/ext-page-info';
-import { TabMasterDB } from '../storage/idb';
 
 const EXT_HOME_PAGE_PATH = 'tree.html';
-const db = new TabMasterDB();
+
 export async function sendMessageToExt<K extends DataTypeKey>(
     messageId: K,
     message: GetDataType<K, JsonValue>,
 ) {
     const extPageInfo = await getExtPageInfo();
-    if (extPageInfo === null || !extPageInfo.ready) {
+    if (extPageInfo === null) {
         // 没有窗口打开：存储事件到indexedDB
-        await db.pushMsg(messageId, message);
         return;
     }
     return sendMessage(messageId, message, { context: 'content-script', tabId: extPageInfo.tabId });

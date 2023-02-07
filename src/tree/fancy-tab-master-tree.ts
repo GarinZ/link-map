@@ -1,7 +1,7 @@
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
-import { TabMasterDB } from './database';
+import { TabMasterDB } from '../storage/idb';
 import { DND5_CONFIG } from './dnd';
 import type { TreeData, TreeNode } from './nodes/nodes';
 import { TabNodeOperations } from './nodes/tab-node-operations';

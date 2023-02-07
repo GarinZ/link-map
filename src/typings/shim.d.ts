@@ -8,7 +8,7 @@ declare module '@garinz/webext-bridge' {
         'tab-prev': { title: string | undefined };
         'get-current-tab': ProtocolWithReturn<{ tabId: number }, { title?: string }>;
         // browser event
-        'get-windows-and-tabs': void;
+        'get-windows-and-tabs': null;
         'add-tab': Tabs.Tab;
         'remove-tab': {
             windowId: number;

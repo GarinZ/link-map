@@ -30,7 +30,7 @@ export class TabMasterDB extends Dexie {
         super('TabMasterDB');
         this.version(DB_VERSION).stores({
             snapshot: 'id',
-            mq: 'id',
+            mq: '++id',
             // ...other tables goes here...
         });
     }
