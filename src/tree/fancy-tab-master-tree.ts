@@ -1,3 +1,4 @@
+import { clone } from 'lodash';
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
@@ -5,6 +6,7 @@ import { TabMasterDB } from '../storage/idb';
 import { DND5_CONFIG } from './dnd';
 import type { TreeData, TreeNode } from './nodes/nodes';
 import { TabNodeOperations } from './nodes/tab-node-operations';
+import type { WindowData } from './nodes/window-node-operations';
 import { WindowNodeOperations } from './nodes/window-node-operations';
 import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
 import { NodeUtils } from './utils';
@@ -76,6 +78,63 @@ export class FancyTabMasterTree {
         this.db = new TabMasterDB();
     }
 
+    public async persist() {
+        const snapshot = this.tree.toDict();
+        await this.db.setSnapshot(snapshot);
+    }
+
+    public async loadSnapshot(toMergeNodesData: TreeNode<WindowData>[]): Promise<Boolean> {
+        const snapshot = await this.db.getSnapshot();
+        if (!snapshot) {
+            return false;
+        }
+        // 存在snapshot，先将snapshot加载到tree中
+        // TODO 这里可能需要数据检查
+        await this.tree.reload(snapshot);
+        let extPage: FancytreeNode | null = null;
+        this.tree.visit((node) => {
+            if (node.data.nodeType === 'tab' || node.data.nodeType === 'window') {
+                TabNodeOperations.updatePartial(node, { closed: true });
+            }
+            if (node.data.nodeType === 'window' && node.data.isBackgroundPage) {
+                extPage = node;
+            }
+            return true;
+        });
+        extPage && extPage.remove();
+        toMergeNodesData.forEach((nodeData) => {
+            let windowNode = this.tree.getNodeByKey(nodeData.key);
+            if (windowNode) {
+                // windowNode在snapshot中存在
+                WindowNodeOperations.updatePartial(windowNode, {
+                    ...nodeData.data,
+                    closed: false,
+                });
+            } else {
+                const windowData = clone(nodeData);
+                windowData.children = [];
+                windowNode = this.tree.rootNode.addNode(windowData, 'child');
+            }
+            const tabDataList = NodeUtils.flatTabData(nodeData);
+            tabDataList.forEach((tabData) => {
+                const tabNode = this.tree.getNodeByKey(`${tabData.key}`);
+                if (!tabNode) {
+                    // windowId不同相当于开了个新的
+                    TabNodeOperations.add(this.tree, tabData, tabData.data.active);
+                    return;
+                }
+                if (tabNode.data.windowId !== tabData.data.windowId) {
+                    tabNode.moveTo(windowNode, 'child');
+                }
+                TabNodeOperations.updatePartial(tabNode, {
+                    ...tabData.data,
+                    closed: false,
+                });
+            });
+        });
+        return true;
+    }
+
     public async initTree(source?: TreeNode<TreeData>[]) {
         if (source) {
             this.tree.reload(source);
@@ -85,49 +144,11 @@ export class FancyTabMasterTree {
         const unknown = browserWindowPromise as unknown;
         const windows = unknown as Windows.Window[];
         const nodes = windows.map((w) => WindowNodeOperations.createData(w));
-        // const snapshot = await this.db.snapshot.get(DB_KEY);
-        // if (snapshot) {
-        //     // 存在snapshot，先将snapshot加载到tree中
-        //     // TODO 这里可能需要数据检查
-        //     await this.tree.reload(snapshot.data);
-        //     let extPage: FancytreeNode | null = null;
-        //     this.tree.visit((node) => {
-        //         if (node.data.nodeType === 'tab' || node.data.nodeType === 'window') {
-        //             TabNodeOperations.updatePartial(node, { closed: true });
-        //         }
-        //         if (node.data.nodeType === 'window' && node.data.isBackgroundPage) {
-        //             extPage = node;
-        //         }
-        //         return true;
-        //     });
-        //     extPage && extPage.remove();
-        //     nodes.forEach((windowNode) => {
-        //         const windowNodeInTree = this.tree.getNodeByKey(`${windowNode.key}`);
-        //         if (windowNodeInTree) {
-        //             WindowNodeOperations.updatePartial(windowNodeInTree, {
-        //                 ...windowNode.data,
-        //                 closed: false,
-        //             });
-        //             const tabDataList = NodeUtils.flatTabData(windowNode);
-        //             tabDataList.forEach((tabData) => {
-        //                 const tabNodeInTree = this.tree.getNodeByKey(`${tabData.key}`);
-        //                 if (tabNodeInTree) {
-        //                     TabNodeOperations.updatePartial(tabNodeInTree, {
-        //                         ...tabData.data,
-        //                         closed: false,
-        //                     });
-        //                 } else {
-        //                     TabNodeOperations.add(this.tree, tabData, tabData.data.active);
-        //                 }
-        //             });
-        //         } else {
-        //             this.tree.rootNode.addNode(windowNode, 'child');
-        //         }
-        //     });
-        // } else {
-        await this.tree.reload(nodes);
-        // }
-        // await this.db.updateByTree(this.tree);
+        const hasSnapshot = await this.loadSnapshot(nodes);
+        if (!hasSnapshot) {
+            await this.tree.reload(nodes);
+        }
+        setInterval(this.persist.bind(this), 1000);
     }
 
     public createTab(tab: Tabs.Tab): FancytreeNode {

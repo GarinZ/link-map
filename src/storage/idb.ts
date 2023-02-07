@@ -35,11 +35,6 @@ export class TabMasterDB extends Dexie {
         });
     }
 
-    async updateByTree(tree: Fancytree.Fancytree) {
-        const snapshot = tree.toDict() as Fancytree.NodeData[];
-        await this.snapshot.put({ data: snapshot, id: DB_KEY, updateTime: Date.now() });
-    }
-
     async getSnapshot() {
         const snapshot = await this.snapshot.get(DB_KEY);
         return snapshot?.data;
