@@ -101,6 +101,7 @@ export class FancyTabMasterTree {
             }
             return true;
         });
+        // @ts-expect-error ts explain error
         extPage && extPage.remove();
         toMergeNodesData.forEach((nodeData) => {
             let windowNode = this.tree.getNodeByKey(nodeData.key);
@@ -119,11 +120,11 @@ export class FancyTabMasterTree {
             tabDataList.forEach((tabData) => {
                 const tabNode = this.tree.getNodeByKey(`${tabData.key}`);
                 if (!tabNode) {
-                    // windowId不同相当于开了个新的
                     TabNodeOperations.add(this.tree, tabData, tabData.data.active);
                     return;
                 }
                 if (tabNode.data.windowId !== tabData.data.windowId) {
+                    NodeUtils.moveChildrenAsNextSiblings(tabNode);
                     tabNode.moveTo(windowNode, 'child');
                 }
                 TabNodeOperations.updatePartial(tabNode, {
@@ -131,6 +132,7 @@ export class FancyTabMasterTree {
                     closed: false,
                 });
             });
+            WindowNodeOperations.updateWindowStatus(windowNode);
         });
         return true;
     }
