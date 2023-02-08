@@ -1,10 +1,9 @@
-type NodeType = 'tab' | 'window';
+type NodeType = 'tab' | 'window' | 'note';
 
 export interface TreeData {
     id?: number;
-    closed: boolean;
+    closed?: boolean;
     alias?: string;
-    parentId: number;
     nodeType: NodeType;
 }
 
@@ -12,7 +11,7 @@ export type NodeData = TabData | WindowData;
 
 export interface TreeNode<T extends TreeData> extends Fancytree.NodeData {
     /** Node id (must be unique inside the tree) */
-    key: string;
+    key?: string;
     /** Display name (may contain HTML) */
     title: string;
     /** Contains all extra data that was passed on node creation */

@@ -22,8 +22,11 @@ class TreeNodeTpl {
     </span>`;
 
     /** Node HTML结构 */
-    static TEMPLATE = `<span class="zt-node {{closedClass}}" ${TYPE_ATTR}="${NODE_ITEM}" ${NODE_KEY}="{{key}}">
-        <span class="zt-node-title fancytree-title">
+    static TEMPLATE = `<span class="zt-node fancytree-title {{closedClass}}" ${TYPE_ATTR}="${NODE_ITEM}" ${NODE_KEY}="{{key}}">
+        <span class="zt-node-title">
+            {{#alias}}
+                <span class="zt-node-alias">{{alias}}</span>/
+            {{/alias}}
             {{title}}{{#closedWindow?}}(closed){{/closedWindow?}}
         </span>
         {{#buttonGroup?}}
@@ -36,13 +39,14 @@ class TreeNodeTpl {
 
     constructor(node: Fancytree.FancytreeNode) {
         const { key, title, data } = node;
-        const { closed, windowType } = data;
+        const { closed, windowType, alias } = data;
         if (windowType) console.log(key, closed);
         this.html = Mustache.render(
             TreeNodeTpl.TEMPLATE,
             {
                 key,
                 title,
+                alias,
                 'buttonGroup?': title !== 'pending',
                 'closedWindow?': closed && windowType,
                 'closedClass': closed ? 'closed' : '',

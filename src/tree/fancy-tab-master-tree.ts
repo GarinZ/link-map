@@ -3,6 +3,7 @@ import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
 import { TabMasterDB } from '../storage/idb';
+import { registerContextMenu } from './context-menu';
 import { DND5_CONFIG } from './dnd';
 import type { TreeData, TreeNode } from './nodes/nodes';
 import { TabNodeOperations } from './nodes/tab-node-operations';
@@ -14,6 +15,8 @@ import { NodeUtils } from './utils';
 import 'jquery.fancytree';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.dnd5';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.childcounter';
+import 'jquery.fancytree/dist/modules/jquery.fancytree.edit.js';
+import 'jquery.fancytree/dist/modules/jquery.fancytree.wide.js';
 import 'jquery.fancytree/dist/skin-xp/ui.fancytree.min.css';
 
 const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE } = TPL_CONSTANTS;
@@ -53,12 +56,18 @@ export class FancyTabMasterTree {
     constructor(selector: JQuery.Selector = '#tree') {
         $(selector).fancytree({
             active: true,
-            extensions: ['dnd5', 'childcounter'],
+            extensions: ['dnd5', 'childcounter', 'edit', 'wide'],
             source: [{ title: 'pending' }],
             childcounter: {
                 deep: true,
                 hideZeros: true,
                 hideExpanded: true,
+            },
+            wide: {
+                // iconWidth: "32px",     // Adjust this if @fancy-icon-width != "16px"
+                iconSpacing: '8px', // Adjust this if @fancy-icon-spacing != "3px"
+                // labelSpacing: '6px', // Adjust this if padding between icon and label !=  "3px"
+                // levelOfs: "32px"     // Adjust this if ul padding != "16px"
             },
             // activate: onActivated,
             renderNode(_event, data) {
@@ -73,7 +82,54 @@ export class FancyTabMasterTree {
             defaultKey: (node) => `${node.data.id}`,
             dnd5: DND5_CONFIG,
             debugLevel: 0,
+            edit: {
+                triggerStart: ['shift+click'],
+                allowEmpty: true,
+                beforeEdit(event, data) {
+                    console.log(data);
+                    data.orgTitle = data.node.data.alias ?? '#';
+                    // Return false to prevent edit mode
+                },
+                edit(event, data) {
+                    // console.log(data);
+                    // Editor was opened (available as data.input)
+                },
+                beforeClose(event, data) {
+                    // Return false to prevent cancel/save (data.input is available)
+                    console.log(event.type, event, data);
+                    if (data.originalEvent.type === 'mousedown') {
+                        // We could prevent the mouse click from generating a blur event
+                        // (which would then again close the editor) and return `false` to keep
+                        // the editor open:
+                        //                  data.originalEvent.preventDefault();
+                        //                  return false;
+                        // Or go on with closing the editor, but discard any changes:
+                        //                  data.save = false;
+                    }
+                },
+                save(event, data) {
+                    // Save data.input.val() or return false to keep editor open
+                    console.log('save...', this, data);
+                    // TODO 这里需要escape一下
+                    data.node.data.alias = data.input.val();
+                    // Simulate to start a slow ajax request...
+                    // data.node.setTitle(`${data.input.val()}/${this.data.title}`);
+                    // We return true, so ext-edit will set the current user input
+                    // as title
+                    return true;
+                },
+                close(event, data) {
+                    // Editor was removed
+                    const node: FancytreeNode = data.node;
+                    if (data.save) {
+                        // Since we started an async request, mark the node as preliminary
+                        // $(data.node.span).addClass('pending');
+                        node.setTitle(this.data.title);
+                    }
+                },
+            },
         });
+        registerContextMenu();
         this.tree = $.ui.fancytree.getTree('#tree');
         this.db = new TabMasterDB();
     }
@@ -146,11 +202,11 @@ export class FancyTabMasterTree {
         const unknown = browserWindowPromise as unknown;
         const windows = unknown as Windows.Window[];
         const nodes = windows.map((w) => WindowNodeOperations.createData(w));
-        const hasSnapshot = await this.loadSnapshot(nodes);
-        if (!hasSnapshot) {
-            await this.tree.reload(nodes);
-        }
-        setInterval(this.persist.bind(this), 1000);
+        // const hasSnapshot = await this.loadSnapshot(nodes);
+        // if (!hasSnapshot) {
+        await this.tree.reload(nodes);
+        // }
+        // setInterval(this.persist.bind(this), 1000);
     }
 
     public createTab(tab: Tabs.Tab): FancytreeNode {

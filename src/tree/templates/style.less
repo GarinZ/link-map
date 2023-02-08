@@ -1,4 +1,29 @@
+li.fancytree-animating {
+    position: inherit;
+
+    span.fancytree-title {
+        //position: absolute !important;
+    }
+}
+
 .fancytree-node {
+    height: 22px;
+    line-height: 22px;
+
+    img.fancytree-icon,
+    span.fancytree-expander {
+        vertical-align: middle;
+    }
+
+    span.fancytree-title {
+        color: #d1d5da;
+
+        &:hover {
+            color: #e1e4e8;
+            background-color: rgb(36 145 255 / 20%);
+        }
+    }
+
     &.tab-active {
         font-weight: bold;
     }
@@ -30,5 +55,17 @@
         .zt-node-button-group {
             display: inline;
         }
+    }
+}
+
+body {
+    margin: 0;
+    font-family: 'SF Mono', Monaco, Menlo, Courier, monospace;
+    background: #1f2428;
+
+    ul.fancytree-container {
+        padding: 8px;
+        background-color: #1f2428;
+        border: 0;
     }
 }

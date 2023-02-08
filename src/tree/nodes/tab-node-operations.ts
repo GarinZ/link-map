@@ -14,7 +14,7 @@ export interface TabData extends Tabs.Tab, TreeData {
 
 export const TabNodeOperations = {
     createData(tab: Tabs.Tab): TreeNode<TabData> {
-        const { title, windowId, favIconUrl, id, openerTabId } = tab;
+        const { title, windowId, favIconUrl, id } = tab;
         if (windowId === undefined) throw new Error('windowId is required');
         if (id === undefined) throw new Error('id is required');
 
@@ -32,7 +32,6 @@ export const TabNodeOperations = {
                 ...tab,
                 windowId,
                 closed: false,
-                parentId: openerTabId || windowId,
                 nodeType: 'tab',
             },
         };
