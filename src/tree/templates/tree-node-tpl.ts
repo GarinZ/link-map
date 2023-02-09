@@ -22,13 +22,14 @@ class TreeNodeTpl {
     </span>`;
 
     /** Node HTML结构 */
-    static TEMPLATE = `<span class="zt-node fancytree-title {{closedClass}}" ${TYPE_ATTR}="${NODE_ITEM}" ${NODE_KEY}="{{key}}">
-        <span class="zt-node-title">
+    static TEMPLATE = `<span class="zt-node fancytree-title {{nodeType}} {{closedClass}}" ${TYPE_ATTR}="${NODE_ITEM}" ${NODE_KEY}="{{key}}">
             {{#alias}}
-                <span class="zt-node-alias">{{alias}}</span>/
+                <span class="zt-node-alias">{{alias}}</span>
             {{/alias}}
-            {{title}}{{#closedWindow?}}(closed){{/closedWindow?}}
-        </span>
+            {{#titleAndAlis?}}<span class="zt-node-splitter"> | </span>{{/titleAndAlis?}}
+            {{#title}}
+            <span class="zt-node-title {{aliasClass}}">{{title}}{{#closedWindow?}}(closed){{/closedWindow?}}</span>
+            {{/title}}
         {{#buttonGroup?}}
             {{> buttonGroup}}
         {{/buttonGroup?}}
@@ -39,7 +40,7 @@ class TreeNodeTpl {
 
     constructor(node: Fancytree.FancytreeNode) {
         const { key, title, data } = node;
-        const { closed, windowType, alias } = data;
+        const { closed, windowType, alias, nodeType } = data;
         if (windowType) console.log(key, closed);
         this.html = Mustache.render(
             TreeNodeTpl.TEMPLATE,
@@ -47,9 +48,12 @@ class TreeNodeTpl {
                 key,
                 title,
                 alias,
-                'buttonGroup?': title !== 'pending',
-                'closedWindow?': closed && windowType,
+                nodeType,
+                'aliasClass': alias ? 'alias' : '',
+                'buttonGroup?': title !== 'pending', // pending节点不显示按钮组
+                'closedWindow?': closed && windowType, // closed window节点显示(closed)
                 'closedClass': closed ? 'closed' : '',
+                'titleAndAlis?': title && alias,
             },
             { buttonGroup: TreeNodeTpl.BUTTON_GROUP },
         );

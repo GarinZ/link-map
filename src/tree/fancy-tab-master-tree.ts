@@ -56,7 +56,7 @@ export class FancyTabMasterTree {
     constructor(selector: JQuery.Selector = '#tree') {
         $(selector).fancytree({
             active: true,
-            extensions: ['dnd5', 'childcounter', 'edit', 'wide'],
+            extensions: ['dnd5', 'childcounter', 'edit'],
             source: [{ title: 'pending' }],
             childcounter: {
                 deep: true,
@@ -202,11 +202,11 @@ export class FancyTabMasterTree {
         const unknown = browserWindowPromise as unknown;
         const windows = unknown as Windows.Window[];
         const nodes = windows.map((w) => WindowNodeOperations.createData(w));
-        // const hasSnapshot = await this.loadSnapshot(nodes);
-        // if (!hasSnapshot) {
-        await this.tree.reload(nodes);
-        // }
-        // setInterval(this.persist.bind(this), 1000);
+        const hasSnapshot = await this.loadSnapshot(nodes);
+        if (!hasSnapshot) {
+            await this.tree.reload(nodes);
+        }
+        setInterval(this.persist.bind(this), 1000);
     }
 
     public createTab(tab: Tabs.Tab): FancytreeNode {
