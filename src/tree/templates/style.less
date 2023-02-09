@@ -25,7 +25,7 @@ li.fancytree-animating {
 
         &.closed {
             .zt-node-alias {
-                color: gray;
+                color: #a4a4a4;
             }
 
             .zt-node-title {
@@ -45,24 +45,29 @@ li.fancytree-animating {
         }
 
         span.zt-node-alias {
+            font-weight: bold;
             vertical-align: middle;
         }
     }
-
+    // node-active
     &.fancytree-active span.fancytree-title {
         //color: inherit !important;
         //background-color: rgba(59 106 247 80 2%) !important;
         border-radius: 5px;
 
-        //&.closed {
-        //    .zt-node-alias {
-        //        color: white;
-        //    }
-        //
-        //    .zt-node-title {
-        //        color: white;
-        //    }
-        //}
+        &.closed {
+            .zt-node-alias {
+                color: white;
+            }
+
+            .zt-node-title.alias {
+                color: #b6b6b6;
+            }
+        }
+
+        .zt-node-title {
+            color: white;
+        }
     }
 
     .zt-node-title {
@@ -73,7 +78,7 @@ li.fancytree-animating {
         vertical-align: middle;
 
         &.alias {
-            color: #6a737d;
+            color: #33373d;
         }
     }
 
@@ -90,6 +95,21 @@ li.fancytree-animating {
 
         .zt-node-alias {
             color: #3465f6;
+        }
+
+        &.fancytree-active {
+            .zt-node-title {
+                color: white;
+
+                &.alias {
+                    font-weight: normal;
+                    color: white;
+                }
+            }
+
+            .zt-node-alias {
+                color: white;
+            }
         }
     }
 
@@ -118,6 +138,7 @@ body {
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
         Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    //background-color: rgb(38 38 38);
 
     #header {
         position: fixed;
@@ -125,9 +146,7 @@ body {
         z-index: 3;
         width: 100%;
         height: 50px;
-        background: rgb(31 36 40);
-        box-shadow: 0 1px 2px 0 rgb(31 36 40 / 3%), 0 1px 6px -1px rgb(31 36 40 / 2%),
-            0 2px 4px 0 rgb(31 36 40 / 2%);
+        background: rgb(242 244 245);
     }
 
     #tree {
@@ -137,8 +156,9 @@ body {
 
     ul.fancytree-container {
         padding: 8px;
-        //background-color: #1f2428;
+        //background-color: rgb(38 38 38);
         border: 0;
+        outline: 0;
     }
 
     #footer {
@@ -147,6 +167,6 @@ body {
         z-index: 3;
         width: 100%;
         height: 40px;
-        background: rgb(31 36 40);
+        background: rgb(242 244 245);
     }
 }
