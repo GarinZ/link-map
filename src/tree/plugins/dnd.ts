@@ -1,8 +1,8 @@
 import browser from 'webextension-polyfill';
 
-import { FancyTabMasterTree } from './fancy-tab-master-tree';
-import { TabNodeOperations } from './nodes/tab-node-operations';
-import { WindowNodeOperations } from './nodes/window-node-operations';
+import { FancyTabMasterTree } from '../fancy-tab-master-tree';
+import { TabNodeOperations } from '../nodes/tab-node-operations';
+import { WindowNodeOperations } from '../nodes/window-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
 

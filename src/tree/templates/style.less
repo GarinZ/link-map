@@ -2,12 +2,15 @@ li.fancytree-animating {
     position: inherit;
 
     span.fancytree-title {
-        //position: absolute !important;
+        font-size: 11px;
     }
 }
 
 .fancytree-node {
+    position: relative;
+    display: inline-block;
     height: 22px;
+    overflow: hidden;
     line-height: 22px;
 
     span.fancytree-custom-icon {
@@ -24,7 +27,6 @@ li.fancytree-animating {
     }
 
     span.fancytree-title {
-        position: relative;
         color: #2a2d34;
 
         &.closed {
@@ -33,7 +35,6 @@ li.fancytree-animating {
             }
 
             .zt-node-title {
-                font-size: 12px;
                 font-weight: normal;
                 color: gray;
             }
@@ -120,17 +121,22 @@ li.fancytree-animating {
     .zt-node-button-group {
         position: absolute;
         top: 0;
-        right: -55px;
+        right: 0;
         display: none;
+        height: 22px;
+        padding-left: 15px;
+        line-height: 22px;
+        //background:  linear-gradient(to left, rgb(255 255 255 / 100%) 75%, rgb(255 255 255 / 50%), rgb(255 255 255 / 0%));
 
         .zt-node-btn {
+            vertical-align: middle;
             cursor: pointer;
         }
     }
 
     &:hover {
         .zt-node-button-group {
-            display: inline;
+            display: inline-block;
         }
     }
 }
@@ -142,7 +148,6 @@ body {
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
         Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-    //background-color: rgb(38 38 38);
 
     #header {
         position: fixed;
@@ -150,7 +155,10 @@ body {
         z-index: 3;
         width: 100%;
         height: 50px;
+        padding: 0 10px;
+        line-height: 50px;
         background: rgb(242 244 245);
+        box-shadow: 0 0 5px rgb(172 172 172 / 95%);
     }
 
     .tree-container {
@@ -160,7 +168,6 @@ body {
 
     ul.fancytree-container {
         padding: 8px;
-        //background-color: rgb(38 38 38);
         border: 0;
         outline: 0;
     }
@@ -172,5 +179,6 @@ body {
         width: 100%;
         height: 40px;
         background: rgb(242 244 245);
+        border-top: 1px solid #cecece;
     }
 }

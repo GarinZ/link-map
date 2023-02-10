@@ -3,12 +3,14 @@ import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
 import { TabMasterDB } from '../storage/idb';
-import { registerContextMenu } from './context-menu';
-import { DND5_CONFIG } from './dnd';
 import type { TreeData, TreeNode } from './nodes/nodes';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import type { WindowData } from './nodes/window-node-operations';
 import { WindowNodeOperations } from './nodes/window-node-operations';
+import { registerContextMenu } from './plugins/context-menu';
+import { DND5_CONFIG } from './plugins/dnd';
+import { EDIT_OPTIONS } from './plugins/edit';
+import { FILTER_OPTIONS } from './plugins/filter';
 import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
 import { NodeUtils } from './utils';
 
@@ -54,8 +56,8 @@ export class FancyTabMasterTree {
 
     static removeNodes: (targetNode: FancytreeNode) => void;
 
-    constructor(container: JQuery) {
-        container.fancytree({
+    constructor($container: JQuery) {
+        $container.fancytree({
             active: true,
             extensions: ['dnd5', 'childcounter', 'edit', 'filter'],
             source: [{ title: 'pending' }],
@@ -70,18 +72,6 @@ export class FancyTabMasterTree {
             //     // labelSpacing: '6px', // Adjust this if padding between icon and label !=  "3px"
             //     // levelOfs: "32px"     // Adjust this if ul padding != "16px"
             // },
-            filter: {
-                autoApply: true, // Re-apply last filter if lazy data is loaded
-                autoExpand: true, // Expand all branches that contain matches while filtered
-                counter: true, // Show a badge with number of matching child nodes near parent icons
-                fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
-                hideExpandedCounter: true, // Hide counter badge if parent is expanded
-                hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
-                highlight: true, // Highlight matches by wrapping inside <mark> tags
-                leavesOnly: false, // Match end nodes only
-                nodata: true, // Display a 'no data' status node if result is empty
-                mode: 'dimm', // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
-            },
             // activate: onActivated,
             renderNode(_event, data) {
                 data.node.renderTitle();
@@ -93,54 +83,10 @@ export class FancyTabMasterTree {
                 return false;
             },
             defaultKey: (node) => `${node.data.id}`,
-            dnd5: DND5_CONFIG,
             debugLevel: 0,
-            edit: {
-                triggerStart: ['shift+click'],
-                allowEmpty: true,
-                beforeEdit(event, data) {
-                    console.log(data);
-                    data.orgTitle = data.node.data.alias ?? '#';
-                    // Return false to prevent edit mode
-                },
-                edit(event, data) {
-                    // console.log(data);
-                    // Editor was opened (available as data.input)
-                },
-                beforeClose(event, data) {
-                    // Return false to prevent cancel/save (data.input is available)
-                    console.log(event.type, event, data);
-                    if (data.originalEvent.type === 'mousedown') {
-                        // We could prevent the mouse click from generating a blur event
-                        // (which would then again close the editor) and return `false` to keep
-                        // the editor open:
-                        //                  data.originalEvent.preventDefault();
-                        //                  return false;
-                        // Or go on with closing the editor, but discard any changes:
-                        //                  data.save = false;
-                    }
-                },
-                save(event, data) {
-                    // Save data.input.val() or return false to keep editor open
-                    console.log('save...', this, data);
-                    // TODO 这里需要escape一下
-                    data.node.data.alias = data.input.val();
-                    // Simulate to start a slow ajax request...
-                    // data.node.setTitle(`${data.input.val()}/${this.data.title}`);
-                    // We return true, so ext-edit will set the current user input
-                    // as title
-                    return true;
-                },
-                close(event, data) {
-                    // Editor was removed
-                    const node: FancytreeNode = data.node;
-                    if (data.save) {
-                        // Since we started an async request, mark the node as preliminary
-                        // $(data.node.span).addClass('pending');
-                        node.setTitle(this.data.title);
-                    }
-                },
-            },
+            dnd5: DND5_CONFIG,
+            edit: EDIT_OPTIONS,
+            filter: FILTER_OPTIONS,
         });
         registerContextMenu();
         this.tree = $.ui.fancytree.getTree('#tree');
@@ -173,7 +119,7 @@ export class FancyTabMasterTree {
         // @ts-expect-error ts explain error
         extPage && extPage.remove();
         toMergeNodesData.forEach((nodeData) => {
-            let windowNode = this.tree.getNodeByKey(nodeData.key);
+            let windowNode = this.tree.getNodeByKey(nodeData.key!);
             if (windowNode) {
                 // windowNode在snapshot中存在
                 WindowNodeOperations.updatePartial(windowNode, {

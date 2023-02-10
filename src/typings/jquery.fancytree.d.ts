@@ -23,6 +23,47 @@ interface JQuery {
 }
 
 declare namespace Fancytree {
+    interface FilterOptions {
+        autoApply?: boolean; // Re-apply last filter if lazy data is loaded
+        autoExpand?: boolean; // Expand all branches that contain matches while filtered
+        counter?: boolean; // Show a badge with number of matching child nodes near parent icons
+        fuzzy?: boolean; // Match single characters in order, e.g. 'fb' will match 'FooBar'
+        hideExpandedCounter?: boolean; // Hide counter badge if parent is expanded
+        hideExpanders?: boolean; // Hide expanders if all child nodes are hidden by filter
+        highlight?: boolean; // Highlight matches by wrapping inside <mark> tags
+        leavesOnly?: boolean; // Match end nodes only
+        nodata?: boolean; // Display a 'no data' status node if result is empty
+        mode?: 'dimm' | 'hide'; // Gray out unmatched nodes (pass "hide" to remove unmatched node instead)
+    }
+
+    type EditTriggerCancelKeys = 'esc' | 'tab' | 'click';
+    type EditTriggerStartKey = 'f2' | 'mac+enter' | 'shift+click';
+    type EditEvent = { type: 'beforeClose' | 'beforeEdit' | 'close' | 'edit' | 'save' };
+    interface EditData {
+        dirty: boolean;
+        input: JQuery.fn.init | null;
+        node: FancytreeNode;
+        orgEvent: JQuery.Event | null;
+        save: boolean;
+        isNew: boolean;
+        orgTitle: string;
+        tree: Fancytree;
+    }
+    interface EditOptions {
+        adjustWidthOfs?: number; // null: don't adjust input size to content
+        allowEmpty?: boolean; // Prevent empty input
+        inputCss?: { minWidth: string };
+        triggerCancel?: EditTriggerCancelKeys[];
+        triggerStart?: EditTriggerStartKey[];
+        trim?: boolean; // Trim whitespace before save
+        // Events:
+        beforeClose?: (event: EditEvent, data: EditData) => boolean | void; // Return false to prevent cancel/save (data.input is available)
+        beforeEdit?: (event: EditEvent, data: EditData) => boolean | void; // Return false to prevent edit mode
+        close?: (event: EditEvent, data: EditData) => boolean | void; // Editor was removed
+        edit?: (event: EditEvent, data: EditData) => boolean | void; // Editor was opened (available as data.input)
+        save?: (event: EditEvent, data: EditData) => boolean | void; // Save data.input.val() or return false to keep editor open
+    }
+
     interface Fancytree {
         $div: JQuery;
         widget: any; //JQueryUI.Widget;
@@ -74,17 +115,18 @@ declare namespace Fancytree {
         /** [ext-filter] Dimm or hide whole branches.
          * @returns {integer} count
          */
-        filterBranches(filter: (node: FancytreeNode) => boolean): number;
+        filterBranches(
+            filter: ((node: FancytreeNode) => boolean) | string,
+            opt: FilterOptions,
+        ): number;
 
         /** [ext-filter] Dimm or hide nodes.
          * @returns {integer} count
          */
-        filterNodes(filter: string, leavesOnly?: boolean): number;
-
-        /** [ext-filter] Dimm or hide nodes.
-         * @returns {integer} count
-         */
-        filterNodes(filter: (node: FancytreeNode) => boolean, leavesOnly?: boolean): number;
+        filterNodes(
+            filter: ((node: FancytreeNode) => boolean) | string,
+            opts?: FilterOptions,
+        ): number;
 
         /** Find the next visible node that starts with `match`, starting at `startNode` and wrap-around at the end.
          *

@@ -4,7 +4,7 @@
 
 import browser from 'sinon-chrome';
 
-import { tabMoveOnDrop2 } from '@/tree/dnd';
+import { tabMoveOnDrop2 } from '@/tree/plugins/dnd';
 
 import { mockTabMove, mockTabRemove, mockWindowCreate } from '../../utils/browser-mock';
 import { initTabMasterTree, MockTreeBuilder } from '../../utils/gen-utils';
