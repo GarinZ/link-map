@@ -17,6 +17,7 @@ import 'jquery.fancytree/dist/modules/jquery.fancytree.dnd5';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.childcounter';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.edit.js';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.wide.js';
+import 'jquery.fancytree/dist/modules/jquery.fancytree.filter.js';
 import 'jquery.fancytree/dist/skin-xp/ui.fancytree.min.css';
 
 const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE } = TPL_CONSTANTS;
@@ -53,21 +54,33 @@ export class FancyTabMasterTree {
 
     static removeNodes: (targetNode: FancytreeNode) => void;
 
-    constructor(selector: JQuery.Selector = '#tree') {
-        $(selector).fancytree({
+    constructor(container: JQuery) {
+        container.fancytree({
             active: true,
-            extensions: ['dnd5', 'childcounter', 'edit'],
+            extensions: ['dnd5', 'childcounter', 'edit', 'filter'],
             source: [{ title: 'pending' }],
             childcounter: {
                 deep: true,
                 hideZeros: true,
                 hideExpanded: true,
             },
-            wide: {
-                // iconWidth: "32px",     // Adjust this if @fancy-icon-width != "16px"
-                iconSpacing: '8px', // Adjust this if @fancy-icon-spacing != "3px"
-                // labelSpacing: '6px', // Adjust this if padding between icon and label !=  "3px"
-                // levelOfs: "32px"     // Adjust this if ul padding != "16px"
+            // wide: {
+            //     // iconWidth: "32px",     // Adjust this if @fancy-icon-width != "16px"
+            //     iconSpacing: '8px', // Adjust this if @fancy-icon-spacing != "3px"
+            //     // labelSpacing: '6px', // Adjust this if padding between icon and label !=  "3px"
+            //     // levelOfs: "32px"     // Adjust this if ul padding != "16px"
+            // },
+            filter: {
+                autoApply: true, // Re-apply last filter if lazy data is loaded
+                autoExpand: true, // Expand all branches that contain matches while filtered
+                counter: true, // Show a badge with number of matching child nodes near parent icons
+                fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
+                hideExpandedCounter: true, // Hide counter badge if parent is expanded
+                hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
+                highlight: true, // Highlight matches by wrapping inside <mark> tags
+                leavesOnly: false, // Match end nodes only
+                nodata: true, // Display a 'no data' status node if result is empty
+                mode: 'dimm', // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
             },
             // activate: onActivated,
             renderNode(_event, data) {
