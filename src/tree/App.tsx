@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { TabMasterTree } from './components/tab-master-tree';
 
 const App = () => (

@@ -22,7 +22,7 @@ import 'jquery.fancytree/dist/modules/jquery.fancytree.childcounter';
 
 export function initTabMasterTree(source: TreeNode<TreeData>[]): FancyTabMasterTree {
     document.body.innerHTML = '<div id="tree">';
-    const tree = new FancyTabMasterTree('#tree');
+    const tree = new FancyTabMasterTree($('#tree'));
     tree.initTree(source);
     return tree;
 }

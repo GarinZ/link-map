@@ -299,7 +299,7 @@ describe('db click', () => {
 
     it('db click on closed tab without window node', async () => {
         const tree = initTabMasterTree([DEFAULT_TAB_NODE]).tree;
-        const toClickNode = tree.getNodeByKey(DEFAULT_TAB_NODE.key);
+        const toClickNode = tree.getNodeByKey(DEFAULT_TAB_NODE.key!);
         const modifiedWindowId = 2;
         TabNodeOperations.updatePartial(toClickNode, { closed: true });
         browser.windows.create.returns(

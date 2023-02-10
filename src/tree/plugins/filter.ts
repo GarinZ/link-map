@@ -11,17 +11,16 @@ export const FILTER_OPTIONS: Fancytree.FilterOptions = {
     mode: 'dimm', // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
 };
 
-export const registerSearchEventHandler = (tree: Fancytree.Fancytree) => {
+export function registerSearchEventHandler(tree: Fancytree.Fancytree) {
     const $searchButton = $('button#btnResetSearch');
     $('input[name=search]')
         .on('keyup', function (e) {
-            const filterFunc = tree.filterNodes;
             const match: string = String($(this).val()) ?? '';
             if ((e && e.which === $.ui.keyCode.ESCAPE) || $.trim(match) === '') {
                 $searchButton.trigger('click');
                 return;
             }
-            const n = filterFunc(match);
+            const n = tree.filterNodes(match);
             $searchButton.attr('disabled');
             $('span#matches').text(`(${n} matches)`);
         })
@@ -34,4 +33,4 @@ export const registerSearchEventHandler = (tree: Fancytree.Fancytree) => {
             tree.clearFilter();
         })
         .attr('disabled');
-};
+}
