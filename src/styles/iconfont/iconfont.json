@@ -1,0 +1,23 @@
+{
+    "id": "3889192",
+    "name": "tab-master",
+    "font_family": "iconfont",
+    "css_prefix_text": "icon-",
+    "description": "",
+    "glyphs": [
+        {
+            "icon_id": "14679170",
+            "name": "minus_square",
+            "font_class": "minus_square",
+            "unicode": "e687",
+            "unicode_decimal": 59015
+        },
+        {
+            "icon_id": "14679620",
+            "name": "plus_square",
+            "font_class": "plus_square",
+            "unicode": "e722",
+            "unicode_decimal": 59170
+        }
+    ]
+}

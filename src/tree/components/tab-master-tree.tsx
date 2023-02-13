@@ -4,6 +4,8 @@ import React from 'react';
 import { FancyTabMasterTree } from '../fancy-tab-master-tree';
 import { registerSearchEventHandler } from '../plugins/filter';
 
+import '../style.less';
+
 export class TabMasterTree extends React.Component {
     private el?: HTMLElement | null;
     private $el?: JQuery;

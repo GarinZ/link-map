@@ -1,7 +1,5 @@
 import Mustache from 'mustache';
 
-import './style.less';
-
 export enum TPL_CONSTANTS {
     TYPE_ATTR = 'zt-type',
     NODE_ITEM = 'node-item',

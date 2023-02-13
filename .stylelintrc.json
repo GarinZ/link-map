@@ -22,5 +22,12 @@
             "customSyntax": "postcss-less"
         }
     ],
-    "ignoreFiles": ["node_modules/**/*", "extension/**/*", "public/**/*", "**/*.d.ts", "lib/**/*"]
+    "ignoreFiles": [
+        "node_modules/**/*",
+        "extension/**/*",
+        "public/**/*",
+        "**/*.d.ts",
+        "lib/**/*",
+        "src/styles/iconfont/**/*"
+    ]
 }

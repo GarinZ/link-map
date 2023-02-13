@@ -66,13 +66,6 @@ export class FancyTabMasterTree {
                 hideZeros: true,
                 hideExpanded: true,
             },
-            // wide: {
-            //     // iconWidth: "32px",     // Adjust this if @fancy-icon-width != "16px"
-            //     iconSpacing: '8px', // Adjust this if @fancy-icon-spacing != "3px"
-            //     // labelSpacing: '6px', // Adjust this if padding between icon and label !=  "3px"
-            //     // levelOfs: "32px"     // Adjust this if ul padding != "16px"
-            // },
-            // activate: onActivated,
             renderNode(_event, data) {
                 data.node.renderTitle();
             },

@@ -2,3 +2,4 @@ node_modules
 extension
 server/client/react-devtools.js
 lib
+src/styles/iconfont
