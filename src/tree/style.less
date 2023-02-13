@@ -1,8 +1,14 @@
 @import url('../styles/iconfont/iconfont.css');
 
 #tree {
-    ul.fancytree-container li {
-        background: 0;
+    ul.fancytree-container {
+        li {
+            background: 0;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
     }
 
     ul[role='group'] {
@@ -30,8 +36,10 @@
 
         span.fancytree-expander {
             position: relative;
+            height: 100%;
             // stylelint-disable-next-line font-family-no-missing-generic-family-keyword
             font-family: iconfont !important;
+            vertical-align: middle;
             background: 0;
         }
 
@@ -52,24 +60,20 @@
         &.fancytree-exp-n,
         &.fancytree-exp-nl {
             span.fancytree-expander {
-                height: 100%;
-
                 &::before {
                     position: absolute;
-                    top: 0;
-                    bottom: -24px;
-                    left: 7px;
+                    top: -13px;
+                    bottom: -11px;
                     margin-inline-start: -1px;
                     content: '';
                     border-inline-end: 1px solid #d9d9d9;
-                    inset-inline-end: 12px;
+                    inset-inline-end: 9px;
                 }
 
                 &::after {
                     position: absolute;
                     left: 6px;
                     width: 9px;
-                    height: 12px;
                     content: '';
                     border-bottom: 1px solid #d9d9d9;
                 }
@@ -80,13 +84,12 @@
             span.fancytree-expander {
                 &::before {
                     position: absolute;
-                    top: auto;
                     bottom: auto;
                     height: 13px;
                     margin-inline-start: -1px;
                     content: '';
                     border-inline-end: 1px solid #d9d9d9;
-                    inset-inline-end: 12px;
+                    inset-inline-end: 9px;
                 }
             }
         }
