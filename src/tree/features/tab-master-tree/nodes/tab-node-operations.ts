@@ -87,6 +87,7 @@ export const TabNodeOperations = {
         if (title) toUpdateNode.setTitle(escape(title));
         if (favIconUrl) toUpdateNode.icon = favIconUrl;
         if (closed !== undefined) {
+            closed ? toUpdateNode.addClass('closed') : toUpdateNode.removeClass('closed');
             toUpdateNode.renderTitle();
         }
         if (active) {
