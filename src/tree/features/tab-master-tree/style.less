@@ -18,7 +18,7 @@
     --title-match-color: black;
     --title-mismatch-color: #d9d9d9;
     --header-bg-color: rgb(242 244 245);
-    --header-shadow-color: rgb(172 172 172 / 95%);
+    --header-shadow: 0 0 5px rgb(172 172 172 / 95%);
     --footer-bg-color: rgb(242 244 245);
     --footer-border-top-color: #cecece;
     --content-bg-color: #fff;
@@ -35,7 +35,7 @@
     --splitter-color: #d1d5da;
     --title-active-color: rgb(242 242 242);
     --alias-active-color: rgb(242 242 242);
-    --title-active-bg-color: #3465f6;
+    --title-active-bg-color: rgb(55 52 56);
     --title-with-alias-active-color: #b6b6b6;
     --title-tab-active-color: #3465f6;
     --title-with-alias-tab-active-color: #89a6fa;
@@ -43,7 +43,7 @@
     --title-match-color: black;
     --title-mismatch-color: #d9d9d9;
     --header-bg-color: #18191b;
-    --header-shadow-color: rgb(172 172 172 / 95%);
+    --header-shadow: 0 1px 2px rgb(57 57 57 / 95%);
     --footer-bg-color: rgb(31 32 34);
     --footer-border-top-color: rgb(31 32 34);
     --content-bg-color: #18191b;
@@ -66,12 +66,19 @@ body {
         position: fixed;
         top: 0;
         z-index: 9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 100%;
         height: 50px;
         padding: 0 10px;
         line-height: 50px;
         background: var(--header-bg-color);
-        box-shadow: 0 0 5px --var(header-shadow-color);
+        box-shadow: var(--header-shadow);
+
+        .search-input {
+            flex: 1;
+        }
     }
 
     ul.fancytree-container {

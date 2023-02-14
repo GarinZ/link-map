@@ -8,5 +8,5 @@ export const FILTER_OPTIONS: Fancytree.Extensions.Filter = {
     highlight: true, // Highlight matches by wrapping inside <mark> tags
     leavesOnly: false, // Match end nodes only
     nodata: true, // Display a 'no data' status node if result is empty
-    mode: 'dimm', // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+    mode: 'hide', // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
 };

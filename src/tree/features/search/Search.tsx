@@ -1,4 +1,3 @@
-import { Input } from 'antd';
 import type { ChangeEventHandler, HTMLInputElement, KeyboardEvent } from 'react';
 import { useState } from 'react';
 
@@ -34,17 +33,15 @@ export const Search = () => {
 
     return (
         <div className={'search-input'}>
-            <Input.Search
+            <i className={'iconfont icon-search'} />
+            <input
+                className={'search'}
                 name={'search'}
-                allowClear
-                size={'small'}
                 autoComplete={'off'}
                 onKeyUp={onKeyUp}
                 value={value}
                 onChange={onChange}
-                style={{ width: 200, verticalAlign: 'middle' }}
                 placeholder={'Search...'}
-                onSearch={onSearch}
             />
         </div>
     );

@@ -1,7 +1,47 @@
+@import url('../../../styles/common.less');
+
 .search-input {
+    display: inline-block;
+    height: 30px;
+    padding-left: 5px;
+    line-height: 30px;
+    vertical-align: middle;
+    background-color: rgb(34 34 34);
+    border: 1px solid rgba(34 34 34 / 50%);
+    //box-shadow: 0 0 5px 0 rgba(34 34 34 / 80%);
+    border-radius: 4px;
+    .clearfix();
+
+    i.icon-search {
+        position: relative;
+        float: left;
+        padding-right: 5px;
+        color: white;
+
+        //&::after {
+        //    position: absolute;
+        //    right: -3px;
+        //    bottom: 0;
+        //    content: "|";
+        //}
+        //border-right: 1px solid white;
+    }
+
     input.search {
-        padding: 4px 10px;
-        border: 1px solid #d9d9d9;
-        border-radius: 4px;
+        display: inline-block;
+        float: left;
+        height: 30px;
+        padding-left: 10px;
+        margin: 0;
+        //text-decoration: none;
+        color: white;
+        background-color: transparent;
+        //border: 1px solid green;
+        border-style: none;
+        outline: 0;
+
+        &::placeholder {
+            color: white;
+        }
     }
 }
