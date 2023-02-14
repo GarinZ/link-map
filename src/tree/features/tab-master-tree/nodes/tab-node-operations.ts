@@ -1,7 +1,8 @@
+import { escape } from 'lodash';
 import type { Tabs } from 'webextension-polyfill';
 
-import { NodeUtils } from '../utils';
 import type { TreeData, TreeNode } from './nodes';
+import { NodeUtils } from './utils';
 import { WindowNodeOperations } from './window-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
@@ -15,11 +16,12 @@ export interface TabData extends Tabs.Tab, TreeData {
 export const TabNodeOperations = {
     createData(tab: Tabs.Tab): TreeNode<TabData> {
         const { title, windowId, favIconUrl, id } = tab;
+        const escapedTitle = title ? escape(title) : '';
         if (windowId === undefined) throw new Error('windowId is required');
         if (id === undefined) throw new Error('id is required');
 
         return {
-            title: title || '',
+            title: escapedTitle || '',
             key: `${id}`,
             icon: {
                 // 直接写URL,会使用img标签渲染,导致childrenCounter不识别
@@ -82,7 +84,7 @@ export const TabNodeOperations = {
         const { title, favIconUrl, id, active, closed } = updateProps;
         toUpdateNode.data = { ...toUpdateNode.data, ...updateProps };
         if (id) toUpdateNode.key = `${id}`;
-        if (title) toUpdateNode.setTitle(title);
+        if (title) toUpdateNode.setTitle(escape(title));
         if (favIconUrl) toUpdateNode.icon = favIconUrl;
         if (closed !== undefined) {
             toUpdateNode.renderTitle();

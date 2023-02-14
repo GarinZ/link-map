@@ -6,10 +6,10 @@
 import browser from 'sinon-chrome';
 import type { Tabs } from 'webextension-polyfill';
 
-import type { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
-import type { TreeNode } from '@/tree/nodes/nodes';
-import type { TabData } from '@/tree/nodes/tab-node-operations';
-import type { WindowData } from '@/tree/nodes/window-node-operations';
+import type { FancyTabMasterTree } from '@/tree/features/tab-master-tree/fancy-tab-master-tree';
+import type { TreeNode } from '@/tree/features/tab-master-tree/nodes/nodes';
+import type { TabData } from '@/tree/features/tab-master-tree/nodes/tab-node-operations';
+import type { WindowData } from '@/tree/features/tab-master-tree/nodes/window-node-operations';
 
 import { createTab, initTabMasterTree, MockTreeBuilder } from '../../utils/gen-utils';
 import { toAsciiTree } from '../../utils/print-utils';

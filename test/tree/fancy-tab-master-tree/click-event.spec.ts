@@ -4,9 +4,9 @@
 
 import browser from 'sinon-chrome';
 
-import { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
-import { TabNodeOperations } from '@/tree/nodes/tab-node-operations';
-import { WindowNodeOperations } from '@/tree/nodes/window-node-operations';
+import { FancyTabMasterTree } from '@/tree/features/tab-master-tree/fancy-tab-master-tree';
+import { TabNodeOperations } from '@/tree/features/tab-master-tree/nodes/tab-node-operations';
+import { WindowNodeOperations } from '@/tree/features/tab-master-tree/nodes/window-node-operations';
 
 import { mockTabCreate, mockTabRemove, mockWindowCreate } from '../../utils/browser-mock';
 import { initTabMasterTree, MockTreeBuilder } from '../../utils/gen-utils';

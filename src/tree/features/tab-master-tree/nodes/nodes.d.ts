@@ -44,8 +44,3 @@ export interface TreeNode<T extends TreeData> extends Fancytree.NodeData {
     /** Outer element of single nodes for table extension */
     tr?: HTMLTableRowElement;
 }
-
-// export interface TreeNodeOperations<T extends TreeData> {
-//     create(data: any): TreeNode<T>;
-//
-// }

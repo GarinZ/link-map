@@ -1,6 +1,6 @@
 import { flatten } from 'lodash';
 
-import type { NodeData, TreeData, TreeNode } from '@/tree/nodes/nodes';
+import type { NodeData, TreeData, TreeNode } from '@/tree/features/tab-master-tree/nodes/nodes';
 
 function prefixChild(strArr: string[], last: boolean): string[] {
     return strArr.map((s, i) => {

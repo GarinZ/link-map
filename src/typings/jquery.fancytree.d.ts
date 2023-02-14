@@ -23,19 +23,6 @@ interface JQuery {
 }
 
 declare namespace Fancytree {
-    interface FilterOptions {
-        autoApply?: boolean; // Re-apply last filter if lazy data is loaded
-        autoExpand?: boolean; // Expand all branches that contain matches while filtered
-        counter?: boolean; // Show a badge with number of matching child nodes near parent icons
-        fuzzy?: boolean; // Match single characters in order, e.g. 'fb' will match 'FooBar'
-        hideExpandedCounter?: boolean; // Hide counter badge if parent is expanded
-        hideExpanders?: boolean; // Hide expanders if all child nodes are hidden by filter
-        highlight?: boolean; // Highlight matches by wrapping inside <mark> tags
-        leavesOnly?: boolean; // Match end nodes only
-        nodata?: boolean; // Display a 'no data' status node if result is empty
-        mode?: 'dimm' | 'hide'; // Gray out unmatched nodes (pass "hide" to remove unmatched node instead)
-    }
-
     type EditTriggerCancelKeys = 'esc' | 'tab' | 'click';
     type EditTriggerStartKey = 'f2' | 'mac+enter' | 'shift+click';
     type EditEvent = { type: 'beforeClose' | 'beforeEdit' | 'close' | 'edit' | 'save' };

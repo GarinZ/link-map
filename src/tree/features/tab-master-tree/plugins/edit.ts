@@ -8,7 +8,6 @@ export const EDIT_OPTIONS: Fancytree.EditOptions = {
     },
     save(_event, data) {
         // TODO 这里需要escape一下
-        console.log(data.input);
         data.node.data.alias = data.input!.val();
         return true;
     },

@@ -5,10 +5,10 @@
 import _ from 'lodash';
 import type { Tabs } from 'webextension-polyfill';
 
-import { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
-import type { NodeData, TreeData, TreeNode } from '@/tree/nodes/nodes';
-import type { TabData } from '@/tree/nodes/tab-node-operations';
-import type { WindowData } from '@/tree/nodes/window-node-operations';
+import { FancyTabMasterTree } from '@/tree/features/tab-master-tree/fancy-tab-master-tree';
+import type { NodeData, TreeData, TreeNode } from '@/tree/features/tab-master-tree/nodes/nodes';
+import type { TabData } from '@/tree/features/tab-master-tree/nodes/tab-node-operations';
+import type { WindowData } from '@/tree/features/tab-master-tree/nodes/window-node-operations';
 
 import {
     DEFAULT_TAB,

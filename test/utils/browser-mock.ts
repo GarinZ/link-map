@@ -1,6 +1,6 @@
 import browser from 'sinon-chrome';
 
-import type { FancyTabMasterTree } from '@/tree/fancy-tab-master-tree';
+import type { FancyTabMasterTree } from '@/tree/features/tab-master-tree/fancy-tab-master-tree';
 
 export const mockTabMove = (tabMasterTree: FancyTabMasterTree) => {
     const tree = tabMasterTree.tree;

@@ -1,7 +1,51 @@
-@import url('../styles/iconfont/iconfont.css');
+@import url('../../../styles/iconfont/iconfont.css');
+@import url('./dark-mode.less');
+
+@expander-color: #000;
+@indent-line-color: #d9d9d9;
+@title-color: #2a2d34;
+@title-with-alias-color: #33373d;
+@title-closed-color: gray;
+@alias-closed-color: #a4a4a4;
+@splitter-color: #d1d5da;
+@title-active-color: #000;
+@alias-active-color: #000;
+@title-with-alias-active-color: #b6b6b6;
+@title-tab-active-color: #3465f6;
+@title-with-alias-tab-active-color: #89a6fa;
+
+@header-bg-color: rgb(242 244 245);
+@header-shadow-color: rgb(172 172 172 / 95%);
+@footer-bg-color: rgb(242 244 245);
+@content-bg-color: #fff;
 
 #tree {
+    // search Start
+    &.fancytree-ext-filter-dimm span.fancytree-node {
+        &.fancytree-submatch span.fancytree-title {
+            color: #7a7a7a;
+        }
+
+        &.fancytree-match span.fancytree-title {
+            font-weight: normal;
+            color: black;
+        }
+
+        &.fancytree-hide span.fancytree-title {
+            font-weight: lighter;
+            color: #d9d9d9;
+        }
+    }
+
+    &.fancytree-ext-filter-hide span.fancytree-node.fancytree-hide {
+        display: none;
+    }
+    // search END
+
     ul.fancytree-container {
+        overflow-x: hidden;
+        overflow-y: auto;
+
         li {
             background: 0;
         }
@@ -34,11 +78,13 @@
         margin-top: 0;
         line-height: 22px;
 
+        // expander start
         span.fancytree-expander {
             position: relative;
             height: 100%;
             // stylelint-disable-next-line font-family-no-missing-generic-family-keyword
             font-family: iconfont !important;
+            color: @expander-color;
             vertical-align: middle;
             background: 0;
         }
@@ -66,7 +112,7 @@
                     bottom: -11px;
                     margin-inline-start: -1px;
                     content: '';
-                    border-inline-end: 1px solid #d9d9d9;
+                    border-inline-end: 1px solid @indent-line-color;
                     inset-inline-end: 9px;
                 }
 
@@ -75,7 +121,7 @@
                     left: 6px;
                     width: 9px;
                     content: '';
-                    border-bottom: 1px solid #d9d9d9;
+                    border-bottom: 1px solid @indent-line-color;
                 }
             }
         }
@@ -88,36 +134,60 @@
                     height: 13px;
                     margin-inline-start: -1px;
                     content: '';
-                    border-inline-end: 1px solid #d9d9d9;
+                    border-inline-end: 1px solid @indent-line-color;
                     inset-inline-end: 9px;
                 }
             }
         }
 
+        // expander end
+        // icon start
         span.fancytree-custom-icon {
-            margin-left: 0;
+            line-height: 16px;
+            text-align: center;
+
+            .fancytree-icon {
+                margin-left: 0;
+            }
         }
 
-        img.fancytree-icon {
-            vertical-align: middle;
+        i.fancytree-icon.note {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background-color: rgb(34 190 107);
+            border-radius: 6px;
         }
 
-        span.fancytree-icon {
+        .fancytree-icon {
             vertical-align: middle;
         }
+        // icon end
 
         span.fancytree-title {
+            padding: 0 3px;
+            margin-left: 6px;
             font-size: 11px;
-            color: #2a2d34;
+            color: @title-color;
+
+            .zt-node-title {
+                display: inline-block;
+                white-space: nowrap;
+                vertical-align: middle;
+
+                &.alias {
+                    color: @title-with-alias-color;
+                }
+            }
 
             &.closed {
                 .zt-node-alias {
-                    color: #a4a4a4;
+                    color: @alias-closed-color;
                 }
 
                 .zt-node-title {
                     font-weight: normal;
-                    color: gray;
+                    color: @title-closed-color;
                 }
             }
 
@@ -127,7 +197,7 @@
             }
 
             .zt-node-splitter {
-                color: #d1d5da;
+                color: @splitter-color;
             }
 
             span.zt-node-alias {
@@ -137,48 +207,32 @@
         }
         // node-active
         &.fancytree-active span.fancytree-title {
-            //color: inherit !important;
-            //background-color: rgba(59 106 247 80 2%) !important;
             border-radius: 5px;
+            outline: 0;
 
             &.closed {
                 .zt-node-alias {
-                    color: white;
+                    color: @alias-active-color;
                 }
 
                 .zt-node-title.alias {
-                    color: #b6b6b6;
+                    color: @title-with-alias-active-color;
                 }
             }
 
             .zt-node-title {
-                color: white;
-            }
-        }
-
-        .zt-node-title {
-            display: inline-block;
-            white-space: nowrap;
-            vertical-align: middle;
-
-            &.alias {
-                color: #33373d;
+                color: @title-active-color;
             }
         }
 
         &.tab-active {
-            font-weight: bold;
-
-            .zt-node-title {
-                color: #3465f6;
-
-                &.alias {
-                    color: #89a6fa;
-                }
+            .fancytree-title {
+                font-weight: bold;
+                color: @title-tab-active-color;
             }
 
-            .zt-node-alias {
-                color: #3465f6;
+            .zt-node-title.alias {
+                color: @title-with-alias-tab-active-color;
             }
 
             &.fancytree-active {
@@ -227,26 +281,37 @@ body {
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
         Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    background-color: @content-bg-color;
 
     .app {
         position: relative;
     }
 
     #header {
+        position: fixed;
+        top: 0;
+        z-index: 9;
+        width: 100%;
         height: 50px;
         padding: 0 10px;
         line-height: 50px;
-        background: rgb(242 244 245);
-        box-shadow: 0 0 5px rgb(172 172 172 / 95%);
+        background: @header-bg-color;
+        box-shadow: 0 0 5px @header-shadow-color;
     }
 
     ul.fancytree-container {
         padding: 8px;
+        margin-top: 50px;
+        background-color: @content-bg-color;
         border: 0;
         outline: 0;
     }
 
     #footer {
+        position: fixed;
+        bottom: 0;
+        z-index: 9;
+        width: 100%;
         height: 40px;
         background: rgb(242 244 245);
         border-top: 1px solid #cecece;

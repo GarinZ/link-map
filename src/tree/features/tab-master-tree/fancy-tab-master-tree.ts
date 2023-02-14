@@ -2,9 +2,11 @@ import { clone } from 'lodash';
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
-import { TabMasterDB } from '../storage/idb';
+import { TabMasterDB } from '../../../storage/idb';
+import { dataCheckAndSupply } from './nodes/data-check';
 import type { TreeData, TreeNode } from './nodes/nodes';
 import { TabNodeOperations } from './nodes/tab-node-operations';
+import { NodeUtils } from './nodes/utils';
 import type { WindowData } from './nodes/window-node-operations';
 import { WindowNodeOperations } from './nodes/window-node-operations';
 import { registerContextMenu } from './plugins/context-menu';
@@ -12,7 +14,6 @@ import { DND5_CONFIG } from './plugins/dnd';
 import { EDIT_OPTIONS } from './plugins/edit';
 import { FILTER_OPTIONS } from './plugins/filter';
 import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
-import { NodeUtils } from './utils';
 
 import 'jquery.fancytree';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.dnd5';
@@ -59,13 +60,8 @@ export class FancyTabMasterTree {
     constructor($container: JQuery) {
         $container.fancytree({
             active: true,
-            extensions: ['dnd5', 'childcounter', 'edit', 'filter'],
+            extensions: ['dnd5', 'edit', 'filter'],
             source: [{ title: 'pending' }],
-            childcounter: {
-                deep: true,
-                hideZeros: true,
-                hideExpanded: true,
-            },
             renderNode(_event, data) {
                 data.node.renderTitle();
             },
@@ -98,6 +94,8 @@ export class FancyTabMasterTree {
         }
         // 存在snapshot，先将snapshot加载到tree中
         // TODO 这里可能需要数据检查
+        dataCheckAndSupply(snapshot);
+        console.log(snapshot);
         await this.tree.reload(snapshot);
         let extPage: FancytreeNode | null = null;
         this.tree.visit((node) => {

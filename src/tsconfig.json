@@ -35,7 +35,7 @@
             "?/*": ["test/*"]
         },
         "typeRoots": ["../node_modules/@types", "./typings"],
-        "types": ["jquery", "webext-bridge", "jquery.fancytree", "jquery.contextMenu"]
+        "types": ["jquery", "webext-bridge", "jquery.fancytree", "jquery.contextMenu", "react"]
     },
     //    "include": ["src/**/*"],
     "exclude": ["manifest.ts"]

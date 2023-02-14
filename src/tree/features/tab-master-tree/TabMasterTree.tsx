@@ -1,10 +1,10 @@
 import { onMessage } from '@garinz/webext-bridge';
 import React from 'react';
 
-import { FancyTabMasterTree } from '../fancy-tab-master-tree';
-import { registerSearchEventHandler } from '../plugins/filter';
+import Store from '../store';
+import { FancyTabMasterTree } from './fancy-tab-master-tree';
 
-import '../style.less';
+import './style.less';
 
 export class TabMasterTree extends React.Component {
     private el?: HTMLElement | null;
@@ -15,6 +15,7 @@ export class TabMasterTree extends React.Component {
         this.$el = $(this.el!);
         this.tree = new FancyTabMasterTree(this.$el);
         const tabMasterTree = this.tree;
+        Store.tree = this.tree.tree;
         this.tree.initTree().then(() => {
             onMessage('add-tab', (msg) => {
                 tabMasterTree.createTab(msg.data);
@@ -54,8 +55,6 @@ export class TabMasterTree extends React.Component {
                 tabMasterTree.createWindow(msg.data);
             });
         });
-        const tree = this.tree.tree;
-        registerSearchEventHandler(tree);
     }
 
     componentWillUnmount() {

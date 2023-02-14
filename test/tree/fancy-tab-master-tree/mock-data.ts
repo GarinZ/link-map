@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import type { Tabs } from 'webextension-polyfill';
 
-import type { TreeData, TreeNode } from '@/tree/nodes/nodes';
-import type { TabData } from '@/tree/nodes/tab-node-operations';
-import type { WindowData } from '@/tree/nodes/window-node-operations';
+import type { TreeData, TreeNode } from '@/tree/features/tab-master-tree/nodes/nodes';
+import type { TabData } from '@/tree/features/tab-master-tree/nodes/tab-node-operations';
+import type { WindowData } from '@/tree/features/tab-master-tree/nodes/window-node-operations';
 
 export const DEFAULT_WINDOW_NODE = {
     title: 'Window',
