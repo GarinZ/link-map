@@ -41,7 +41,7 @@ export const Search = () => {
                 onKeyUp={onKeyUp}
                 value={value}
                 onChange={onChange}
-                placeholder={'Search...'}
+                placeholder={'Search'}
             />
         </div>
     );

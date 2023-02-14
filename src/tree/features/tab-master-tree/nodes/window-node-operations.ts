@@ -56,6 +56,7 @@ export const WindowNodeOperations = {
             windowNode.data.windowId = id;
         }
         if (closed !== undefined) {
+            closed ? windowNode.addClass('closed') : windowNode.removeClass('closed');
             windowNode.renderTitle();
         }
     },
