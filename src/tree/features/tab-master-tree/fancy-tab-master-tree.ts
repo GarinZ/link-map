@@ -258,6 +258,7 @@ function renderTitle(_eventData: JQueryEventObject, data: Fancytree.EventData): 
 
 FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventData): boolean => {
     const target = $(event.originalEvent.target as Element);
+    console.log(event);
     if (!target.attr(TYPE_ATTR)) return true;
 
     switch (target.attr(TYPE_ATTR)) {

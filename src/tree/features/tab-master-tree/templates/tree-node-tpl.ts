@@ -12,18 +12,12 @@ export enum TPL_CONSTANTS {
 
 const { TYPE_ATTR, NODE_CLOSE, NODE_KEY, NODE_EDIT, NODE_ITEM, NODE_REMOVE } = TPL_CONSTANTS;
 
-export const generateButtonGroup = (key: string) => `<span class="zt-node-button-group">
-        <span class="zt-node-btn edit-alias" ${TYPE_ATTR}="${NODE_EDIT}" ${NODE_KEY}="${key}">🖌️</span>
-        <span class="zt-node-btn close" ${TYPE_ATTR}="${NODE_CLOSE}" ${NODE_KEY}="${key}">❎</span>
-        <span class="zt-node-btn remove" ${TYPE_ATTR}="${NODE_REMOVE}" ${NODE_KEY}="${key}">🗑️</span>
-    </span>`;
-
 export class TreeNodeTpl {
     /** 按钮组HTML结构 */
     static BUTTON_GROUP = `<span class="zt-node-button-group">
-        <span class="zt-node-btn edit-alias" ${TYPE_ATTR}="${NODE_EDIT}" ${NODE_KEY}="{{key}}">🖌️</span>
-        <span class="zt-node-btn close" ${TYPE_ATTR}="${NODE_CLOSE}" ${NODE_KEY}="{{key}}">❎</span>
-        <span class="zt-node-btn remove" ${TYPE_ATTR}="${NODE_REMOVE}" ${NODE_KEY}="{{key}}">🗑️</span>
+        <span class="iconfont icon-edit zt-node-btn edit-alias" ${TYPE_ATTR}="${NODE_EDIT}" ${NODE_KEY}="{{key}}"></span>
+        <span class="iconfont icon-roundclosefill zt-node-btn close" ${TYPE_ATTR}="${NODE_CLOSE}" ${NODE_KEY}="{{key}}"></span>
+        <span class="iconfont icon-trash zt-node-btn remove" ${TYPE_ATTR}="${NODE_REMOVE}" ${NODE_KEY}="{{key}}"></span>
     </span>`;
 
     /** Node HTML结构 */

@@ -4,12 +4,17 @@
 
 ::-webkit-scrollbar {
     width: 10px;
+    height: 10px;
     background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
     background-color: rgb(39 39 39 / 50%);
     border-radius: 50px;
+}
+
+::-webkit-scrollbar-corner {
+    background-color: transparent;
 }
 
 body {
@@ -63,7 +68,7 @@ body {
         #tree {
             flex: 1;
             height: 0;
-            overflow-x: hidden;
+            overflow-x: auto;
             overflow-y: auto;
         }
     }
@@ -336,23 +341,54 @@ body {
         .zt-node-button-group {
             position: absolute;
             top: 0;
-            right: 0;
+            right: -8px;
+            box-sizing: border-box;
             display: none;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
             height: 22px;
-            padding-left: 15px;
             line-height: 22px;
-            //background:  linear-gradient(to left, rgb(255 255 255 / 100%) 75%, rgb(255 255 255 / 50%), rgb(255 255 255 / 0%));
+            background-color: #383838;
+            border-radius: 3px;
+            box-shadow: 2px 0 3px #565555;
 
             .zt-node-btn {
+                box-sizing: border-box;
+                flex: 1;
+                width: 22px;
+                height: 100%;
+                padding: 0 2px;
+                font-size: 12px;
+                color: #bababa;
+                text-align: center;
                 vertical-align: middle;
                 cursor: pointer;
+                border-right: 1px solid #4f4f4f;
+
+                &:hover {
+                    color: var(--title-color);
+                    background-color: #2a2a2a;
+                }
+
+                &:last-child {
+                    border-right: none;
+                }
             }
         }
 
         &:hover {
             .zt-node-button-group {
-                display: inline-block;
+                display: flex;
             }
+        }
+    }
+}
+
+.edit {
+    .fancytree-title {
+        .fancytree-edit-input {
+            //width: 100px;
         }
     }
 }
