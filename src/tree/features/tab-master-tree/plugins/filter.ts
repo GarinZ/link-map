@@ -10,3 +10,8 @@ export const FILTER_OPTIONS: Fancytree.Extensions.Filter = {
     nodata: true, // Display a 'no data' status node if result is empty
     mode: 'dimm', // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
 };
+
+export const clearHighLightFields = (node: Fancytree.FancytreeNode) => {
+    node.data.aliasWithHighlight = null;
+    node.data.titleWithHighlight = null;
+};

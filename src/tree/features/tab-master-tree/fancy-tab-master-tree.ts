@@ -12,7 +12,7 @@ import { WindowNodeOperations } from './nodes/window-node-operations';
 import { registerContextMenu } from './plugins/context-menu';
 import { DND5_CONFIG } from './plugins/dnd';
 import { EDIT_OPTIONS } from './plugins/edit';
-import { FILTER_OPTIONS } from './plugins/filter';
+import { clearHighLightFields, FILTER_OPTIONS } from './plugins/filter';
 import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
 
 import 'jquery.fancytree';
@@ -105,6 +105,7 @@ export class FancyTabMasterTree {
         await this.tree.reload(snapshot);
         let extPage: FancytreeNode | null = null;
         this.tree.visit((node) => {
+            clearHighLightFields(node);
             if (node.data.nodeType === 'tab' || node.data.nodeType === 'window') {
                 TabNodeOperations.updatePartial(node, { closed: true });
             }

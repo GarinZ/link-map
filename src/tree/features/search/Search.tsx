@@ -3,6 +3,7 @@ import type { ChangeEventHandler, HTMLInputElement, KeyboardEvent } from 'react'
 import { useState } from 'react';
 
 import store from '../store';
+import { clearHighLightFields } from '../tab-master-tree/plugins/filter';
 
 import './search.less';
 
@@ -10,12 +11,12 @@ import './search.less';
 //     return `${str}`.replace(/([$()*+.?[\\\]^{|}-])/g, '\\$1');
 // };
 
-const clearFilter = () => {
-    store.tree!.visit((node) => {
-        node.data.titleWithHighlight = null;
-        node.data.aliasWithHighlight = null;
+export const clearFilter = (tree?: Fancytree.Fancytree) => {
+    const t = tree ?? store.tree!;
+    t.visit((node) => {
+        clearHighLightFields(node);
     });
-    store.tree!.clearFilter();
+    t.clearFilter();
 };
 
 const onSearch = (val: string) => {
@@ -24,8 +25,7 @@ const onSearch = (val: string) => {
         clearFilter();
     } else {
         store.tree!.filterNodes((node) => {
-            node.data.titleWithHighlight = null;
-            node.data.aliasWithHighlight = null;
+            clearHighLightFields(node);
             if (!node.title && !node.data.alias) {
                 return false;
             }
