@@ -21,6 +21,7 @@ import 'jquery.fancytree/dist/modules/jquery.fancytree.childcounter';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.edit.js';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.wide.js';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.filter.js';
+// import './plugins/jquery.fancytree.filter.js';
 import 'jquery.fancytree/dist/skin-xp/ui.fancytree.min.css';
 
 const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE } = TPL_CONSTANTS;
@@ -62,10 +63,15 @@ export class FancyTabMasterTree {
             active: true,
             extensions: ['dnd5', 'edit', 'filter'],
             source: [{ title: 'pending' }],
-            renderNode(_event, data) {
-                data.node.renderTitle();
+            // renderNode(_event, data) {
+            //     data.node.renderTitle();
+            // },
+            enhanceTitle: (_eventData: JQueryEventObject, data: Fancytree.EventData) => {
+                const html = renderTitle(_eventData, data);
+                const $title = $(data.node.span).find('span.fancytree-title');
+                $title.html(html);
             },
-            renderTitle,
+            // renderTitle,
             click: FancyTabMasterTree.onClick,
             dblclick: (_event, data) => {
                 FancyTabMasterTree.onDbClick(data.node);

@@ -1,4 +1,6 @@
 @import url('../../../styles/common.less');
+@import url('../../../styles/dark-mode.less');
+@import url('../../../styles/light-mode.less');
 
 .search-input {
     display: inline-block;
@@ -6,9 +8,8 @@
     padding-left: 5px;
     line-height: 30px;
     vertical-align: middle;
-    background-color: rgb(34 34 34);
-    border: 1px solid rgba(34 34 34 / 50%);
-    //box-shadow: 0 0 5px 0 rgba(34 34 34 / 80%);
+    background-color: var(rgb(34 34 34));
+    border: 1px solid var(--search-input-border-color);
     border-radius: 4px;
     .clearfix();
 
@@ -16,7 +17,7 @@
         position: relative;
         float: left;
         padding-right: 5px;
-        color: white;
+        color: var(--search-input-icon-color);
     }
 
     input.search {
@@ -25,15 +26,22 @@
         height: 30px;
         padding-left: 10px;
         margin: 0;
-        //text-decoration: none;
-        color: white;
+        font-size: 12px;
+        color: var(--search-input-font-color);
         background-color: transparent;
-        //border: 1px solid green;
         border-style: none;
         outline: 0;
 
         &::placeholder {
-            color: rgb(130 133 140);
+            color: var(--search-input-placeholder-color);
         }
+    }
+
+    &:hover {
+        border-color: var(--search-input-border-hover-color);
+    }
+
+    &.focus {
+        border-color: var(--search-input-border-focus-color);
     }
 }

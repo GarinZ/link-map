@@ -102,10 +102,7 @@ declare namespace Fancytree {
         /** [ext-filter] Dimm or hide whole branches.
          * @returns {integer} count
          */
-        filterBranches(
-            filter: ((node: FancytreeNode) => boolean) | string,
-            opt: FilterOptions,
-        ): number;
+        filterBranches(filter: (node: FancytreeNode) => boolean, opt?: Extensions.Filter): number;
 
         /** [ext-filter] Dimm or hide nodes.
          * @returns {integer} count
