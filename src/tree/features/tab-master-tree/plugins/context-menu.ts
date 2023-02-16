@@ -17,6 +17,13 @@ export const registerContextMenu = () => {
                     resetFocus: { name: 'Focus reset' },
                 },
             },
+            copy: {
+                name: 'Copy',
+                items: {
+                    copyLink: { name: 'Copy Link' },
+                    copyMarkdownLink: { name: 'Copy Markdown Link' },
+                },
+            },
             notes: {
                 name: 'Notes',
                 items: {
@@ -44,6 +51,12 @@ export const registerContextMenu = () => {
                     break;
                 case 'resetFocus':
                     node.tree.clearFilter();
+                    break;
+                case 'copyLink':
+                    navigator.clipboard.writeText(node.data.url);
+                    break;
+                case 'copyMarkdownLink':
+                    navigator.clipboard.writeText(`[${node.data.title}](${node.data.url})`);
                     break;
             }
         },

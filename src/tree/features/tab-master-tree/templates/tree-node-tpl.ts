@@ -1,4 +1,5 @@
 import { escape } from 'lodash';
+import log from 'loglevel';
 import Mustache from 'mustache';
 
 export enum TPL_CONSTANTS {
@@ -41,7 +42,7 @@ export class TreeNodeTpl {
         const { key, title, data } = node;
         const { closed, windowType, alias, nodeType, aliasWithHighlight, titleWithHighlight } =
             data;
-        if (windowType) console.log(key, closed);
+        if (windowType) log.debug(key, closed);
         this.html = Mustache.render(
             TreeNodeTpl.TEMPLATE,
             {

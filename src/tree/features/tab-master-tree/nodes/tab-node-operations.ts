@@ -100,6 +100,9 @@ export const TabNodeOperations = {
                     node.removeClass('tab-active');
                 }
             });
+        } else if (active === false) {
+            toUpdateNode.data.tabActive = false;
+            toUpdateNode.removeClass('tab-active');
         }
     },
     getToCloseTabNodes(fromNode: FancytreeNode): FancytreeNode[] {

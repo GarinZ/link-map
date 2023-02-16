@@ -1,4 +1,6 @@
 declare type StyleSheetModule = { [key: string]: string };
+declare var __ENV__: 'development' | 'production';
+declare var __LOG_LEVEL__: string;
 
 declare module '*.scss' {
     const exports: StyleSheetModule;

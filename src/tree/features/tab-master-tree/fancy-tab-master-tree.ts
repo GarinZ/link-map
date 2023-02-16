@@ -1,4 +1,5 @@
 import { clone } from 'lodash';
+import log from 'loglevel';
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
@@ -101,13 +102,16 @@ export class FancyTabMasterTree {
         // 存在snapshot，先将snapshot加载到tree中
         // TODO 这里可能需要数据检查
         dataCheckAndSupply(snapshot);
-        console.log(snapshot);
+        log.debug(snapshot);
         await this.tree.reload(snapshot);
         let extPage: FancytreeNode | null = null;
         this.tree.visit((node) => {
             clearHighLightFields(node);
             if (node.data.nodeType === 'tab' || node.data.nodeType === 'window') {
                 TabNodeOperations.updatePartial(node, { closed: true });
+                if (!node.data.url) {
+                    node.data.url = node.data.pendingUrl;
+                }
             }
             if (node.data.nodeType === 'window' && node.data.isBackgroundPage) {
                 extPage = node;
@@ -258,17 +262,16 @@ function renderTitle(_eventData: JQueryEventObject, data: Fancytree.EventData): 
 
 FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventData): boolean => {
     const target = $(event.originalEvent.target as Element);
-    console.log(event);
+    log.debug(event);
     if (!target.attr(TYPE_ATTR)) return true;
 
     switch (target.attr(TYPE_ATTR)) {
         case NODE_CLOSE:
-            console.log('[tree]: close button clicked');
+            log.debug('[tree]: close button clicked');
             FancyTabMasterTree.closeNodes(data.node);
             break;
         case NODE_REMOVE:
-            console.log('[tree]: remove button clicked');
-            // TODO 已经关闭的Node，应该直接做remove
+            log.debug('[tree]: remove button clicked');
             FancyTabMasterTree.removeNodes(data.node);
             break;
     }
@@ -313,10 +316,7 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
             return;
         }
         // 2. WindowNode关闭
-        const { windowId } = targetNode.data;
-        const subTabNodes = targetNode.findAll(
-            (node) => node.data.nodeType === 'tab' && node.data.windowId === windowId,
-        );
+        const subTabNodes = WindowNodeOperations.findAllSubTabNodes(targetNode);
         await FancyTabMasterTree.reopenWindowNode(targetNode, subTabNodes);
     }
 };
@@ -332,7 +332,7 @@ FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
     toClosedTabNodes.forEach((node) => {
         windowIdSet.add(node.data.windowId);
         tabIdSet.add(node.data.id);
-        TabNodeOperations.updatePartial(node, { closed: true });
+        TabNodeOperations.updatePartial(node, { closed: true, active: false });
     });
     windowIdSet.forEach((windowId) => {
         const windowNode = targetNode.tree.getNodeByKey(`${windowId}`);

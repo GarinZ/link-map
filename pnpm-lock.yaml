@@ -13,7 +13,6 @@ specifiers:
   '@garinz/webext-bridge': 5.0.6
   '@nuxt/friendly-errors-webpack-plugin': 2.5.2
   '@pmmmwh/react-refresh-webpack-plugin': 0.5.10
-  '@redux-devtools/extension': 3.2.5
   '@reduxjs/toolkit': 1.9.2
   '@swc/core': 1.3.19
   '@types/chrome': 0.0.203
@@ -81,6 +80,7 @@ specifiers:
   lightningcss: 1.16.1
   lint-staged: 13.0.4
   lodash: 4.17.21
+  loglevel: 1.8.1
   mini-css-extract-plugin: 2.7.0
   mustache: 4.2.0
   normalize.css: 8.0.1
@@ -123,6 +123,7 @@ dependencies:
   antd: 5.0.1_biqbaboplfbrettd7655fr4n2y
   dayjs: 1.11.6
   lodash: 4.17.21
+  loglevel: 1.8.1
   mustache: 4.2.0
   normalize.css: 8.0.1
   react: 18.2.0
@@ -143,7 +144,6 @@ devDependencies:
   '@garinz/webext-bridge': 5.0.6
   '@nuxt/friendly-errors-webpack-plugin': 2.5.2_webpack@5.75.0
   '@pmmmwh/react-refresh-webpack-plugin': 0.5.10_573tire66npslecm7bptybdrky
-  '@redux-devtools/extension': 3.2.5
   '@reduxjs/toolkit': 1.9.2_k4ae6lp43ej6mezo3ztvx6pykq
   '@swc/core': 1.3.19
   '@types/chrome': 0.0.203
@@ -2180,15 +2180,6 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false
-
-  /@redux-devtools/extension/3.2.5:
-    resolution: {integrity: sha512-UhyDF7WmdnCrN1s++YC4sdQCo0z6YUnoB2eCh15nXDDq3QH1jDju1144UNRU6Nvi4inxhaIum4m9BXVYWVC1ng==}
-    peerDependencies:
-      redux: ^3.1.0 || ^4.0.0
-    dependencies:
-      '@babel/runtime': 7.20.13
-      immutable: 4.2.4
-    dev: true
 
   /@reduxjs/toolkit/1.9.2_k4ae6lp43ej6mezo3ztvx6pykq:
     resolution: {integrity: sha512-5ZAZ7hwAKWSii5T6NTPmgIBUqyVdlDs+6JjThz6J6dmHLDm6zCzv2OjHIFAi3Vvs1qjmXU0bm6eBojukYXjVMQ==}
@@ -6392,10 +6383,6 @@ packages:
     resolution: {integrity: sha512-oNkuqVTA8jqG1Q6c+UglTOD1xhC1BtjKI7XkCXRkZHrN5m18/XsnUp8Q89GkQO/z+0WjonSvl0FLhDYftp46nQ==}
     dev: true
 
-  /immutable/4.2.4:
-    resolution: {integrity: sha512-WDxL3Hheb1JkRN3sQkyujNlL/xRjAo3rJtaU5xeufUauG66JdMr32bLj4gF+vWl84DIA3Zxw7tiAjneYzRRw+w==}
-    dev: true
-
   /import-fresh/3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
     engines: {node: '>=6'}
@@ -7757,6 +7744,11 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /loglevel/1.8.1:
+    resolution: {integrity: sha512-tCRIJM51SHjAayKwC+QAg8hT8vg6z7GSgLJKGvzuPb1Wc+hLzqtuVLxp6/HzSPOozuK+8ErAhy7U/sVzw8Dgfg==}
+    engines: {node: '>= 0.6.0'}
+    dev: false
 
   /lolex/4.2.0:
     resolution: {integrity: sha512-gKO5uExCXvSm6zbF562EvM+rd1kQDnB9AZBbiQVzf1ZmdDpxUSvpnAaVOP83N/31mRK8Ml8/VE8DMvsAZQ+7wg==}

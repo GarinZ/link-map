@@ -4,7 +4,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import HtmlWebpackTagsPlugin from 'html-webpack-tags-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import type { Configuration } from 'webpack';
-import { ProvidePlugin } from 'webpack';
+import { DefinePlugin, ProvidePlugin } from 'webpack';
 import WebpackBar from 'webpackbar';
 
 import { ENABLE_DEVTOOLS, PROJECT_ROOT } from '../utils/constants';
@@ -99,6 +99,9 @@ const commonConfig: Configuration = {
             jQuery: 'jquery',
             // NOTE: Required to load jQuery Plugins into the *global* jQuery instance:
             jquery: 'jquery',
+        }),
+        new DefinePlugin({
+            __ENV__: JSON.stringify(process.env.NODE_ENV),
         }),
     ],
     module: {

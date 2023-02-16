@@ -1,5 +1,5 @@
 import { escape } from 'lodash';
-import type { ChangeEventHandler, HTMLInputElement, KeyboardEvent } from 'react';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useState } from 'react';
 
 import store from '../store';
@@ -62,11 +62,11 @@ export const Search = () => {
         if (e && e.keyCode === $.ui.keyCode.ESCAPE) {
             clearFilter();
             setValue('');
-            inputRef.blur();
+            inputRef!.blur();
         }
     };
 
-    const onChange = (e: ChangeEventHandler<HTMLInputElement>) => {
+    const onChange = (e: ChangeEvent<HTMLInputElement>) => {
         setValue(e.target.value);
         onSearch(e.target.value);
     };

@@ -53,6 +53,7 @@ const prodConfig = merge(commonConfig, {
             }),
             new CssMinimizerPlugin({
                 minify: CssMinimizerPlugin.lightningCssMinify,
+                exclude: /iconfont.*/,
                 minimizerOptions: {
                     // @ts-expect-error webpack type define wrong
                     targets: lightningCss.browserslistToTargets(browserslist(pkg.browserslist)),

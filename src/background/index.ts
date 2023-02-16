@@ -1,11 +1,15 @@
+import log from 'loglevel';
 import browser from 'webextension-polyfill';
 
 import { getExtPageInfo, removeExtPageInfo, setExtPageInfo } from '../storage/ext-page-info';
 import { isContentScriptPage, sendMessageToExt } from './event-bus';
 
+log.setLevel(__ENV__ === 'development' ? 'debug' : 'silent');
+
 // ext安装后的状态
 browser.runtime.onInstalled.addListener(async () => {
-    console.log('Extension installed');
+    log.debug('Extension installed');
+    log.debug(__ENV__);
     // 清除localStorage中的extPageInfo
     await removeExtPageInfo();
 });
@@ -42,7 +46,7 @@ browser.action.onClicked.addListener(async () => {
 // #### 浏览器Fire的事件
 browser.tabs.onCreated.addListener(async (tab) => {
     // 1. 如果创建的是contentScript则忽略
-    console.log('[bg]: tab created!', tab);
+    log.debug('[bg]: tab created!', tab);
     if (isContentScriptPage(tab.url) || isContentScriptPage(tab.pendingUrl)) return;
 
     // 2. 其他TAB，发给contentScript做tree更新
@@ -51,13 +55,13 @@ browser.tabs.onCreated.addListener(async (tab) => {
 
 browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
     // optimize 1. 如果删除的是自己怎么办？
-    console.log('[bg]: tab removed!');
+    log.debug('[bg]: tab removed!');
     // 如果删除的是extPage，记录window的width/height/left/top到localStorage
     sendMessageToExt('remove-tab', { windowId: removeInfo.windowId, tabId });
 });
 
 browser.tabs.onUpdated.addListener(async (_tabId, _changeInfo, tab) => {
-    console.log('[bg]: tab updated!', tab);
+    log.debug('[bg]: tab updated!', tab);
     sendMessageToExt('update-tab', tab);
 });
 
@@ -65,7 +69,7 @@ browser.tabs.onUpdated.addListener(async (_tabId, _changeInfo, tab) => {
  * 只有同窗口tab前后顺序移动会影响触发这个方法
  */
 browser.tabs.onMoved.addListener((tabId, { windowId, fromIndex, toIndex }) => {
-    console.log('[bg]: tab moved!');
+    log.debug('[bg]: tab moved!');
     sendMessageToExt('move-tab', {
         windowId,
         fromIndex,
@@ -75,7 +79,7 @@ browser.tabs.onMoved.addListener((tabId, { windowId, fromIndex, toIndex }) => {
 });
 
 browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
-    console.log('[bg]: tab activated!');
+    log.debug('[bg]: tab activated!');
     sendMessageToExt('activated-tab', { windowId, tabId });
 });
 /**
@@ -83,7 +87,7 @@ browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
  *
  */
 browser.tabs.onAttached.addListener((tabId, { newPosition, newWindowId }) => {
-    console.log('[bg]: attached, tabId:', tabId);
+    log.debug('[bg]: attached, tabId:', tabId);
     sendMessageToExt('attach-tab', {
         windowId: newWindowId,
         tabId,
@@ -92,18 +96,18 @@ browser.tabs.onAttached.addListener((tabId, { newPosition, newWindowId }) => {
 });
 
 browser.tabs.onDetached.addListener((tabId) => {
-    console.log('[bg]: detached, tabId:', tabId);
+    log.debug('[bg]: detached, tabId:', tabId);
     sendMessageToExt('detach-tab', { tabId });
 });
 
 browser.tabs.onReplaced.addListener((addedTabId, removedTabId) => {
-    console.log(`Tab replaced, added tabId: ${addedTabId}`, `removed tabId: ${removedTabId}`);
+    log.debug(`Tab replaced, added tabId: ${addedTabId}`, `removed tabId: ${removedTabId}`);
 });
 /**
  * detach tab的时候会触发这个事件
  */
 browser.windows.onCreated.addListener(async (window) => {
-    console.log('[bg]: window create!');
+    log.debug('[bg]: window create!');
     // Tab detach的时候也会发这个Event
     sendMessageToExt('add-window', window);
 });
@@ -111,13 +115,13 @@ browser.windows.onCreated.addListener(async (window) => {
  * 最后一个tab合并到另一个window时会发这个Event
  */
 browser.windows.onRemoved.addListener(async (windowId) => {
-    console.log('[bg]: window remove!');
+    log.debug('[bg]: window remove!');
     const extIdPair = await getExtPageInfo();
     if (extIdPair && extIdPair.windowId === windowId) await removeExtPageInfo();
     sendMessageToExt('remove-window', { windowId });
 });
 
 browser.windows.onFocusChanged.addListener((windowId) => {
-    console.log('[bg]: window focus changed!');
+    log.debug('[bg]: window focus changed!');
     sendMessageToExt('window-focus', { windowId });
 });
