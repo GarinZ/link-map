@@ -22,10 +22,9 @@ import 'jquery.fancytree/dist/modules/jquery.fancytree.childcounter';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.edit.js';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.wide.js';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.filter.js';
-// import './plugins/jquery.fancytree.filter.js';
 import 'jquery.fancytree/dist/skin-xp/ui.fancytree.min.css';
 
-const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE } = TPL_CONSTANTS;
+const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE, NODE_EDIT } = TPL_CONSTANTS;
 
 type FancytreeNode = Fancytree.FancytreeNode;
 
@@ -273,6 +272,10 @@ FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventDat
         case NODE_REMOVE:
             log.debug('[tree]: remove button clicked');
             FancyTabMasterTree.removeNodes(data.node);
+            break;
+        case NODE_EDIT:
+            log.debug('[tree]: edit button clicked');
+            data.node.editStart();
             break;
     }
     return true;

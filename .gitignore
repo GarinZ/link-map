@@ -175,3 +175,5 @@ tags
 #IDE config
 .jest
 .idea
+
+extension.zip

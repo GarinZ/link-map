@@ -1,14 +1,11 @@
 import AntdDayjsWebpackPlugin from 'antd-dayjs-webpack-plugin';
-import browserslist from 'browserslist';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
-import lightningCss from 'lightningcss';
 import TerserPlugin from 'terser-webpack-plugin';
 import webpack, { BannerPlugin } from 'webpack';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
 
-import pkg from '../../package.json';
 import { __DEV__, COPYRIGHT, ENABLE_ANALYZE } from '../utils/constants';
 import { resolveSrc } from '../utils/path';
 import commonConfig from './webpack.common';
@@ -52,18 +49,17 @@ const prodConfig = merge(commonConfig, {
                 extractComments: false,
             }),
             new CssMinimizerPlugin({
-                minify: CssMinimizerPlugin.lightningCssMinify,
-                exclude: /iconfont.*/,
-                minimizerOptions: {
-                    // @ts-expect-error webpack type define wrong
-                    targets: lightningCss.browserslistToTargets(browserslist(pkg.browserslist)),
-                    preset: [
-                        'default',
-                        {
-                            discardComments: { removeAll: true },
-                        },
-                    ],
-                },
+                // minify: CssMinimizerPlugin.lightningCssMinify,
+                // minimizerOptions: {
+                //     // @ts-expect-error webpack type define wrong
+                //     targets: lightningCss.browserslistToTargets(browserslist(pkg.browserslist)),
+                //     preset: [
+                //         'default',
+                //         {
+                //             discardComments: { removeAll: true },
+                //         },
+                //     ],
+                // },
             }),
         ],
     },

@@ -22,13 +22,13 @@ const manifest: Manifest.WebExtensionManifest = {
     background: {
         service_worker: 'js/background.js',
     },
-    content_scripts: [
-        {
-            matches: ['https://github.com/*'],
-            css: ['css/all.css'],
-            js: ['js/all.js', ...(__DEV__ ? [] : ['js/all.js'])],
-        },
-    ],
+    // content_scripts: [
+    //     {
+    //         matches: ['https://github.com/*'],
+    //         css: ['css/all.css'],
+    //         js: ['js/all.js', ...(__DEV__ ? [] : ['js/all.js'])],
+    //     },
+    // ],
     action: {
         // default_popup: 'popup.html',
         default_icon: {

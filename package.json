@@ -1,19 +1,19 @@
 {
-    "name": "awesome-chrome-extension-boilerplate",
-    "displayName": "awesome chrome extension boilerplate",
-    "version": "1.0.0",
+    "name": "roam-tab",
+    "displayName": "Tab Sidebar",
+    "version": "0.0.1",
     "browserslist": "Chrome >= 96",
-    "description": "made by awesome-chrome-extension-boilerplate",
+    "description": "Using Tab Sidebar to manage your tabs in outline style",
     "private": true,
-    "author": "YuTengjing",
+    "author": "Garin",
     "license": "MIT",
-    "homepage": "https://github.com/tjx666/awesome-chrome-extension-boilerplate#readme",
+    "homepage": "https://garinzhang.com",
     "repository": {
         "type": "git",
         "url": "git+ssh://git@github.com/tjx666/awesome-chrome-extension-boilerplate.git"
     },
     "bugs": {
-        "url": "https://github.com/tjx666/awesome-chrome-extension-boilerplate/issues"
+        "url": "https://garin_zh@163.com"
     },
     "engines": {
         "node": "^18.12.1"
