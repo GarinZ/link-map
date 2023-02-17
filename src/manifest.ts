@@ -32,10 +32,11 @@ const manifest: Manifest.WebExtensionManifest = {
     action: {
         // default_popup: 'popup.html',
         default_icon: {
-            '16': 'icons/extension-icon-x16.png',
-            '32': 'icons/extension-icon-x32.png',
-            '48': 'icons/extension-icon-x48.png',
-            '128': 'icons/extension-icon-x128.png',
+            '16': 'icons/icon-x16.png',
+            '32': 'icons/icon-x32.png',
+            '48': 'icons/icon-x48.png',
+            '64': 'icons/icon-x64.png',
+            '128': 'icons/icon-x128.png',
         },
     },
     options_ui: {
@@ -43,10 +44,11 @@ const manifest: Manifest.WebExtensionManifest = {
         open_in_tab: true,
     },
     icons: {
-        '16': 'icons/extension-icon-x16.png',
-        '32': 'icons/extension-icon-x32.png',
-        '48': 'icons/extension-icon-x48.png',
-        '128': 'icons/extension-icon-x128.png',
+        '16': 'icons/icon-x16.png',
+        '32': 'icons/icon-x32.png',
+        '48': 'icons/icon-x48.png',
+        '64': 'icons/icon-x64.png',
+        '128': 'icons/icon-x128.png',
     },
 };
 

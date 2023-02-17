@@ -1,9 +1,9 @@
 {
-    "name": "roam-tab",
-    "displayName": "Tab Sidebar",
+    "name": "link-map",
+    "displayName": "Link Map",
     "version": "0.0.1",
     "browserslist": "Chrome >= 96",
-    "description": "Using Tab Sidebar to manage your tabs in outline style",
+    "description": "Using Link Map to manage your tabs in outline style",
     "private": true,
     "author": "Garin",
     "license": "MIT",

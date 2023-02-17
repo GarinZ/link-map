@@ -6,7 +6,7 @@ import { TabNodeOperations } from './tab-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
 
-export const BACKGROUND_PAGE_TITLE = 'Tab Sidebar';
+export const BACKGROUND_PAGE_TITLE = 'Link Map';
 
 export interface WindowData extends Omit<Windows.Window, ''>, TreeData {
     windowId: number;
