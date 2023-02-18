@@ -45,6 +45,12 @@ export const registerContextMenu = () => {
                 case 'insertNodeAsParent':
                     node.moveTo(node.addNode(NoteNodeOperations.createData(), 'before'), 'child');
                     break;
+                case 'insertNodeAsFirstSubNode':
+                    node.addNode(NoteNodeOperations.createData(), 'firstChild');
+                    break;
+                case 'insertNodeAsLastSubNode':
+                    node.addNode(NoteNodeOperations.createData(), 'child');
+                    break;
                 case 'focusCurrentNode':
                     node.setActive();
                     node.tree.filterBranches((node) => node.isActive(), { mode: 'hide' });
