@@ -73,7 +73,11 @@ export class FancyTabMasterTree {
             },
             // renderTitle,
             click: FancyTabMasterTree.onClick,
-            dblclick: (_event, data) => {
+            dblclick: (event, data) => {
+                log.debug('dbClick:', event.target);
+                if ($(event.originalEvent!.target!).hasClass('fancytree-expander')) {
+                    return false;
+                }
                 FancyTabMasterTree.onDbClick(data.node);
                 return false;
             },
@@ -261,7 +265,6 @@ function renderTitle(_eventData: JQueryEventObject, data: Fancytree.EventData): 
 
 FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventData): boolean => {
     const target = $(event.originalEvent.target as Element);
-    log.debug(event);
     if (!target.attr(TYPE_ATTR)) return true;
 
     switch (target.attr(TYPE_ATTR)) {
