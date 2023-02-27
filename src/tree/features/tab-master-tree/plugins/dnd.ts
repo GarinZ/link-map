@@ -63,7 +63,7 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
         if (data.otherNode && sameTree) {
             // Drop another Fancytree node from same frame (maybe a different tree however)
             if (mode === 'move') {
-                tabMoveOnDrop(data.otherNode, targetNode, data.hitMode);
+                tabMoveOnDrop2(data.otherNode, targetNode, data.hitMode);
             } else {
                 throw new Error('Not implemented other dropEffect');
             }

@@ -206,10 +206,16 @@ export class FancyTabMasterTree {
     public async removeTab(tabId: number): Promise<void> {
         const toRemoveNode = this.tree.getNodeByKey(`${tabId}`);
         if (!toRemoveNode) return;
-        const windowId = toRemoveNode.data.windowId;
-        TabNodeOperations.removeItem(toRemoveNode);
+        const windowNode = TabNodeOperations.findWindowNode(toRemoveNode);
+        const hasRemove = TabNodeOperations.removeItem(toRemoveNode);
         // tab remove不会触发tab active事件，需要手动更新
-        await this.syncActiveTab(windowId);
+        if (windowNode) {
+            const syncSuccess = await this.syncActiveTab(windowNode.data.windowId);
+            if (!hasRemove && !syncSuccess) {
+                TabNodeOperations.updatePartial(toRemoveNode, { closed: true, active: false });
+                WindowNodeOperations.updateWindowStatus(windowNode);
+            }
+        }
     }
 
     public updateTab(tab: Tabs.Tab): void {
@@ -250,11 +256,12 @@ export class FancyTabMasterTree {
         return this.tree.toDict(includeRoot);
     }
 
-    private async syncActiveTab(windowId: number): Promise<void> {
+    private async syncActiveTab(windowId: number): Promise<boolean> {
         const tabs = await browser.tabs.query({ windowId, active: true });
-        if (tabs.length === 0) return;
+        if (tabs.length === 0) return false;
         const activeTab = tabs[0];
         this.activeTab(windowId, activeTab.id!);
+        return true;
     }
 }
 

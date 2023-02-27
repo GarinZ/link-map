@@ -191,6 +191,24 @@ describe('remove tab', () => {
         expect(children[1].data.id).toEqual(FIRST_TID + 1);
         expect(children[1].data.index).toEqual(FIRST_INDEX + 1);
     });
+
+    it('remove tab with alias', async () => {
+        const treeData = new MockTreeBuilder().addTabChildren(1, 1, { alias: 'test' }).build();
+        const tabMasterTree = initTabMasterTree(treeData);
+        browser.tabs.query.resolves(() => ({
+            tabs: [],
+        }));
+        const tree = tabMasterTree.tree;
+        const sourceNode = tree.getNodeByKey(`11`);
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        await tabMasterTree.removeTab(sourceNode.data.id);
+        console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
+        const windowNode = tree.getNodeByKey('1');
+        expect(windowNode.children.length).toEqual(1);
+        expect(windowNode.data.closed).toEqual(true);
+        expect(sourceNode.data.closed).toEqual(true);
+        expect(sourceNode.data.active).toEqual(false);
+    });
 });
 
 describe('move tab', () => {

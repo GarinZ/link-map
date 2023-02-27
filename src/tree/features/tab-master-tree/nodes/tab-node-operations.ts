@@ -65,20 +65,19 @@ export const TabNodeOperations = {
         WindowNodeOperations.updateWindowStatus(windowNode);
         return createdNode;
     },
-    removeItem(toRemoveNode: FancytreeNode, force = false): number | null {
+    removeItem(toRemoveNode: FancytreeNode, force = false): boolean {
         // 1. 状态为closed的节点不做删除
-        if (toRemoveNode && !force && !NodeUtils.canRemove(toRemoveNode)) return null;
+        if (toRemoveNode && !force && !NodeUtils.canRemove(toRemoveNode)) return false;
         // 2. 保留子元素：提升children作为siblings
         NodeUtils.moveChildrenAsNextSiblings(toRemoveNode);
         // 3. 删除节点
         const windowNode = this.findWindowNode(toRemoveNode);
-        const removedOpenedTabId = toRemoveNode.data.closed ? null : toRemoveNode.data.id;
         toRemoveNode.remove();
         if (windowNode) {
             // 4. 更新windowNode的closed状态，并重置index
             WindowNodeOperations.updateWindowStatus(windowNode);
         }
-        return removedOpenedTabId;
+        return true;
     },
     updatePartial(toUpdateNode: FancytreeNode, updateProps: Partial<TabData>) {
         const { title, favIconUrl, id, active, closed } = updateProps;
