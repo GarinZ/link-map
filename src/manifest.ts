@@ -6,7 +6,6 @@ import { __DEV__ } from '../server/utils/constants';
 const manifest: Manifest.WebExtensionManifest = {
     name: pkg.displayName,
     version: pkg.version,
-    description: pkg.description,
     manifest_version: 3,
     minimum_chrome_version: pkg.browserslist.split(' ')[2],
     permissions: ['tabs', 'storage', 'activeTab', 'windows'],
@@ -50,6 +49,8 @@ const manifest: Manifest.WebExtensionManifest = {
         '64': 'icons/icon-x64.png',
         '128': 'icons/icon-x128.png',
     },
+    // @ts-expect-error not support yet
+    key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA14QGB1nbCJbeYguBluEQGQOaeQJ8Tln5VMr8LpQuMKlpfKPiJJYwDMQbf1AaRnUAwaC11/0yrjaX3Fpg+iwQNRju7jvEbYdanvrfGd9qwtzgTpU4lNVY6Vk/3DHlmMKIoq80/a1Mwzi3aPDzLNYppSowwDPjCRbzhdC09Juq7xWrpw5oC8l/fei8gCVYwqEt0Ff30wQHHavz0/hbvDjCLs9Jv3dVgp8ZNY4m87+wsyWPhpwU1IVU/z6NujW87VmUYA+Vo1Tvbe/1vqNN5vdkKlwdKOoBXN+4wPV0EacR8vZ65LSrpiSCkR3gxYTnyDjFKPvOi+FbG0i1jyqEsOUd7wIDAQAB',
 };
 
 export default manifest;
