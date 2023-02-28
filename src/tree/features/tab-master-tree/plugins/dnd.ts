@@ -73,7 +73,8 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
             // 若node是从其他frame或window拖拽进来的
             // Drop Fancytree node from different frame or window, so we only have
             // JSON representation available
-            targetNode.addChildren(data.otherNodeData, data.hitMode);
+            console.log(data);
+            // targetNode.addChildren(data.otherNodeData, data.hitMode);
         } else {
             // Drop a non-node
             targetNode.addNode({ title: transfer.getData('text') }, data.hitMode);

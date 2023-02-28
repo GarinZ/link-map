@@ -44,6 +44,5 @@
             "loglevel"
         ]
     },
-    //    "include": ["src/**/*"],
     "exclude": ["manifest.ts"]
 }
