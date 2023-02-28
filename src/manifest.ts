@@ -1,12 +1,10 @@
 import type { Manifest } from 'webextension-polyfill';
 
 import pkg from '../package.json';
-import { __DEV__ } from '../server/utils/constants';
 
 const manifest: Manifest.WebExtensionManifest = {
     name: pkg.displayName,
     version: pkg.version,
-    // description: pkg.description,
     manifest_version: 3,
     minimum_chrome_version: pkg.browserslist.split(' ')[2],
     permissions: ['tabs', 'storage', 'activeTab', 'windows'],
