@@ -41,7 +41,8 @@
             "jquery.fancytree",
             "jquery.contextMenu",
             "react",
-            "loglevel"
+            "loglevel",
+            "chrome"
         ]
     },
     "exclude": ["manifest.ts"]
