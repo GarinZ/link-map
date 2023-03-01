@@ -1,0 +1,34 @@
+.settings-container {
+    //flex: 1;
+    .settings-btn {
+        width: 30px;
+        height: 30px;
+        margin-right: 15px;
+        color: var(--setting-btn-icon-color);
+        //line-height: 30px;
+        //vertical-align: center;
+        text-align: center;
+        //border-radius: 4px;
+        cursor: pointer;
+        background-color: var(--setting-btn-bg-color);
+        border: 1px solid var(--setting-btn-border-color);
+
+        &:hover {
+            background-color: var(--setting-btn-hover-bg-color);
+        }
+    }
+}
+
+.settings-modal {
+    .setting-head {
+        font-size: 13px;
+
+        &::after {
+            display: flex;
+            width: 100%;
+            margin: 5px 0 10px;
+            content: '';
+            border-bottom: 1px solid #d9d9d9;
+        }
+    }
+}
