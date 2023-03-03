@@ -3,24 +3,29 @@ import { Button, message, Modal } from 'antd';
 import log from 'loglevel';
 import { useState } from 'react';
 
-import { getFormattedData } from '../../../utils';
+import { downloadJsonWithExtensionAPI, getFormattedData } from '../../../utils';
 import store from '../store';
+import type { TreeData, TreeNode } from '../tab-master-tree/nodes/nodes';
 
 import './settings.less';
 
+interface ExportJsonData {
+    rawData: TreeNode<TreeData>[];
+    version?: string;
+    exportTime?: string;
+}
+
 const handleExport = () => {
     const rawData = store.tree?.toDict();
-    const exportData = { rawData };
-    const blob = new Blob([JSON.stringify(exportData)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `link-map-export-${getFormattedData()}.json`;
-    document.body.append(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-    message.success('Export successfully');
+    const exportJsonData: ExportJsonData = {
+        rawData,
+        version: __VERSION__,
+        exportTime: getFormattedData(),
+    };
+    const fileName = `link-map-export-${getFormattedData()}.json`;
+    downloadJsonWithExtensionAPI(exportJsonData, fileName).then(() => {
+        message.success('Export successfully');
+    });
 };
 
 const handleImport = async () => {
