@@ -254,8 +254,8 @@ body {
     }
 
     img.fancytree-icon {
-        padding: 2px;
-        background-color: #33373d;
+        background-color: var(--icon-bg-color);
+        border: 1px solid var(--icon-border-color);
         border-radius: 3px;
     }
 }
@@ -346,9 +346,9 @@ body {
             justify-content: center;
             height: 22px;
             line-height: 22px;
-            background-color: #383838;
+            background-color: var(--button-group-bg-color);
             border-radius: 3px;
-            box-shadow: 2px 0 3px #565555;
+            box-shadow: 2px 0 3px var(--button-group-shadow-color);
 
             .zt-node-btn {
                 box-sizing: border-box;
@@ -357,11 +357,11 @@ body {
                 height: 100%;
                 padding: 0 2px;
                 font-size: 12px;
-                color: #bababa;
+                color: var(--button-group-icon-color);
                 text-align: center;
                 vertical-align: middle;
                 cursor: pointer;
-                border-right: 1px solid #4f4f4f;
+                border-right: 1px solid var(--button-group-splitter-color);
 
                 &:hover {
                     color: var(--title-color);

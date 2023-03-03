@@ -86,6 +86,11 @@ const commonConfig: Configuration = {
             filename: 'tree.html',
             template: resolveSrc('tree/tree.html'),
         }),
+        new HtmlWebpackPlugin({
+            chunks: ['import'],
+            filename: 'import.html',
+            template: resolvePublic('import.html'),
+        }),
         new MiniCssExtractPlugin({
             filename: `css/[name].css`,
             ignoreOrder: false,
@@ -102,6 +107,7 @@ const commonConfig: Configuration = {
         }),
         new DefinePlugin({
             __ENV__: JSON.stringify(process.env.NODE_ENV),
+            __VERSION__: JSON.stringify(process.env.npm_package_version),
         }),
     ],
     module: {

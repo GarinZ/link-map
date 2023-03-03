@@ -1,3 +1,6 @@
+import { cloneDeep } from 'lodash';
+
+import { generateKeyByTime } from '../../../../utils';
 import type { TreeData, TreeNode } from './nodes';
 
 export interface NoteData extends TreeData {
@@ -17,6 +20,8 @@ export const DEFAULT_DATE = {
 
 export const NoteNodeOperations = {
     createData(): TreeNode<NoteData> {
-        return DEFAULT_DATE;
+        const newNodeData = cloneDeep(DEFAULT_DATE);
+        newNodeData.key = generateKeyByTime();
+        return newNodeData;
     },
 };

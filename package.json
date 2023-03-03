@@ -48,6 +48,8 @@
     "dependencies": {
         "antd": "5.0.1",
         "dayjs": "1.11.6",
+        "firebase": "9.17.1",
+        "firebaseui": "6.0.2",
         "lodash": "4.17.21",
         "loglevel": "1.8.1",
         "mustache": "4.2.0",
@@ -94,6 +96,7 @@
         "@types/webpack-bundle-analyzer": "4.6.0",
         "@types/webpack-hot-middleware": "2.25.6",
         "@types/webpackbar": "4.0.3",
+        "@types/wicg-file-system-access": "2020.9.5",
         "@types/yargs": "17.0.14",
         "@yutengjing/eslint-config-react": "0.0.8",
         "@yutengjing/prettier-config": "0.0.1",

@@ -4,7 +4,11 @@ export const EDIT_OPTIONS: Fancytree.EditOptions = {
     triggerStart: ['shift+click'],
     allowEmpty: true,
     beforeEdit(_event, data) {
-        data.orgTitle = data.node.data.alias ?? '#';
+        data.orgTitle =
+            data.node.data.alias && data.node.data.alias !== '' ? data.node.data.alias : '#';
+    },
+    beforeClose(_event, data) {
+        data.save = true;
     },
     save(_event, data) {
         // TODO 这里需要escape一下

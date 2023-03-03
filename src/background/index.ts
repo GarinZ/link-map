@@ -1,3 +1,4 @@
+import { onMessage } from '@garinz/webext-bridge';
 import log from 'loglevel';
 import browser from 'webextension-polyfill';
 
@@ -124,4 +125,18 @@ browser.windows.onRemoved.addListener(async (windowId) => {
 browser.windows.onFocusChanged.addListener((windowId) => {
     log.debug('[bg]: window focus changed!');
     sendMessageToExt('window-focus', { windowId });
+});
+
+onMessage('import-data', async (data) => {
+    log.debug('import-data', data);
+    await browser.windows.create({
+        url: 'import.html',
+        type: 'popup',
+        width: 895,
+        height: 496,
+        left: 0,
+        top: 0,
+        focused: true,
+    });
+    await browser.storage.local.set({ importData: data.data });
 });

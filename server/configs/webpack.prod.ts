@@ -6,7 +6,7 @@ import webpack, { BannerPlugin } from 'webpack';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
 
-import { __DEV__, COPYRIGHT, ENABLE_ANALYZE } from '../utils/constants';
+import { COPYRIGHT, ENABLE_ANALYZE } from '../utils/constants';
 import { resolveSrc } from '../utils/path';
 import commonConfig from './webpack.common';
 

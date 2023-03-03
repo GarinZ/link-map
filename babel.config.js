@@ -40,6 +40,7 @@ module.exports = (api) => {
                 plugins: ['@babel/plugin-transform-react-constant-elements'],
             },
             test: {
+                presets: ['@babel/preset-react'],
                 plugins: ['transform-es2015-modules-commonjs'],
             },
         },

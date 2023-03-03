@@ -4,7 +4,7 @@
 
 import browser from 'sinon-chrome';
 
-import { tabMoveOnDrop2 } from '@/tree/features/tab-master-tree/plugins/dnd';
+import { tabMoveOnDrop } from '@/tree/features/tab-master-tree/plugins/dnd';
 
 import { mockTabMove, mockTabRemove, mockWindowCreate } from '../../utils/browser-mock';
 import { initTabMasterTree, MockTreeBuilder } from '../../utils/gen-utils';
@@ -25,7 +25,7 @@ describe('drag and drop', () => {
         const sourceNode = tree.getNodeByKey(`11`);
         const targetNode = tree.getNodeByKey(`13`);
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
-        await tabMoveOnDrop2(sourceNode, targetNode, 'over');
+        await tabMoveOnDrop(sourceNode, targetNode, 'over');
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
         const windowNode = tree.getNodeByKey('1');
         expect(windowNode.countChildren()).toBe(4);
@@ -52,7 +52,7 @@ describe('drag and drop', () => {
         const tree = tabMasterTree.tree;
         const sourceNode = tree.getNodeByKey(`11`);
         const targetNode = tree.getNodeByKey(`21`);
-        await tabMoveOnDrop2(sourceNode, targetNode, 'over');
+        await tabMoveOnDrop(sourceNode, targetNode, 'over');
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
         const windowNode1 = tree.getNodeByKey('1');
         const windowNode2 = tree.getNodeByKey('2');
@@ -83,7 +83,7 @@ describe('drag and drop', () => {
         tree.getNodeByKey('11').data.closed = true;
         const sourceNode = tree.getNodeByKey(`12`);
         const targetNode = tree.getNodeByKey(`21`);
-        await tabMoveOnDrop2(sourceNode, targetNode, 'over');
+        await tabMoveOnDrop(sourceNode, targetNode, 'over');
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
         const windowNode1 = tree.getNodeByKey('1');
         const windowNode2 = tree.getNodeByKey('2');
@@ -121,7 +121,7 @@ describe('drag and drop', () => {
         const sourceNode = tree.getNodeByKey(`11`);
         const targetNode = tree.getNodeByKey(`21`);
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
-        await tabMoveOnDrop2(sourceNode, targetNode, 'after');
+        await tabMoveOnDrop(sourceNode, targetNode, 'after');
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
         const windowNode1 = tree.getNodeByKey('1');
         const windowNode2 = tree.getNodeByKey('2');
@@ -155,7 +155,7 @@ describe('drag and drop', () => {
         tree.getNodeByKey('13').data.index = 1;
         const targetNode = tree.getNodeByKey('1');
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
-        await tabMoveOnDrop2(sourceNode, targetNode, 'after');
+        await tabMoveOnDrop(sourceNode, targetNode, 'after');
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
         const windowNode1 = tree.getNodeByKey('1');
         const windowNode2 = tree.getNodeByKey('2');

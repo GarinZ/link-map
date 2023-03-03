@@ -41,9 +41,10 @@
             "jquery.fancytree",
             "jquery.contextMenu",
             "react",
-            "loglevel"
+            "loglevel",
+            "chrome",
+            "wicg-file-system-access"
         ]
     },
-    //    "include": ["src/**/*"],
     "exclude": ["manifest.ts"]
 }

@@ -1,12 +1,14 @@
 :root[theme='dark-mode'] {
+    --main-font-color: #f2f2f2;
+    --main-border-color: #3f3f3f;
     --expander-color: #8d8e9a;
-    --indent-line-color: rgb(41 41 43);
-    --title-color: rgb(242 242 242);
+    --indent-line-color: #29292b;
+    --title-color: var(--main-font-color);
     --title-with-alias-color: #959eaa;
-    --title-closed-color: rgb(130 133 140);
+    --title-closed-color: #82858c;
     --alias-closed-color: #a4a4a4;
     --splitter-color: #d1d5da;
-    --title-active-bg-color: rgb(55 52 56);
+    --title-active-bg-color: #373438;
     --title-tab-active-color: #3465f6;
     --title-with-alias-tab-active-color: #89a6fa;
     --title-submatch-color: #7a7a7a;
@@ -14,16 +16,29 @@
     --title-mismatch-color: #d9d9d9;
     --header-bg-color: #18191b;
     --header-border-bottom-color: #3d3d3d;
-    --footer-bg-color: rgb(31 32 34);
-    --footer-border-top-color: rgb(31 32 34);
+    --footer-bg-color: #1f2022;
+    --footer-border-top-color: #1f2022;
     --content-bg-color: #18191b;
-    --title-hover-bg-color: rgb(41 39 42);
+    --title-hover-bg-color: #29272a;
+    --icon-bg-color: #33373d;
+    --icon-border-color: var(--main-border-color);
     // search input
-    --search-input-bg-color: rgb(34 34 34);
+    --search-input-bg-color: #222;
     --search-input-border-color: #363636;
-    --search-input-border-hover-color: #3f3f3f;
+    --search-input-border-hover-color: var(--main-border-color);
     --search-input-border-focus-color: #575757;
-    --search-input-icon-color: rgb(130 133 140);
-    --search-input-placeholder-color: rgb(130 133 140);
-    --search-input-font-color: rgb(242 242 242);
+    --search-input-icon-color: #82858c;
+    --search-input-placeholder-color: #82858c;
+    --search-input-font-color: var(--main-font-color);
+    // button-group
+    --button-group-bg-color: #33373d;
+    --button-group-hover-bg-color: #2a2a2a;
+    --button-group-shadow-color: #565555;
+    --button-group-icon-color: #bababa;
+    --button-group-splitter-color: #4f4f4f;
+    // setting
+    --setting-btn-bg-color: transparent;
+    --setting-btn-hover-bg-color: #33373d;
+    --setting-btn-icon-color: var(--main-font-color);
+    --setting-btn-border-color: var(--main-border-color);
 }
