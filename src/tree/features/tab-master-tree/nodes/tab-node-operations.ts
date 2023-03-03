@@ -11,11 +11,12 @@ export interface TabData extends Tabs.Tab, TreeData {
     windowId: number;
     nodeType: 'tab';
     moved?: boolean; // 用于拖拽后设置的flag，避免回调再次move一次
+    tabActive: boolean;
 }
 
 export const TabNodeOperations = {
     createData(tab: Tabs.Tab): TreeNode<TabData> {
-        const { title, windowId, favIconUrl, id } = tab;
+        const { title, windowId, favIconUrl, id, active } = tab;
         const escapedTitle = title ? escape(title) : '';
         if (windowId === undefined) throw new Error('windowId is required');
         if (id === undefined) throw new Error('id is required');
@@ -35,6 +36,7 @@ export const TabNodeOperations = {
                 windowId,
                 closed: false,
                 nodeType: 'tab',
+                tabActive: active,
             },
         };
     },

@@ -28,31 +28,6 @@ const handleExport = () => {
     });
 };
 
-const handleImport = async () => {
-    try {
-        if (!window.showOpenFilePicker || !window.showSaveFilePicker) {
-            message.error('Your browser does not support this feature.');
-            return;
-        }
-        const [fileHandle] = await window.showOpenFilePicker({
-            types: [
-                {
-                    description: 'JSON files',
-                    accept: { 'application/json': ['.json'] },
-                },
-            ],
-        });
-        const file = await fileHandle.getFile();
-        const fileContent = await file.text();
-        const jsonData = JSON.parse(fileContent);
-        // TODO: 这里需要做一些数据校验
-        log.debug('import-data', jsonData);
-        await sendMessage('import-data', jsonData.rawData);
-    } catch {
-        // do nothing
-    }
-};
-
 const Settings = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -60,12 +35,34 @@ const Settings = () => {
         setIsModalOpen(true);
     };
 
-    const handleOk = () => {
+    const hideModal = () => {
         setIsModalOpen(false);
     };
 
-    const handleCancel = () => {
-        setIsModalOpen(false);
+    const handleImport = async () => {
+        try {
+            if (!window.showOpenFilePicker || !window.showSaveFilePicker) {
+                message.error('Your browser does not support this feature.');
+                return;
+            }
+            const [fileHandle] = await window.showOpenFilePicker({
+                types: [
+                    {
+                        description: 'JSON files',
+                        accept: { 'application/json': ['.json'] },
+                    },
+                ],
+            });
+            const file = await fileHandle.getFile();
+            const fileContent = await file.text();
+            const jsonData = JSON.parse(fileContent);
+            // TODO: 这里需要做一些数据校验
+            log.debug('import-data', jsonData);
+            await sendMessage('import-data', jsonData.rawData);
+            hideModal();
+        } catch {
+            // do nothing
+        }
     };
 
     return (
@@ -81,9 +78,9 @@ const Settings = () => {
             <Modal
                 title="Settings"
                 open={isModalOpen}
-                onOk={handleOk}
-                onCancel={handleCancel}
                 className={'settings-modal'}
+                onCancel={hideModal}
+                onOk={hideModal}
                 footer={null}
             >
                 <div className="setting-head divider">Import / Export</div>

@@ -1,4 +1,4 @@
-import { clone } from 'lodash';
+import { clone, merge } from 'lodash';
 import log from 'loglevel';
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
@@ -28,6 +28,22 @@ const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE, NODE_EDIT } = TPL_CONSTANTS;
 
 type FancytreeNode = Fancytree.FancytreeNode;
 
+export interface FancyTabMasterTreeConfig {
+    dndConfig?: Fancytree.Extensions.DragAndDrop5;
+    enableEdit?: boolean;
+    enableContextMenu?: boolean;
+    enableOperateBrowser?: boolean;
+    enablePersist?: boolean;
+}
+
+const DefaultConfig: FancyTabMasterTreeConfig = {
+    dndConfig: DND5_CONFIG,
+    enableEdit: true,
+    enableContextMenu: true,
+    enableOperateBrowser: true,
+    enablePersist: true,
+};
+
 /**
  * Tab-Master Tree 基于fancytree的实现
  * 以后如果有其他实现可以抽象一个interface
@@ -35,7 +51,8 @@ type FancytreeNode = Fancytree.FancytreeNode;
  */
 export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
-    db: TabMasterDB;
+    db?: TabMasterDB;
+    enablePersist: boolean;
     static closeNodes: (targetNode: FancytreeNode, updateClosed?: boolean) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
@@ -58,49 +75,61 @@ export class FancyTabMasterTree {
 
     static removeNodes: (targetNode: FancytreeNode) => void;
 
-    constructor($container: JQuery) {
+    constructor($container: JQuery, config: FancyTabMasterTreeConfig = DefaultConfig) {
+        config = merge({}, DefaultConfig, config);
+        const extensions = ['dnd5', 'filter'];
+        if (config.enableEdit) {
+            extensions.push('edit');
+        }
         $container.fancytree({
             active: true,
-            extensions: ['dnd5', 'edit', 'filter'],
+            extensions,
             source: [{ title: 'pending' }],
             // renderNode(_event, data) {
             //     data.node.renderTitle();
             // },
             enhanceTitle: (_eventData: JQueryEventObject, data: Fancytree.EventData) => {
-                const html = renderTitle(_eventData, data);
+                const html = renderTitle(_eventData, data, config.enableEdit);
                 const $title = $(data.node.span).find('span.fancytree-title');
                 $title.html(html);
             },
             // renderTitle,
-            click: FancyTabMasterTree.onClick,
-            dblclick: (event, data) => {
-                log.debug('dbClick:', event.target);
-                if ($(event.originalEvent!.target!).hasClass('fancytree-expander')) {
-                    return false;
-                }
-                FancyTabMasterTree.onDbClick(data.node);
-                return false;
-            },
+            click: config.enableEdit ? FancyTabMasterTree.onClick : undefined,
+            dblclick: config.enableOperateBrowser
+                ? (event, data) => {
+                      log.debug('dbClick:', event.target);
+                      if ($(event.originalEvent!.target!).hasClass('fancytree-expander')) {
+                          return false;
+                      }
+                      FancyTabMasterTree.onDbClick(data.node);
+                      return false;
+                  }
+                : undefined,
             defaultKey: (node) => `${node.data.id}`,
             debugLevel: 0,
-            dnd5: DND5_CONFIG,
+            dnd5: config.dndConfig,
             edit: EDIT_OPTIONS,
             filter: FILTER_OPTIONS,
         });
-        registerContextMenu();
+        if (config.enableContextMenu) {
+            registerContextMenu();
+        }
         this.tree = $.ui.fancytree.getTree('#tree');
-        this.db = new TabMasterDB();
+        this.enablePersist = config.enablePersist!;
+        if (this.enablePersist) {
+            this.db = new TabMasterDB();
+        }
     }
 
     public async persist() {
         const snapshot = this.tree.toDict();
         if (snapshot) {
-            await this.db.setSnapshot(snapshot);
+            await this.db?.setSnapshot(snapshot);
         }
     }
 
     public async loadSnapshot(toMergeNodesData: TreeNode<WindowData>[]): Promise<Boolean> {
-        const snapshot = await this.db.getSnapshot();
+        const snapshot = await this.db?.getSnapshot();
         if (!snapshot) {
             return false;
         }
@@ -163,20 +192,22 @@ export class FancyTabMasterTree {
         return true;
     }
 
-    public async initTree(source?: TreeNode<TreeData>[], isDummy = false) {
-        if (isDummy || source) {
+    public async initTree(source?: TreeNode<TreeData>[]) {
+        if (source) {
             this.tree.reload(source);
             return;
         }
-        const browserWindowPromise = await browser.windows.getAll({ populate: true });
-        const unknown = browserWindowPromise as unknown;
-        const windows = unknown as Windows.Window[];
-        const nodes = windows.map((w) => WindowNodeOperations.createData(w));
-        const hasSnapshot = await this.loadSnapshot(nodes);
-        if (!hasSnapshot) {
-            await this.tree.reload(nodes);
+        if (this.enablePersist) {
+            const browserWindowPromise = await browser.windows.getAll({ populate: true });
+            const unknown = browserWindowPromise as unknown;
+            const windows = unknown as Windows.Window[];
+            const nodes = windows.map((w) => WindowNodeOperations.createData(w));
+            const hasSnapshot = await this.loadSnapshot(nodes);
+            if (!hasSnapshot) {
+                await this.tree.reload(nodes);
+            }
+            setInterval(this.persist.bind(this), 1000);
         }
-        setInterval(this.persist.bind(this), 1000);
     }
 
     public createTab(tab: Tabs.Tab): FancytreeNode {
@@ -271,8 +302,12 @@ export class FancyTabMasterTree {
     }
 }
 
-function renderTitle(_eventData: JQueryEventObject, data: Fancytree.EventData): string {
-    const treeNode = new TreeNodeTpl(data.node);
+function renderTitle(
+    _eventData: JQueryEventObject,
+    data: Fancytree.EventData,
+    enableBtnGroup = true,
+): string {
+    const treeNode = new TreeNodeTpl(data.node, enableBtnGroup);
     return treeNode.html;
 }
 
