@@ -86,6 +86,11 @@ const commonConfig: Configuration = {
             filename: 'tree.html',
             template: resolveSrc('tree/tree.html'),
         }),
+        new HtmlWebpackPlugin({
+            chunks: ['import'],
+            filename: 'import.html',
+            template: resolvePublic('import.html'),
+        }),
         new MiniCssExtractPlugin({
             filename: `css/[name].css`,
             ignoreOrder: false,

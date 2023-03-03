@@ -1,7 +1,9 @@
 import { clone } from 'lodash';
 import type { Windows } from 'webextension-polyfill';
+import browser from 'webextension-polyfill';
 
 import type { TreeData, TreeNode } from './nodes';
+import type { TabData } from './tab-node-operations';
 import { TabNodeOperations } from './tab-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
@@ -14,11 +16,19 @@ export interface WindowData extends Omit<Windows.Window, ''>, TreeData {
     nodeType: 'window';
 }
 
+export function isExtensionPages(window: Windows.Window) {
+    if (window.type !== 'popup' || !window.tabs || window.tabs.length !== 1) {
+        return false;
+    }
+    const tab = window.tabs[0];
+    const url = new URL(tab.url ?? tab.pendingUrl!);
+    return url.origin === new URL(browser.runtime.getURL('')).origin;
+}
+
 export const WindowNodeOperations = {
     createData(window: Windows.Window, createTab = true): TreeNode<WindowData> {
         const { id, type, tabs } = window;
-        const isBackgroundPage =
-            !!tabs && type === 'popup' && tabs[0].title === BACKGROUND_PAGE_TITLE;
+        const isBackgroundPage = isExtensionPages(window);
         const node: TreeNode<WindowData> = {
             title: `Window${type === 'normal' ? '' : `(${type})`}`,
             key: `${id}`,
@@ -156,5 +166,13 @@ export const WindowNodeOperations = {
                 closed: !openedTabNodes || openedTabNodes.length === 0,
             });
         });
+    },
+    isExtensionPages(windowNode: TreeNode<WindowData>) {
+        if (windowNode.data.type !== 'popup') {
+            return false;
+        }
+        const tab = windowNode.children![0] as TreeNode<TabData>;
+        const url = new URL(tab.data.url ?? tab.data.pendingUrl!);
+        return url.origin === new URL(browser.runtime.getURL('')).origin;
     },
 };

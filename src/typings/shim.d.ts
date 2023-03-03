@@ -1,6 +1,8 @@
 import type { ProtocolWithReturn } from '@garinz/webext-bridge';
 import { Tabs, Windows } from 'webextension-polyfill';
 
+import { TreeData, TreeNode } from '../tree/features/tab-master-tree/nodes/nodes';
+
 declare module '@garinz/webext-bridge' {
     export interface ProtocolMap {
         // define message protocol types
@@ -36,5 +38,7 @@ declare module '@garinz/webext-bridge' {
             windowId: number;
             tabId: number;
         };
+        'import-data': TreeNode<TreeData>[];
+        'send-import-data': TreeNode<TreeData>[];
     }
 }

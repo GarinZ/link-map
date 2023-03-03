@@ -42,7 +42,8 @@
             "jquery.contextMenu",
             "react",
             "loglevel",
-            "chrome"
+            "chrome",
+            "wicg-file-system-access"
         ]
     },
     "exclude": ["manifest.ts"]

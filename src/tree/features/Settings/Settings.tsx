@@ -1,4 +1,6 @@
+import { sendMessage } from '@garinz/webext-bridge';
 import { Button, message, Modal } from 'antd';
+import log from 'loglevel';
 import { useState } from 'react';
 
 import { getFormattedData } from '../../../utils';
@@ -18,38 +20,29 @@ const handleExport = () => {
     link.click();
     link.remove();
     window.URL.revokeObjectURL(url);
-    message.success('Export successfully.');
+    message.success('Export successfully');
 };
 
 const handleImport = async () => {
     try {
-        if (window.showOpenFilePicker && window.showSaveFilePicker) {
-            const [fileHandle] = await window.showOpenFilePicker({
-                types: [
-                    {
-                        description: 'JSON files',
-                        accept: { 'application/json': ['.json'] },
-                    },
-                ],
-            });
-            const file = await fileHandle.getFile();
-            const fileContent = await file.text();
-            const jsonData = JSON.parse(fileContent);
-            console.log(jsonData); // 输出解析后的 JSON 数据
-        } else if (chrome && chrome.fileSystem) {
-            chrome.fileSystem.chooseEntry({ type: 'openFile' }, (entry) => {
-                entry.file((file) => {
-                    const reader = new FileReader();
-                    reader.addEventListener('load', (event) => {
-                        const contents = event.target.result;
-                        console.log(contents);
-                    });
-                    reader.readAsText(file);
-                });
-            });
-        } else {
+        if (!window.showOpenFilePicker || !window.showSaveFilePicker) {
             message.error('Your browser does not support this feature.');
+            return;
         }
+        const [fileHandle] = await window.showOpenFilePicker({
+            types: [
+                {
+                    description: 'JSON files',
+                    accept: { 'application/json': ['.json'] },
+                },
+            ],
+        });
+        const file = await fileHandle.getFile();
+        const fileContent = await file.text();
+        const jsonData = JSON.parse(fileContent);
+        // TODO: 这里需要做一些数据校验
+        log.debug('import-data', jsonData);
+        await sendMessage('import-data', jsonData.rawData);
     } catch {
         // do nothing
     }
@@ -88,9 +81,17 @@ const Settings = () => {
                 className={'settings-modal'}
                 footer={null}
             >
-                <div className="setting-head">Import/Export</div>
-                <Button onClick={handleExport}>Export</Button>
-                <Button onClick={handleImport}>Import</Button>
+                <div className="setting-head divider">Import / Export</div>
+                <div className="settings-item">
+                    <Button className="setting-item-btn" onClick={handleExport}>
+                        Export Link Map Data
+                    </Button>
+                </div>
+                <div className="settings-item">
+                    <Button className="setting-item-btn" onClick={handleImport}>
+                        Import
+                    </Button>
+                </div>
             </Modal>
         </div>
     );

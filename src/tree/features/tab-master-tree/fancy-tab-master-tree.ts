@@ -94,7 +94,9 @@ export class FancyTabMasterTree {
 
     public async persist() {
         const snapshot = this.tree.toDict();
-        await this.db.setSnapshot(snapshot);
+        if (snapshot) {
+            await this.db.setSnapshot(snapshot);
+        }
     }
 
     public async loadSnapshot(toMergeNodesData: TreeNode<WindowData>[]): Promise<Boolean> {
@@ -107,7 +109,7 @@ export class FancyTabMasterTree {
         dataCheckAndSupply(snapshot);
         log.debug(snapshot);
         await this.tree.reload(snapshot);
-        let extPage: FancytreeNode | null = null;
+        const extPages: FancytreeNode[] = [];
         this.tree.visit((node) => {
             clearHighLightFields(node);
             if (node.data.nodeType === 'tab' || node.data.nodeType === 'window') {
@@ -116,13 +118,17 @@ export class FancyTabMasterTree {
                     node.data.url = node.data.pendingUrl;
                 }
             }
-            if (node.data.nodeType === 'window' && node.data.isBackgroundPage) {
-                extPage = node;
+            if (
+                node.data.nodeType === 'window' &&
+                WindowNodeOperations.isExtensionPages(node as TreeNode<WindowData>)
+            ) {
+                extPages.push(node);
             }
             return true;
         });
-        // @ts-expect-error ts explain error
-        extPage && extPage.remove();
+        extPages.forEach((extPage) => {
+            extPage.remove();
+        });
         toMergeNodesData.forEach((nodeData) => {
             let windowNode = this.tree.getNodeByKey(nodeData.key!);
             if (windowNode) {
@@ -157,8 +163,8 @@ export class FancyTabMasterTree {
         return true;
     }
 
-    public async initTree(source?: TreeNode<TreeData>[]) {
-        if (source) {
+    public async initTree(source?: TreeNode<TreeData>[], isDummy = false) {
+        if (isDummy || source) {
             this.tree.reload(source);
             return;
         }
