@@ -16,7 +16,12 @@ export async function sendMessageToExt<K extends DataTypeKey>(
         // 没有窗口打开：存储事件到indexedDB
         return;
     }
-    return sendMessage(messageId, message, { context: 'content-script', tabId: extPageInfo.tabId });
+    return sendMessage(messageId, message, {
+        context: 'content-script',
+        tabId: extPageInfo.tabId,
+    }).catch(() => {
+        // ignore: 不处理窗口未打开的情况
+    });
 }
 
 export function isContentScriptPage(url?: string) {

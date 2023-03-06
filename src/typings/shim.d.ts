@@ -39,6 +39,6 @@ declare module '@garinz/webext-bridge' {
             tabId: number;
         };
         'import-data': TreeNode<TreeData>[];
-        'send-import-data': TreeNode<TreeData>[];
+        'tree-ready': { windowId: number; tabId: number };
     }
 }

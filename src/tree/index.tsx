@@ -7,8 +7,12 @@ import App from './features/App';
 const container = document.querySelector('#root');
 const root = createRoot(container!);
 log.setLevel(__ENV__ === 'development' ? 'debug' : 'silent');
-root.render(
-    <HashRouter>
-        <App />
-    </HashRouter>,
-);
+try {
+    root.render(
+        <HashRouter>
+            <App />
+        </HashRouter>,
+    );
+} catch (error) {
+    log.error(error);
+}
