@@ -27,13 +27,18 @@ browser.action.onClicked.addListener(async () => {
         await browser.windows.update(extIdPair.windowId, { focused: true });
         return;
     }
+    const displayInfos = await chrome.system.display.getInfo();
+    const primaryDisplayInfo = displayInfos.find((item) => item.isPrimary);
+    const width = primaryDisplayInfo ? Math.floor(primaryDisplayInfo.workArea.width / 5) : 895;
+    const height = primaryDisplayInfo ? primaryDisplayInfo.workArea.height : 1050;
+    const left = primaryDisplayInfo ? primaryDisplayInfo.workArea.width - width : 0;
     const extWindow = await browser.windows.create({
         url: 'tree.html',
         type: 'popup',
-        width: 895,
-        height: 496,
-        left: 0,
+        width,
+        height,
         top: 0,
+        left,
         focused: true,
     });
     const extTab = extWindow.tabs![0];
