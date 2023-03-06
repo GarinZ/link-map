@@ -10,13 +10,13 @@ export const registerContextMenu = () => {
         items: {
             delete: { name: 'Delete' },
             close: { name: 'Close' },
-            focus: {
-                name: 'Focus',
-                items: {
-                    focusCurrentNode: { name: 'Focus this node' },
-                    resetFocus: { name: 'Focus reset' },
-                },
-            },
+            // focus: {
+            //     name: 'Focus',
+            //     items: {
+            //         focusCurrentNode: { name: 'Focus this node' },
+            //         resetFocus: { name: 'Focus reset' },
+            //     },
+            // },
             copy: {
                 name: 'Copy',
                 items: {

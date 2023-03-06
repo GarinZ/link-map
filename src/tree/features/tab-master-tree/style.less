@@ -7,7 +7,8 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgb(39 39 39 / 50%);
+    background-color: rgb(56 56 56 / 50%);
+    border: 1px solid #3d3d3d;
     border-radius: 50px;
 }
 
@@ -52,7 +53,7 @@ body {
     }
 
     ul.fancytree-container {
-        padding: 8px;
+        padding: 8px 0 8px 8px;
         background-color: var(--content-bg-color);
         border: 0;
         outline: 0;
@@ -147,7 +148,7 @@ body {
         }
 
         &.fancytree-hide span.fancytree-title {
-            font-weight: lighter;
+            font-weight: normal;
             //color: var(--title-mismatch-color);
         }
     }
@@ -310,7 +311,6 @@ body {
 
 .tab-active-style {
     .fancytree-title {
-        font-weight: bold;
         color: var(--title-tab-active-color) !important;
     }
 
@@ -326,6 +326,7 @@ body {
         }
 
         span.fancytree-title {
+            color: var(--title-select-color) !important;
             background-color: var(--title-active-bg-color) !important;
             border-radius: 3px;
             outline: 0;
@@ -338,7 +339,7 @@ body {
         .zt-node-button-group {
             position: absolute;
             top: 0;
-            right: -8px;
+            right: 0;
             box-sizing: border-box;
             display: none;
             flex-direction: row;
