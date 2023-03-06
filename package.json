@@ -3,7 +3,7 @@
     "displayName": "Link Map",
     "version": "0.1.0",
     "browserslist": "Chrome >= 96",
-    "description": "Using Link Map to manage your tabs in outline style",
+    "description": "Vertical Tabs Sidebar, But In Tree Structure",
     "private": true,
     "author": "Garin",
     "license": "MIT",
