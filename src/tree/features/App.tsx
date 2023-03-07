@@ -1,5 +1,6 @@
+import Feedback from './feedback/Feedback';
 import { Search } from './search/Search';
-import Settings from './Settings/Settings';
+import Settings from './settings/Settings';
 import { TabMasterTree } from './tab-master-tree/TabMasterTree';
 
 const App = () => (
@@ -9,7 +10,11 @@ const App = () => (
             <Settings />
         </div>
         <TabMasterTree />
-        <div id="footer" />
+        <div id="footer">
+            <span className={'footer-item'}>
+                <Feedback />
+            </span>
+        </div>
     </div>
 );
 

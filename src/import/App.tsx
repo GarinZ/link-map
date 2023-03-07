@@ -3,7 +3,7 @@ import log from 'loglevel';
 import { useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
 
-import type { ExportJsonData } from '../tree/features/Settings/Settings';
+import type { ExportJsonData } from '../tree/features/settings/Settings';
 import type { TabData } from '../tree/features/tab-master-tree/nodes/tab-node-operations';
 import { NodeUtils } from '../tree/features/tab-master-tree/nodes/utils';
 import type { TabMasterTreeProps } from '../tree/features/tab-master-tree/TabMasterTree';

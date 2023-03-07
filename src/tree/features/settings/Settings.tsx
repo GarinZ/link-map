@@ -4,6 +4,7 @@ import log from 'loglevel';
 import { useState } from 'react';
 
 import { downloadJsonWithExtensionAPI, getFormattedData } from '../../../utils';
+import Feedback from '../feedback/Feedback';
 import store from '../store';
 import type { TreeData, TreeNode } from '../tab-master-tree/nodes/nodes';
 
@@ -83,16 +84,25 @@ const Settings = () => {
                 onOk={hideModal}
                 footer={null}
             >
-                <div className="setting-head divider">Import / Export</div>
-                <div className="settings-item">
-                    <Button className="setting-item-btn" onClick={handleExport}>
-                        Export Link Map Data
-                    </Button>
+                <div className={'setting-section'}>
+                    <div className="setting-head divider">Import / Export</div>
+                    <div className="settings-item">
+                        <Button className="setting-item-btn" onClick={handleExport}>
+                            Export Link Map Data
+                        </Button>
+                    </div>
+                    <div className="settings-item">
+                        <Button className="setting-item-btn" onClick={handleImport}>
+                            Import
+                        </Button>
+                    </div>
                 </div>
-                <div className="settings-item">
-                    <Button className="setting-item-btn" onClick={handleImport}>
-                        Import
-                    </Button>
+                <div className={'setting-section'}>
+                    <div className="setting-head divider">Feedback</div>
+                    <div className="settings-item">
+                        <span className="settings-item-desc">Give Us Feedback:</span>
+                        <Feedback />
+                    </div>
                 </div>
             </Modal>
         </div>
