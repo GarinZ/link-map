@@ -17,8 +17,7 @@ export const EDIT_OPTIONS: Fancytree.EditOptions = {
     beforeClose(_event, data) {
         // 当save返回false时，区分是空值保存还是取消保存
         data.save = !(
-            data.originalEvent?.originalEvent.type === 'keydown' &&
-            data.originalEvent?.originalEvent.key === 'Escape'
+            data.originalEvent?.type === 'keydown' && data.originalEvent.key === 'Escape'
         );
     },
     close(_event, data) {
