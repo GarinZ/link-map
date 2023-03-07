@@ -6,7 +6,13 @@ import browser from 'sinon-chrome';
 
 import { tabMoveOnDrop } from '@/tree/features/tab-master-tree/plugins/dnd';
 
-import { mockTabMove, mockTabRemove, mockWindowCreate } from '../../utils/browser-mock';
+import {
+    mockTabMove,
+    mockTabRemove,
+    mockTabUpdate,
+    mockWindowCreate,
+    mockWindowUpdate,
+} from '../../utils/browser-mock';
 import { initTabMasterTree, MockTreeBuilder } from '../../utils/gen-utils';
 import { toAsciiTree } from '../../utils/print-utils';
 
@@ -49,6 +55,8 @@ describe('drag and drop', () => {
         const tabMasterTree = initTabMasterTree(treeData);
         mockTabMove(tabMasterTree);
         mockTabRemove(tabMasterTree);
+        mockTabUpdate(tabMasterTree);
+        mockWindowUpdate(tabMasterTree);
         const tree = tabMasterTree.tree;
         const sourceNode = tree.getNodeByKey(`11`);
         const targetNode = tree.getNodeByKey(`21`);
@@ -79,6 +87,8 @@ describe('drag and drop', () => {
         const tabMasterTree = initTabMasterTree(treeData);
         mockTabMove(tabMasterTree);
         mockTabRemove(tabMasterTree);
+        mockTabUpdate(tabMasterTree);
+        mockWindowUpdate(tabMasterTree);
         const tree = tabMasterTree.tree;
         tree.getNodeByKey('11').data.closed = true;
         const sourceNode = tree.getNodeByKey(`12`);
@@ -116,6 +126,8 @@ describe('drag and drop', () => {
         const tabMasterTree = initTabMasterTree(treeData);
         mockTabMove(tabMasterTree);
         mockTabRemove(tabMasterTree);
+        mockTabUpdate(tabMasterTree);
+        mockWindowUpdate(tabMasterTree);
         const tree = tabMasterTree.tree;
         tree.getNodeByKey('11').data.closed = true;
         const sourceNode = tree.getNodeByKey(`11`);
@@ -150,6 +162,8 @@ describe('drag and drop', () => {
         mockTabMove(tabMasterTree);
         mockTabRemove(tabMasterTree);
         mockWindowCreate(tabMasterTree, 2);
+        mockTabUpdate(tabMasterTree);
+        mockWindowUpdate(tabMasterTree);
         const sourceNode = tree.getNodeByKey('12');
         sourceNode.data.closed = true;
         tree.getNodeByKey('13').data.index = 1;

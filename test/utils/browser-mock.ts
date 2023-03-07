@@ -64,3 +64,24 @@ export const mockWindowCreate = (
         };
     });
 };
+
+export const mockTabUpdate = (tabMasterTree: FancyTabMasterTree) => {
+    browser.tabs.update
+        .callsFake(async (tabId, updateProperties) => {
+            if ('active' in updateProperties) {
+                const windowId = tabMasterTree.tree.getNodeByKey(`${tabId}`).data.windowId;
+                tabMasterTree.activeTab(windowId, tabId);
+            }
+        })
+        .resolves();
+};
+
+export const mockWindowUpdate = (tabMasterTree: FancyTabMasterTree) => {
+    browser.windows.update
+        .callsFake(async (windowId, updateProperties) => {
+            if ('focused' in updateProperties) {
+                tabMasterTree.windowFocus(windowId);
+            }
+        })
+        .resolves();
+};
