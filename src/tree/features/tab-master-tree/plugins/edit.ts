@@ -3,17 +3,23 @@ type FancytreeNode = Fancytree.FancytreeNode;
 export const EDIT_OPTIONS: Fancytree.EditOptions = {
     triggerStart: ['shift+click'],
     allowEmpty: true,
+    inputCss: { minWidth: '100px' },
     beforeEdit(_event, data) {
-        data.orgTitle =
-            data.node.data.alias && data.node.data.alias !== '' ? data.node.data.alias : '';
-    },
-    beforeClose(_event, data) {
-        data.save = true;
+        // 设置input的值
+        data.orgTitle = data.node.data.alias ?? '';
     },
     save(_event, data) {
         // TODO 这里需要escape一下
         data.node.data.alias = data.input!.val();
+
         return true;
+    },
+    beforeClose(_event, data) {
+        // 当save返回false时，区分是空值保存还是取消保存
+        data.save = !(
+            data.originalEvent?.originalEvent.type === 'keydown' &&
+            data.originalEvent?.originalEvent.key === 'Escape'
+        );
     },
     close(_event, data) {
         // Editor was removed

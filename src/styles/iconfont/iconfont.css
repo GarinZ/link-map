@@ -1,8 +1,8 @@
 @font-face {
     font-family: 'iconfont'; /* Project id 3889192 */
-    src: url('iconfont.woff2?t=1677656750207') format('woff2'),
-        url('iconfont.woff?t=1677656750207') format('woff'),
-        url('iconfont.ttf?t=1677656750207') format('truetype');
+    src: url('iconfont.woff2?t=1678179992098') format('woff2'),
+        url('iconfont.woff?t=1678179992098') format('woff'),
+        url('iconfont.ttf?t=1678179992098') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,50 @@
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-arrow-right-:before {
+    content: '\e82e';
+}
+
+.icon-arrow-right:before {
+    content: '\e7bd';
+}
+
+.icon-copy:before {
+    content: '\e639';
+}
+
+.icon-markdown:before {
+    content: '\e6ff';
+}
+
+.icon-URLguanli:before {
+    content: '\e6b7';
+}
+
+.icon-bottom:before {
+    content: '\e666';
+}
+
+.icon-top:before {
+    content: '\e681';
+}
+
+.icon-note:before {
+    content: '\e653';
+}
+
+.icon-a-Parentchild-outlined:before {
+    content: '\e70f';
+}
+
+.icon-export:before {
+    content: '\e787';
+}
+
+.icon-import:before {
+    content: '\e7a9';
 }
 
 .icon-settings:before {

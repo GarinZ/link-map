@@ -8,8 +8,15 @@ export const registerContextMenu = () => {
     $.contextMenu({
         selector: '#tree span.fancytree-title',
         items: {
-            delete: { name: 'Delete' },
-            close: { name: 'Close' },
+            edit: {
+                name: 'Edit',
+                icon: () => 'iconfont icon-edit context-menu-icon',
+            },
+            delete: {
+                name: 'Delete',
+                icon: () => 'iconfont icon-trash context-menu-icon',
+            },
+            close: { name: 'Close', icon: () => 'iconfont icon-roundclosefill context-menu-icon' },
             // focus: {
             //     name: 'Focus',
             //     items: {
@@ -19,23 +26,43 @@ export const registerContextMenu = () => {
             // },
             copy: {
                 name: 'Copy',
+                icon: () => 'iconfont icon-copy context-menu-icon',
                 items: {
-                    copyLink: { name: 'Copy Link' },
-                    copyMarkdownLink: { name: 'Copy Markdown Link' },
+                    copyLink: {
+                        name: 'Copy Link',
+                        icon: () => 'iconfont icon-URLguanli context-menu-icon',
+                    },
+                    copyMarkdownLink: {
+                        name: 'Copy Markdown Link',
+                        icon: () => 'iconfont icon-markdown context-menu-icon',
+                    },
                 },
             },
             notes: {
                 name: 'Notes',
+                icon: () => 'iconfont icon-note context-menu-icon',
                 items: {
-                    insertNodeAsParent: { name: 'insert Note as parent' },
-                    insertNodeAsFirstSubNode: { name: 'insert Note as first sub node' },
-                    insertNodeAsLastSubNode: { name: 'insert Note as last sub node' },
+                    insertNodeAsParent: {
+                        name: 'Create As Parent',
+                        icon: () => 'iconfont icon-a-Parentchild-outlined context-menu-icon',
+                    },
+                    insertNodeAsFirstSubNode: {
+                        name: 'Create As First Sub Node',
+                        icon: () => 'iconfont icon-top context-menu-icon',
+                    },
+                    insertNodeAsLastSubNode: {
+                        name: 'Create As Last Sub Node',
+                        icon: () => 'iconfont icon-bottom context-menu-icon',
+                    },
                 },
             },
         },
         callback(itemKey: string, opt) {
             const node = $.ui.fancytree.getNode(opt.$trigger);
             switch (itemKey) {
+                case 'edit':
+                    node.editStart();
+                    break;
                 case 'delete':
                     FancyTabMasterTree.removeNodes(node);
                     break;

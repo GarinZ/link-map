@@ -32,6 +32,8 @@ export interface DND5Data {
 /** Drag&Drop HTML5 Config */
 export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
     autoExpandMS: 400,
+    dropMarkerOffsetX: -40,
+    dropMarkerInsertOffsetX: 10,
     preventNonNodes: true,
     preventRecursion: true, // Prevent dropping nodes on own descendants
     preventVoidMoves: true, // Prevent moving nodes 'before self', etc.
@@ -41,6 +43,7 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
     multiSource: false,
 
     dragStart(_node: Fancytree.FancytreeNode, _data: DND5Data) {
+        $('#fancytree-drop-marker').addClass('iconfont icon-arrow-right-');
         return true;
     },
     dragDrag(_node: Fancytree.FancytreeNode, _data: DND5Data) {},

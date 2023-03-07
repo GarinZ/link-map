@@ -30,7 +30,7 @@ declare namespace Fancytree {
         dirty: boolean;
         input: JQuery.fn.init | null;
         node: FancytreeNode;
-        orgEvent: JQuery.Event | null;
+        originalEvent: JQuery.Event | null;
         save: boolean;
         isNew: boolean;
         orgTitle: string;

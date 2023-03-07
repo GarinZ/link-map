@@ -29,8 +29,9 @@ export const WindowNodeOperations = {
     createData(window: Windows.Window, createTab = true): TreeNode<WindowData> {
         const { id, type, tabs } = window;
         const isBackgroundPage = isExtensionPages(window);
+        const windowTitle = `Window${type === 'normal' ? '' : `(${type})`}`;
         const node: TreeNode<WindowData> = {
-            title: `Window${type === 'normal' ? '' : `(${type})`}`,
+            title: windowTitle,
             key: `${id}`,
             icon: {
                 // 直接写URL,会使用img标签渲染,导致childrenCounter不识别
@@ -39,6 +40,7 @@ export const WindowNodeOperations = {
             expanded: true,
             data: {
                 ...window,
+                title: windowTitle,
                 windowId: id || 0,
                 closed: false,
                 isBackgroundPage,

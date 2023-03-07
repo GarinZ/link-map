@@ -9,7 +9,7 @@ import type { TreeData, TreeNode } from '../tab-master-tree/nodes/nodes';
 
 import './settings.less';
 
-interface ExportJsonData {
+export interface ExportJsonData {
     rawData: TreeNode<TreeData>[];
     version?: string;
     exportTime?: string;
@@ -58,7 +58,7 @@ const Settings = () => {
             const jsonData = JSON.parse(fileContent);
             // TODO: 这里需要做一些数据校验
             log.debug('import-data', jsonData);
-            await sendMessage('import-data', jsonData.rawData);
+            await sendMessage('import-data', jsonData);
             hideModal();
         } catch {
             // do nothing

@@ -3,7 +3,7 @@ import log from 'loglevel';
 import { useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
 
-import type { TreeData, TreeNode } from '../tree/features/tab-master-tree/nodes/nodes';
+import type { ExportJsonData } from '../tree/features/Settings/Settings';
 import type { TabData } from '../tree/features/tab-master-tree/nodes/tab-node-operations';
 import { NodeUtils } from '../tree/features/tab-master-tree/nodes/utils';
 import type { TabMasterTreeProps } from '../tree/features/tab-master-tree/TabMasterTree';
@@ -11,8 +11,10 @@ import { TabMasterTree } from '../tree/features/tab-master-tree/TabMasterTree';
 import { generateKeyByTime } from '../utils';
 import { IMPORT_TREE_DND5_CONFIG } from './import-dnd';
 
-const resetProps = (data: TreeNode<TreeData>[]) => {
-    NodeUtils.traverse(data, (node) => {
+import './import.less';
+
+const resetProps = (data: ExportJsonData) => {
+    NodeUtils.traverse(data.rawData, (node) => {
         node.key = `${generateKeyByTime()}-${node.key}`;
         node.active = false;
         const nodeData = node.data;
@@ -27,9 +29,9 @@ const resetProps = (data: TreeNode<TreeData>[]) => {
 
 const App = () => {
     const [loading, setLoading] = useState(true);
-    const [importData, setImportData] = useState<TreeNode<TreeData>[]>([]);
+    const [importData, setImportData] = useState<ExportJsonData>({ rawData: [] });
     const tabMasterTreeProps: TabMasterTreeProps = {
-        source: importData,
+        source: importData.rawData,
         enableBrowserEventHandler: false,
         enableOperateBrowser: false,
         enableEdit: false,
@@ -44,7 +46,7 @@ const App = () => {
 
     useEffect(() => {
         browser.storage.local.get('importData').then((data) => {
-            const importData: TreeNode<TreeData>[] = data.importData;
+            const importData: ExportJsonData = data.importData;
             log.debug('send-import-data', data.importData);
             resetProps(importData);
             setImportData(importData);
@@ -55,7 +57,17 @@ const App = () => {
     return (
         <div className="app">
             <Spin spinning={loading} />
-            <TabMasterTree {...tabMasterTreeProps} />
+            <div className={'import-container'}>
+                <div className={'import-info'}>
+                    <div>
+                        💡Drag and Drop the nodes below to the Link Map Tree to import the data.
+                    </div>
+                    <div className={'import-backup-date'}>
+                        Backup Date: {importData.exportTime?.replaceAll('_', ':')}
+                    </div>
+                </div>
+                <TabMasterTree {...tabMasterTreeProps} />
+            </div>
         </div>
     );
 };

@@ -123,8 +123,13 @@ export class FancyTabMasterTree {
     }
 
     public async persist() {
-        const snapshot = this.tree.toDict();
-        if (snapshot) {
+        const snapshot = this.tree.toDict() as TreeNode<TreeData>[];
+        const isInvalidData =
+            !snapshot ||
+            snapshot.length === 0 ||
+            (snapshot.length === 1 && snapshot[0].title === 'pending');
+
+        if (!isInvalidData) {
             await this.db?.setSnapshot(snapshot);
         }
     }

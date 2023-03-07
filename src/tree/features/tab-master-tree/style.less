@@ -21,9 +21,7 @@ body {
     height: 100vh;
     margin: 0;
     overflow: hidden;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-        Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
-        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    font-family: var(--font-family);
     background-color: var(--content-bg-color);
 
     #root {
@@ -393,6 +391,7 @@ body {
     .fancytree-title {
         .fancytree-edit-input {
             box-sizing: border-box;
+            min-width: 100px;
             max-width: 150px;
             padding: 2px 5px;
             font-size: var(--main-font-size);
@@ -404,4 +403,38 @@ body {
             box-shadow: none;
         }
     }
+}
+
+.context-menu-list {
+    padding: 8px 4px;
+    background-color: #343134;
+    border-color: #4e525b;
+    border-radius: 8px;
+
+    .context-menu-item {
+        font-family: var(--font-family) !important;
+        font-size: var(--main-font-size);
+        color: var(--main-font-color);
+        background-color: transparent;
+        border-radius: 4px;
+
+        &.context-menu-hover {
+            background-color: #4e525b;
+        }
+    }
+
+    .context-menu-submenu::after {
+        border-color: transparent transparent transparent var(--main-font-color);
+        border-width: 0.4em 0 0.4em 0.4em;
+    }
+
+    .context-menu-icon::before {
+        font-family: iconfont, serif;
+        color: var(--main-font-color);
+    }
+}
+
+#fancytree-drop-marker {
+    color: var(--primary-color);
+    background: none;
 }
