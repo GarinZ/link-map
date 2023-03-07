@@ -5,7 +5,7 @@ export const EDIT_OPTIONS: Fancytree.EditOptions = {
     allowEmpty: true,
     beforeEdit(_event, data) {
         data.orgTitle =
-            data.node.data.alias && data.node.data.alias !== '' ? data.node.data.alias : '#';
+            data.node.data.alias && data.node.data.alias !== '' ? data.node.data.alias : '';
     },
     beforeClose(_event, data) {
         data.save = true;

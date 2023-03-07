@@ -136,6 +136,8 @@ body {
                 background: 0;
                 outline: 0;
             }
+
+            .edit-input();
         }
     }
 }
@@ -269,7 +271,7 @@ body {
     span.fancytree-title {
         padding: 0 5px;
         margin-left: 5px;
-        font-size: 11px;
+        font-size: var(--main-font-size);
         color: var(--title-color);
 
         .zt-node-title {
@@ -387,10 +389,19 @@ body {
     }
 }
 
-.edit {
+.edit-input {
     .fancytree-title {
         .fancytree-edit-input {
-            //width: 100px;
+            box-sizing: border-box;
+            max-width: 150px;
+            padding: 2px 5px;
+            font-size: var(--main-font-size);
+            color: var(--main-font-color);
+            background-color: transparent;
+            border: 1px solid var(--main-border-color);
+            border-radius: 4px;
+            outline: 0;
+            box-shadow: none;
         }
     }
 }

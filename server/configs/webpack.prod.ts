@@ -47,9 +47,9 @@ const prodConfig = merge(commonConfig, {
                 minify: TerserPlugin.swcMinify,
                 parallel: true,
                 extractComments: false,
-                terserOptions: {
-                    mangle: false,
-                },
+                // terserOptions: {
+                //     mangle: false,
+                // },
             }),
             new CssMinimizerPlugin({
                 // minify: CssMinimizerPlugin.lightningCssMinify,
