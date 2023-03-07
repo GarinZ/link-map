@@ -86,6 +86,7 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
         }
         targetNode.setExpanded();
     },
+    dragEnd(_node: Fancytree.FancytreeNode, _data: DND5Data) {},
 };
 
 export async function tabMoveOnDrop(
@@ -116,7 +117,7 @@ export async function tabMoveOnDrop(
                 toUpdateWindowIdTabNodes.push(tabNode);
             } else {
                 toMoveTabNodes.push(tabNode);
-                tabNode.data.moved = true;
+                tabNode.data.dndOperated = true;
             }
         });
     });

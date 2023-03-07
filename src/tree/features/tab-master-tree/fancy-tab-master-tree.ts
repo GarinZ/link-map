@@ -6,6 +6,7 @@ import browser from 'webextension-polyfill';
 import { TabMasterDB } from '../../../storage/idb';
 import { dataCheckAndSupply } from './nodes/data-check';
 import type { TreeData, TreeNode } from './nodes/nodes';
+import type { TabData } from './nodes/tab-node-operations';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import { NodeUtils } from './nodes/utils';
 import type { WindowData } from './nodes/window-node-operations';
@@ -263,8 +264,14 @@ export class FancyTabMasterTree {
 
     public attachTab(newWindowId: number, tabId: number, newIndex: number): void {
         const toAttachNode = this.tree.getNodeByKey(`${tabId}`);
+        const dndOperated = (toAttachNode.data as TabData).dndOperated;
         // attach/detach会触发active事件，不需要再次更新
         TabNodeOperations.move(toAttachNode, toAttachNode.data.index, newIndex, newWindowId);
+        if (dndOperated) {
+            browser.tabs.update(toAttachNode.data.id, { active: true }).then(() => {
+                browser.windows.update(toAttachNode.data.windowId, { focused: true });
+            });
+        }
     }
 
     public detachTab(_tabId: number): void {
@@ -287,6 +294,7 @@ export class FancyTabMasterTree {
         if (!windowNode.data.isBackgroundPage) {
             windowNode.scrollIntoView();
         }
+        await this.syncActiveTab(windowId);
     }
 
     public toJsonObj(includeRoot = false): TreeNode<TreeData>[] {

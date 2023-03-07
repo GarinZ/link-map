@@ -10,7 +10,7 @@ type FancytreeNode = Fancytree.FancytreeNode;
 export interface TabData extends Tabs.Tab, TreeData {
     windowId: number;
     nodeType: 'tab';
-    moved?: boolean; // 用于拖拽后设置的flag，避免回调再次move一次
+    dndOperated?: boolean; // 用于拖拽后设置的flag，避免回调再次move一次
     tabActive: boolean;
 }
 
@@ -175,7 +175,7 @@ export const TabNodeOperations = {
         toWindowId = toWindowId ?? toMoveNode.data.windowId;
         const targetWindowNode = tree.getNodeByKey(`${toWindowId}`);
         // 1. 按需移动节点
-        if (!toMoveNode.data.moved) {
+        if (!toMoveNode.data.dndOperated) {
             NodeUtils.moveChildrenAsNextSiblings(toMoveNode);
             if (toIndex === 0) {
                 toMoveNode.moveTo(targetWindowNode, 'firstChild');
@@ -213,6 +213,6 @@ export const TabNodeOperations = {
             WindowNodeOperations.updateWindowStatus(oldWindowNode);
         }
         // 重置moved属性
-        this.updatePartial(toMoveNode, { moved: false });
+        this.updatePartial(toMoveNode, { dndOperated: false });
     },
 };
