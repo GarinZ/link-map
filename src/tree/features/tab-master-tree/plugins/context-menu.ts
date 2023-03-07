@@ -69,14 +69,17 @@ export const registerContextMenu = () => {
                 case 'close':
                     FancyTabMasterTree.closeNodes(node);
                     break;
-                case 'insertNodeAsParent':
-                    node.moveTo(node.addNode(NoteNodeOperations.createData(), 'before'), 'child');
+                case 'insertNodeAsParent': {
+                    const newNode = node.addNode(NoteNodeOperations.createData(), 'before');
+                    node.moveTo(newNode, 'child');
+                    newNode.editStart();
                     break;
+                }
                 case 'insertNodeAsFirstSubNode':
-                    node.addNode(NoteNodeOperations.createData(), 'firstChild');
+                    node.addNode(NoteNodeOperations.createData(), 'firstChild').editStart();
                     break;
                 case 'insertNodeAsLastSubNode':
-                    node.addNode(NoteNodeOperations.createData(), 'child');
+                    node.addNode(NoteNodeOperations.createData(), 'child').editStart();
                     break;
                 case 'focusCurrentNode':
                     node.setActive();

@@ -170,10 +170,14 @@ export const WindowNodeOperations = {
         });
     },
     isExtensionPages(windowNode: TreeNode<WindowData>) {
-        if (windowNode.data.type !== 'popup') {
+        if (
+            windowNode.data.type !== 'popup' ||
+            !windowNode.children ||
+            windowNode.children.length !== 1
+        ) {
             return false;
         }
-        const tab = windowNode.children![0] as TreeNode<TabData>;
+        const tab = windowNode.children[0] as TreeNode<TabData>;
         const url = new URL(tab.data.url ?? tab.data.pendingUrl!);
         return url.origin === new URL(browser.runtime.getURL('')).origin;
     },

@@ -34,7 +34,7 @@ export interface TreeNode<T extends TreeData> extends Fancytree.NodeData {
           }
         | undefined;
     /** null or type of temporarily generated system node like 'loading', or 'error'. */
-    statusNodeType?: 'string';
+    statusNodeType?: string;
     /** True if this node is loaded on demand, i.e. on first expansion. */
     lazy?: boolean;
     /** Alternative description used as hover banner */
