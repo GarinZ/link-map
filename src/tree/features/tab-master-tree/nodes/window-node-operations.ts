@@ -25,11 +25,15 @@ export function isExtensionPages(window: Windows.Window) {
     return url.origin === new URL(browser.runtime.getURL('')).origin;
 }
 
+export const generateWindowTitle = (windowType = 'normal') => {
+    return `Window${windowType === 'normal' ? '' : `(${windowType})`}`;
+};
+
 export const WindowNodeOperations = {
     createData(window: Windows.Window, createTab = true): TreeNode<WindowData> {
         const { id, type, tabs } = window;
         const isBackgroundPage = isExtensionPages(window);
-        const windowTitle = `Window${type === 'normal' ? '' : `(${type})`}`;
+        const windowTitle = generateWindowTitle(type);
         const node: TreeNode<WindowData> = {
             title: windowTitle,
             key: `${id}`,

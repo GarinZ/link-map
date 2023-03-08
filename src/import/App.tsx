@@ -1,5 +1,4 @@
 import { Spin } from 'antd';
-import log from 'loglevel';
 import { useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
 
@@ -10,8 +9,22 @@ import type { TabMasterTreeProps } from '../tree/features/tab-master-tree/TabMas
 import { TabMasterTree } from '../tree/features/tab-master-tree/TabMasterTree';
 import { generateKeyByTime } from '../utils';
 import { IMPORT_TREE_DND5_CONFIG } from './import-dnd';
+import type { TabOutliner } from './parse-tab-outliner';
+import { parseTabOutlinerData } from './parse-tab-outliner';
 
 import './import.less';
+
+export interface LinkMapImportData {
+    data: ExportJsonData;
+    type: 'linkMap';
+}
+
+export interface TabOutlinerImportData {
+    data: TabOutliner.ExportData;
+    type: 'tabOutliner';
+}
+
+export type LocalStorageImportData = LinkMapImportData | TabOutlinerImportData;
 
 const resetProps = (data: ExportJsonData) => {
     NodeUtils.traverse(data.rawData, (node) => {
@@ -45,11 +58,18 @@ const App = () => {
     };
 
     useEffect(() => {
-        browser.storage.local.get('importData').then((data) => {
-            const importData: ExportJsonData = data.importData;
-            log.debug('send-import-data', data.importData);
-            resetProps(importData);
-            setImportData(importData);
+        browser.storage.local.get('importData').then((localData) => {
+            const { data, type } = localData.importData as LocalStorageImportData;
+            if (type === 'linkMap') {
+                const linMapImportData: ExportJsonData = data;
+                resetProps(linMapImportData);
+                setImportData(linMapImportData);
+            } else if (type === 'tabOutliner') {
+                const treeNodeDataArr = parseTabOutlinerData(data as TabOutliner.ExportData);
+                const result = { rawData: treeNodeDataArr };
+                resetProps(result);
+                setImportData(result);
+            }
             toggle(false);
         });
     }, []);
@@ -63,7 +83,9 @@ const App = () => {
                         💡Drag and Drop the nodes below to the Link Map Tree to import the data.
                     </div>
                     <div className={'import-backup-date'}>
-                        Backup Date: {importData.exportTime?.replaceAll('_', ':')}
+                        {importData.exportTime
+                            ? `Backup Date: ${importData.exportTime?.replaceAll('_', ':')}`
+                            : null}
                     </div>
                 </div>
                 <TabMasterTree {...tabMasterTreeProps} />

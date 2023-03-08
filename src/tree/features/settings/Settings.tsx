@@ -56,10 +56,41 @@ const Settings = () => {
             });
             const file = await fileHandle.getFile();
             const fileContent = await file.text();
-            const jsonData = JSON.parse(fileContent);
+            const jsonData: ExportJsonData = JSON.parse(fileContent);
             // TODO: 这里需要做一些数据校验
             log.debug('import-data', jsonData);
             await sendMessage('import-data', jsonData);
+            hideModal();
+        } catch {
+            // do nothing
+        }
+    };
+
+    const handleTabOutlinerImport = async () => {
+        try {
+            if (!window.showOpenFilePicker || !window.showSaveFilePicker) {
+                message.error('Your browser does not support this feature.');
+                return;
+            }
+            const [fileHandle] = await window.showOpenFilePicker({
+                types: [
+                    {
+                        description: 'JSON files',
+                        accept: { 'application/json': ['.tree'] },
+                    },
+                ],
+            });
+            const file = await fileHandle.getFile();
+            const fileContent = await file.text();
+            const jsonData = JSON.parse(fileContent);
+            if (
+                !Array.isArray(jsonData) ||
+                !jsonData[jsonData.length - 1].type ||
+                jsonData[jsonData.length - 1].type !== 11111
+            ) {
+                message.error('Invalid Tab Outliner data.');
+            }
+            await sendMessage('import-tabOutliner-data', jsonData);
             hideModal();
         } catch {
             // do nothing
@@ -93,7 +124,12 @@ const Settings = () => {
                     </div>
                     <div className="settings-item">
                         <Button className="setting-item-btn" onClick={handleImport}>
-                            Import
+                            Import Link Map Data
+                        </Button>
+                    </div>
+                    <div className="settings-item">
+                        <Button className="setting-item-btn" onClick={handleTabOutlinerImport}>
+                            Import TabOutliner Data
                         </Button>
                     </div>
                 </div>

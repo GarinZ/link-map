@@ -2,7 +2,9 @@ import { onMessage } from '@garinz/webext-bridge';
 import log from 'loglevel';
 import browser from 'webextension-polyfill';
 
+import type { LocalStorageImportData } from '../import/App';
 import { getExtPageInfo, removeExtPageInfo, setExtPageInfo } from '../storage/ext-page-info';
+import type { ExportJsonData } from '../tree/features/settings/Settings';
 import { isContentScriptPage, sendMessageToExt } from './event-bus';
 
 try {
@@ -146,8 +148,7 @@ try {
         sendMessageToExt('window-focus', { windowId });
     });
 
-    onMessage('import-data', async (data) => {
-        log.debug('import-data', data);
+    const createImportPage = async (importData: LocalStorageImportData) => {
         const displayInfos = await chrome.system.display.getInfo();
         const primaryDisplayInfo = displayInfos.find((item) => item.isPrimary);
         const width = primaryDisplayInfo ? Math.floor(primaryDisplayInfo.workArea.width / 5) : 895;
@@ -161,7 +162,15 @@ try {
             top: 0,
             focused: true,
         });
-        await browser.storage.local.set({ importData: data.data });
+        await browser.storage.local.set({ importData });
+    };
+
+    onMessage('import-data', async (data) => {
+        createImportPage({ data: data.data as ExportJsonData, type: 'linkMap' });
+    });
+
+    onMessage('import-tabOutliner-data', async (data) => {
+        createImportPage({ data: data.data, type: 'tabOutliner' });
     });
 } catch (error) {
     log.error(error);

@@ -5,6 +5,7 @@ import type { TreeData, TreeNode } from './nodes';
 
 export interface NoteData extends TreeData {
     nodeType: 'note';
+    alias?: string;
 }
 
 export const DEFAULT_DATE = {
@@ -19,9 +20,12 @@ export const DEFAULT_DATE = {
 } as TreeNode<NoteData>;
 
 export const NoteNodeOperations = {
-    createData(): TreeNode<NoteData> {
+    createData(content?: string): TreeNode<NoteData> {
         const newNodeData = cloneDeep(DEFAULT_DATE);
         newNodeData.key = generateKeyByTime();
+        if (content) {
+            newNodeData.data.alias = content;
+        }
         return newNodeData;
     },
 };

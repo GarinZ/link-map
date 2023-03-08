@@ -1,6 +1,8 @@
 import type { ProtocolWithReturn } from '@garinz/webext-bridge';
 import { Tabs, Windows } from 'webextension-polyfill';
 
+import { TabOutliner } from '../import/parse-tab-outliner';
+import { ExportJsonData } from '../tree/features/settings/Settings';
 import { TreeData, TreeNode } from '../tree/features/tab-master-tree/nodes/nodes';
 
 declare module '@garinz/webext-bridge' {
@@ -38,7 +40,8 @@ declare module '@garinz/webext-bridge' {
             windowId: number;
             tabId: number;
         };
-        'import-data': TreeNode<TreeData>[];
+        'import-data': ExportJsonData;
+        'import-tabOutliner-data': TabOutliner.ExportData;
         'tree-ready': { windowId: number; tabId: number };
     }
 }
