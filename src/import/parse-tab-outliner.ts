@@ -90,6 +90,10 @@ const transformTabOutlinerData = (data: TabOutliner.NodeData): TreeNode<TreeData
             return {
                 title: generateWindowTitle(nodeData.type),
                 expanded: !colapsed,
+                icon: {
+                    // 直接写URL,会使用img标签渲染,导致childrenCounter不识别
+                    html: `<img class="fancytree-icon" src="/icons/chrome_icon.svg" alt="">`,
+                },
                 data: {
                     alias: marks?.customTitle,
                     type: nodeData.type,

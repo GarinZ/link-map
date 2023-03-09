@@ -19,9 +19,7 @@ import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
 
 import 'jquery.fancytree';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.dnd5';
-import 'jquery.fancytree/dist/modules/jquery.fancytree.childcounter';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.edit.js';
-import 'jquery.fancytree/dist/modules/jquery.fancytree.wide.js';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.filter.js';
 import 'jquery.fancytree/dist/skin-xp/ui.fancytree.min.css';
 
@@ -86,9 +84,6 @@ export class FancyTabMasterTree {
             active: true,
             extensions,
             source: [{ title: 'pending' }],
-            // renderNode(_event, data) {
-            //     data.node.renderTitle();
-            // },
             enhanceTitle: (_eventData: JQueryEventObject, data: Fancytree.EventData) => {
                 const html = renderTitle(_eventData, data, config.enableEdit);
                 const $title = $(data.node.span).find('span.fancytree-title');

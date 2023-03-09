@@ -37,10 +37,11 @@ const manifest: Manifest.WebExtensionManifest = {
             '128': 'icons/x128.png',
         },
     },
-    options_ui: {
-        page: 'options.html',
-        open_in_tab: true,
-    },
+    // 实现options页面后使用
+    // options_ui: {
+    //     page: 'options.html',
+    //     open_in_tab: true,
+    // },
     icons: {
         '16': 'icons/x16.png',
         '32': 'icons/x32.png',
