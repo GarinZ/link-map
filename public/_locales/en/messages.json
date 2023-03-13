@@ -45,7 +45,7 @@
         "message": "Copy Markdown Link"
     },
     "ctxMenuNotes": {
-        "message": "Notes"
+        "message": "Tags"
     },
     "ctxMenuNotesCreateAsParent": {
         "message": "Create as Parent"
@@ -61,5 +61,59 @@
     },
     "importPageExportTime": {
         "message": "Backup Time"
+    },
+    "welcomeTitle": {
+        "message": "Welcome to Link Map!"
+    },
+    "welcomeIntro": {
+        "message": "Link Map is a browser extension that helps you organize your tabs."
+    },
+    "welcomeIntro2": {
+        "message": "It is still in early development, so please be patient with us. More features are coming soon!"
+    },
+    "welcomeIntro3": {
+        "message": "Now we have prepare some tips to help you get in to this place."
+    },
+    "welcomeIntro4": {
+        "message": "You could just close this popup and follow the nodes named \"\uD83D\uDE80 Tips\" to move on."
+    },
+    "tipsTitle": {
+        "message": "Tips"
+    },
+    "tipsDnd": {
+        "message": "Drag and drop to re-arrange nodes"
+    },
+    "tipsHover": {
+        "message": "Hover to operate quick actions"
+    },
+    "tipsEdit": {
+        "message": "Click edit to rename a node"
+    },
+    "tipsDelete": {
+        "message": "Click Delete to delete a node"
+    },
+    "tipsDeleteAll": {
+        "message": "Collapse the parent node to delete all its children"
+    },
+    "tipsDeleteAllSample": {
+        "message": "Wait for Delete"
+    },
+    "tipsRClick": {
+        "message": "Right click to show context menu"
+    },
+    "tipsSearch": {
+        "message": "Try the search box"
+    },
+    "tipsSettings": {
+        "message": "Click settings icon to perform export/import"
+    },
+    "tipsFeedback1": {
+        "message": "Any feedback is welcome!"
+    },
+    "tipsFeedback2": {
+        "message": "Use Feedback button in the settings to send feedback"
+    },
+    "tipsFinish": {
+        "message": "Finish! you can delete these nodes now"
     }
 }

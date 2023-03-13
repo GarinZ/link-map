@@ -51,9 +51,10 @@ const registerBrowserEventHandlers = (tmTree: FancyTabMasterTree) => {
 export interface TabMasterTreeProps extends FancyTabMasterTreeConfig {
     source?: TreeNode<TreeData>[];
     enableBrowserEventHandler?: boolean;
+    onInit?: (tmTree: FancyTabMasterTree) => void;
 }
 
-export const TabMasterTree: React.FC<TabMasterTreeProps> = ({ source, ...otherProps }) => {
+export const TabMasterTree: React.FC<TabMasterTreeProps> = ({ source, onInit, ...otherProps }) => {
     let treeContainer: HTMLElement | null = null;
     const [tabMasterTree, setTabMasterTree] = useState<FancyTabMasterTree | null>(null);
     useEffect(() => {
@@ -62,7 +63,11 @@ export const TabMasterTree: React.FC<TabMasterTreeProps> = ({ source, ...otherPr
         const tmTree = new FancyTabMasterTree($el, config);
         setTabMasterTree(tmTree);
         Store.tree = tmTree.tree;
-        const loadedPromise = tmTree.initTree(source);
+        const loadedPromise = tmTree.initTree(source).then(() => {
+            if (onInit) {
+                onInit(tmTree);
+            }
+        });
         if (otherProps.enableBrowserEventHandler) {
             loadedPromise.then(() => registerBrowserEventHandlers(tmTree));
         }

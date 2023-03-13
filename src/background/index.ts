@@ -4,6 +4,7 @@ import browser from 'webextension-polyfill';
 
 import type { LocalStorageImportData } from '../import/App';
 import { getExtPageInfo, removeExtPageInfo, setExtPageInfo } from '../storage/ext-page-info';
+import { setIsNewUser } from '../storage/new-user';
 import type { ExportJsonData } from '../tree/features/settings/Settings';
 import { isContentScriptPage, sendMessageToExt } from './event-bus';
 
@@ -15,6 +16,7 @@ try {
         log.debug('Extension installed');
         log.debug(__ENV__);
         // 清除localStorage中的extPageInfo
+        await setIsNewUser(true);
         await removeExtPageInfo();
     });
 

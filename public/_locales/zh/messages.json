@@ -61,5 +61,59 @@
     },
     "importPageExportTime": {
         "message": "备份时间"
+    },
+    "welcomeTitle": {
+        "message": "欢迎使用Link Map！"
+    },
+    "welcomeIntro": {
+        "message": "Link Map是一个浏览器扩展，用来帮助你管理你的标签和构建链接收藏。"
+    },
+    "welcomeIntro2": {
+        "message": "现在Link Map还处于早期版本，有任何问题可以联系我们，更多新功能正在开发中。"
+    },
+    "welcomeIntro3": {
+        "message": "现在我们准备了一些小技巧来帮助你快速上手。"
+    },
+    "welcomeIntro4": {
+        "message": "你可以关闭这个弹窗，跟随'\uD83D\uDE80 小技巧'节点的指引来试一试。"
+    },
+    "tipsTitle": {
+        "message": "小技巧"
+    },
+    "tipsDnd": {
+        "message": "用鼠标拖拽这里，可以重新安排节点和Tab的顺序"
+    },
+    "tipsHover": {
+        "message": "鼠标悬停在这里，在右侧会显示快捷按钮"
+    },
+    "tipsEdit": {
+        "message": "点击'编辑'按钮可以重命名节点"
+    },
+    "tipsDelete": {
+        "message": "点击'删除'按钮可以删除节点"
+    },
+    "tipsDeleteAll": {
+        "message": "收起所有节点，点击'删除'按钮可以删除所有节点"
+    },
+    "tipsDeleteAllSample": {
+        "message": "默默等待删除"
+    },
+    "tipsRClick": {
+        "message": "右键点击这里，可以进行更多操作"
+    },
+    "tipsSearch": {
+        "message": "尝试在搜索框中输入关键字，可以快速定位到你想要的节点"
+    },
+    "tipsSettings": {
+        "message": "在设置中可以备份或恢复数据"
+    },
+    "tipsFeedback1": {
+        "message": "非常欢迎你的反馈"
+    },
+    "tipsFeedback2": {
+        "message": "在设置中可以反馈问题"
+    },
+    "tipsFinish": {
+        "message": "完成！可以删除这些节点并开始使用！"
     }
 }
