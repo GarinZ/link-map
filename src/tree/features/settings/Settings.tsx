@@ -2,6 +2,7 @@ import { sendMessage } from '@garinz/webext-bridge';
 import { Button, message, Modal } from 'antd';
 import log from 'loglevel';
 import { useState } from 'react';
+import browser from 'webextension-polyfill';
 
 import { downloadJsonWithExtensionAPI, getFormattedData } from '../../../utils';
 import Feedback from '../feedback/Feedback';
@@ -108,7 +109,7 @@ const Settings = () => {
                 />
             </div>
             <Modal
-                title="Settings"
+                title={browser.i18n.getMessage('settings')}
                 open={isModalOpen}
                 className={'settings-modal'}
                 onCancel={hideModal}
@@ -116,27 +117,33 @@ const Settings = () => {
                 footer={null}
             >
                 <div className={'setting-section'}>
-                    <div className="setting-head divider">Import / Export</div>
+                    <div className="setting-head divider">
+                        {browser.i18n.getMessage('settingsImportExport')}
+                    </div>
                     <div className="settings-item">
                         <Button className="setting-item-btn" onClick={handleExport}>
-                            Export Link Map Data
+                            {browser.i18n.getMessage('exportLinkMapData')}
                         </Button>
                     </div>
                     <div className="settings-item">
                         <Button className="setting-item-btn" onClick={handleImport}>
-                            Import Link Map Data
+                            {browser.i18n.getMessage('importLinkMapData')}
                         </Button>
                     </div>
                     <div className="settings-item">
                         <Button className="setting-item-btn" onClick={handleTabOutlinerImport}>
-                            Import TabOutliner Data
+                            {browser.i18n.getMessage('importTabOutlinerData')}
                         </Button>
                     </div>
                 </div>
                 <div className={'setting-section'}>
-                    <div className="setting-head divider">Feedback</div>
+                    <div className="setting-head divider">
+                        {browser.i18n.getMessage('feedback')}
+                    </div>
                     <div className="settings-item">
-                        <span className="settings-item-desc">Give Us Feedback:</span>
+                        <span className="settings-item-desc">
+                            {browser.i18n.getMessage('feedbackDesc')}
+                        </span>
                         <Feedback />
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 import { escape } from 'lodash';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useState } from 'react';
+import browser from 'webextension-polyfill';
 
 import store from '../store';
 import { clearHighLightFields } from '../tab-master-tree/plugins/filter';
@@ -84,7 +85,7 @@ export const Search = () => {
                 onKeyUp={onKeyUp}
                 value={value}
                 onChange={onChange}
-                placeholder={'Search'}
+                placeholder={browser.i18n.getMessage('search')}
                 onFocus={() => setFocus(true)}
                 onBlur={() => setFocus(false)}
             />

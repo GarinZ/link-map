@@ -21,6 +21,7 @@ const manifest: Manifest.WebExtensionManifest = {
     background: {
         service_worker: 'js/background.js',
     },
+    default_locale: 'en',
     // content_scripts: [
     //     {
     //         matches: ['https://github.com/*'],

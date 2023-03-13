@@ -1,0 +1,56 @@
+{
+    "search": {
+        "message": "Search"
+    },
+    "settings": {
+        "message": "Settings"
+    },
+    "settingsImportExport": {
+        "message": "Import/Export"
+    },
+    "exportLinkMapData": {
+        "message": "Export Link Map Data"
+    },
+    "importLinkMapData": {
+        "message": "Import Link Map Data"
+    },
+    "importTabOutlinerData": {
+        "message": "Import TabOutliner Data"
+    },
+    "feedback": {
+        "message": "Feedback"
+    },
+    "feedbackDesc": {
+        "message": "Give us feedback"
+    },
+    "ctxMenuEdit": {
+        "message": "Edit"
+    },
+    "ctxMenuDelete": {
+        "message": "Delete"
+    },
+    "ctxMenuClose": {
+        "message": "Close"
+    },
+    "ctxMenuCopy": {
+        "message": "Copy"
+    },
+    "ctxMenuCopyLink": {
+        "message": "Copy Link"
+    },
+    "ctxMenuCopyMarkDownLink": {
+        "message": "Copy Markdown Link"
+    },
+    "ctxMenuNotes": {
+        "message": "Notes"
+    },
+    "ctxMenuNotesCreateAsParent": {
+        "message": "Create as Parent"
+    },
+    "ctxMenuNotesCreateAsFirstSubNode": {
+        "message": "Create as Fist Sub Node"
+    },
+    "ctxMenuNotesCreateAsLastSubNode": {
+        "message": "Create as Last Sub Node"
+    }
+}

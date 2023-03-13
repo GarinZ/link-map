@@ -1,0 +1,56 @@
+{
+    "search": {
+        "message": "搜索"
+    },
+    "settings": {
+        "message": "设置"
+    },
+    "settingsImportExport": {
+        "message": "备份和恢复"
+    },
+    "exportLinkMapData": {
+        "message": "导出数据"
+    },
+    "importLinkMapData": {
+        "message": "导入数据"
+    },
+    "importTabOutlinerData": {
+        "message": "导入TabOutliner数据"
+    },
+    "feedback": {
+        "message": "反馈"
+    },
+    "feedbackDesc": {
+        "message": "邮件反馈:"
+    },
+    "ctxMenuEdit": {
+        "message": "编辑"
+    },
+    "ctxMenuDelete": {
+        "message": "删除"
+    },
+    "ctxMenuClose": {
+        "message": "关闭并保存"
+    },
+    "ctxMenuCopy": {
+        "message": "复制"
+    },
+    "ctxMenuCopyLink": {
+        "message": "复制链接"
+    },
+    "ctxMenuCopyMarkDownLink": {
+        "message": "复制Markdown链接"
+    },
+    "ctxMenuNotes": {
+        "message": "标签"
+    },
+    "ctxMenuNotesCreateAsParent": {
+        "message": "作为父节点"
+    },
+    "ctxMenuNotesCreateAsFirstSubNode": {
+        "message": "作为第一个子节点"
+    },
+    "ctxMenuNotesCreateAsLastSubNode": {
+        "message": "作为最后一个子节点"
+    }
+}

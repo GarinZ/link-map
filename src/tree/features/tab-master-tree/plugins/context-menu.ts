@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 import { FancyTabMasterTree } from '../fancy-tab-master-tree';
 import { NoteNodeOperations } from '../nodes/note-node-operations';
 
@@ -9,14 +11,17 @@ export const registerContextMenu = () => {
         selector: '#tree span.fancytree-title',
         items: {
             edit: {
-                name: 'Edit',
+                name: browser.i18n.getMessage('ctxMenuEdit'),
                 icon: () => 'iconfont icon-edit context-menu-icon',
             },
             delete: {
-                name: 'Delete',
+                name: browser.i18n.getMessage('ctxMenuDelete'),
                 icon: () => 'iconfont icon-trash context-menu-icon',
             },
-            close: { name: 'Close', icon: () => 'iconfont icon-roundclosefill context-menu-icon' },
+            close: {
+                name: browser.i18n.getMessage('ctxMenuClose'),
+                icon: () => 'iconfont icon-roundclosefill context-menu-icon',
+            },
             // focus: {
             //     name: 'Focus',
             //     items: {
@@ -25,33 +30,33 @@ export const registerContextMenu = () => {
             //     },
             // },
             copy: {
-                name: 'Copy',
+                name: browser.i18n.getMessage('ctxMenuCopy'),
                 icon: () => 'iconfont icon-copy context-menu-icon',
                 items: {
                     copyLink: {
-                        name: 'Copy Link',
+                        name: browser.i18n.getMessage('ctxMenuCopyLink'),
                         icon: () => 'iconfont icon-URLguanli context-menu-icon',
                     },
                     copyMarkdownLink: {
-                        name: 'Copy Markdown Link',
+                        name: browser.i18n.getMessage('ctxMenuCopyMarkDownLink'),
                         icon: () => 'iconfont icon-markdown context-menu-icon',
                     },
                 },
             },
             notes: {
-                name: 'Notes',
+                name: browser.i18n.getMessage('ctxMenuNotes'),
                 icon: () => 'iconfont icon-note context-menu-icon',
                 items: {
                     insertNodeAsParent: {
-                        name: 'Create As Parent',
+                        name: browser.i18n.getMessage('ctxMenuNotesCreateAsParent'),
                         icon: () => 'iconfont icon-a-Parentchild-outlined context-menu-icon',
                     },
                     insertNodeAsFirstSubNode: {
-                        name: 'Create As First Sub Node',
+                        name: browser.i18n.getMessage('ctxMenuNotesCreateAsFirstSubNode'),
                         icon: () => 'iconfont icon-top context-menu-icon',
                     },
                     insertNodeAsLastSubNode: {
-                        name: 'Create As Last Sub Node',
+                        name: browser.i18n.getMessage('ctxMenuNotesCreateAsLastSubNode'),
                         icon: () => 'iconfont icon-bottom context-menu-icon',
                     },
                 },
