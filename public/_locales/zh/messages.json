@@ -1,4 +1,7 @@
 {
+    "extDesc": {
+        "message": "⭐Link Map - 专业标签管理工具"
+    },
     "search": {
         "message": "搜索"
     },
@@ -52,5 +55,11 @@
     },
     "ctxMenuNotesCreateAsLastSubNode": {
         "message": "作为最后一个子节点"
+    },
+    "importPageInfo": {
+        "message": "根据需要将下面的节点拖拽到LinkMap中就可以完成数据导入"
+    },
+    "importPageExportTime": {
+        "message": "备份时间"
     }
 }

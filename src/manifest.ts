@@ -5,7 +5,7 @@ import pkg from '../package.json';
 const manifest: Manifest.WebExtensionManifest = {
     name: pkg.displayName,
     version: pkg.version,
-    description: pkg.description,
+    description: '__MSG_extDesc__',
     manifest_version: 3,
     minimum_chrome_version: pkg.browserslist.split(' ')[2],
     permissions: ['tabs', 'storage', 'activeTab', 'windows', 'downloads', 'system.display'],

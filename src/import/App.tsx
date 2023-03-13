@@ -79,12 +79,12 @@ const App = () => {
             <Spin spinning={loading} />
             <div className={'import-container'}>
                 <div className={'import-info'}>
-                    <div>
-                        💡Drag and Drop the nodes below to the Link Map Tree to import the data.
-                    </div>
+                    <div>💡{browser.i18n.getMessage('importPageInfo')}</div>
                     <div className={'import-backup-date'}>
                         {importData.exportTime
-                            ? `Backup Date: ${importData.exportTime?.replaceAll('_', ':')}`
+                            ? `${browser.i18n.getMessage(
+                                  'importPageExportTime',
+                              )}: ${importData.exportTime?.replaceAll('_', ':')}`
                             : null}
                     </div>
                 </div>
