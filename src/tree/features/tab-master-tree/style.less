@@ -408,13 +408,15 @@ body {
 .context-menu-list {
     padding: 8px 4px;
     background-color: #343134;
-    border-color: #4e525b;
+    //border-color: #4e525b;
+    border-color: transparent;
     border-radius: 8px;
+    box-shadow: 0 1px #0000000d, 0 4px 10px rgb(0 0 0 / 30%);
 
     .context-menu-item {
         font-family: var(--font-family) !important;
         font-size: var(--main-font-size);
-        color: var(--main-font-color);
+        color: white;
         background-color: transparent;
         border-radius: 4px;
 
@@ -430,7 +432,7 @@ body {
 
     .context-menu-icon::before {
         font-family: iconfont, serif;
-        color: var(--main-font-color);
+        color: white;
     }
 }
 
