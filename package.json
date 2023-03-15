@@ -1,7 +1,7 @@
 {
     "name": "link-map",
     "displayName": "Link Map",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "browserslist": "Chrome >= 96",
     "description": "Vertical Tabs Sidebar, But In Tree Structure",
     "private": true,
