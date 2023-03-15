@@ -193,21 +193,31 @@ describe('remove tab', () => {
     });
 
     it('remove tab with alias', async () => {
-        const treeData = new MockTreeBuilder().addTabChildren(1, 1, { alias: 'test' }).build();
+        const treeData = new MockTreeBuilder().addTabChildren(2, 1, { alias: 'test' }).build();
         const tabMasterTree = initTabMasterTree(treeData);
-        browser.tabs.query.resolves(() => ({
-            tabs: [],
-        }));
+        browser.tabs.query.resolves([{ id: 12, active: true }]);
         const tree = tabMasterTree.tree;
         const sourceNode = tree.getNodeByKey(`11`);
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
         await tabMasterTree.removeTab(sourceNode.data.id);
         console.log(toAsciiTree(tree.toDict(), ['expanded'], ['closed', 'windowId']));
         const windowNode = tree.getNodeByKey('1');
-        expect(windowNode.children.length).toEqual(1);
+        const secondNode = tree.getNodeByKey(`12`);
+        expect(windowNode.children.length).toEqual(2);
+        expect(windowNode.data.closed).toEqual(false);
+        expect(sourceNode.data.closed).toEqual(true);
+        expect(sourceNode.data.active).toEqual(false);
+        expect(secondNode.data.closed).toEqual(false);
+        expect(secondNode.data.active).toEqual(true);
+        browser.tabs.query.resolves([]);
+        await tabMasterTree.removeTab(secondNode.data.id);
+        expect(windowNode.children.length).toEqual(2);
         expect(windowNode.data.closed).toEqual(true);
         expect(sourceNode.data.closed).toEqual(true);
         expect(sourceNode.data.active).toEqual(false);
+        expect(sourceNode.data.active).toEqual(false);
+        expect(secondNode.data.closed).toEqual(true);
+        expect(secondNode.data.active).toEqual(false);
     });
 });
 
