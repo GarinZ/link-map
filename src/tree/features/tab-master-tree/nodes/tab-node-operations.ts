@@ -54,6 +54,7 @@ export const TabNodeOperations = {
         } else if (prevNode.data.id === openerTabId) {
             // 3.1 如果相等，说明是openerTab的子节点，直接添加为openerTab的子节点
             createdNode = prevNode.addNode(newNode, 'firstChild');
+            prevNode.expanded = true;
         } else if (!prevNode.data.openerTabId || prevNode.data.openerTabId === openerTabId) {
             // 3.2 prevNode有openerTabId，但是不等于newTab的openerTabId，说明newTab是prevNode的兄弟节点
             createdNode = prevNode.addNode(newNode, 'after');
