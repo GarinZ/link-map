@@ -249,7 +249,7 @@ export class FancyTabMasterTree {
         // tab remove不会触发tab active事件，需要手动更新
         if (windowNode) {
             const syncSuccess = await this.syncActiveTab(windowNode.data.windowId);
-            if (!hasRemove && !syncSuccess) {
+            if (!hasRemove || !syncSuccess) {
                 TabNodeOperations.updatePartial(toRemoveNode, { closed: true, active: false });
                 WindowNodeOperations.updateWindowStatus(windowNode);
             }
