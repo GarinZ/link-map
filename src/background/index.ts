@@ -12,11 +12,13 @@ try {
     log.setLevel(__ENV__ === 'development' ? 'debug' : 'silent');
 
     // ext安装后的状态
-    browser.runtime.onInstalled.addListener(async () => {
+    browser.runtime.onInstalled.addListener(async (details) => {
         log.debug('Extension installed');
         log.debug(__ENV__);
         // 清除localStorage中的extPageInfo
-        await setIsNewUser(true);
+        if (details.reason === 'install') {
+            await setIsNewUser(true);
+        }
         await removeExtPageInfo();
     });
 
