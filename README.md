@@ -1,4 +1,6 @@
 # ⭐️ Link Map
+Language: [English](https://github.com/GarinZ/link-map/blob/release/README.md) | [中文](https://github.com/GarinZ/link-map/blob/release/README_zh.md)
+
 <img src="https://user-images.githubusercontent.com/7566103/226504871-4b8feefa-9cd0-48e1-bf70-e20e866b3ed4.png" width="500">
 
 > Profession Browser Tab Manager for Chrome and Edge
