@@ -1,14 +1,15 @@
 @import url('../../../styles/common.less');
 
 ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgb(56 56 56 / 50%);
-    border: 1px solid #3d3d3d;
+    display: none;
+    background-color: var(--scrollbar-bgc);
+    border: 1px solid var(--scrollbar-border);
     border-radius: 50px;
 }
 
@@ -64,6 +65,10 @@ body {
         flex: 1;
         flex-direction: column;
         height: calc(100% - 50px - 40px);
+
+        &:hover ::-webkit-scrollbar-thumb {
+            display: block;
+        }
 
         #tree {
             flex: 1;
@@ -315,6 +320,7 @@ body {
 
 .tab-active-style {
     .fancytree-title {
+        font-weight: bold;
         color: var(--title-tab-active-color) !important;
     }
 
@@ -353,7 +359,7 @@ body {
             line-height: 22px;
             background-color: var(--button-group-bg-color);
             border-radius: 3px;
-            box-shadow: 2px 0 3px var(--button-group-shadow-color);
+            box-shadow: 0 0 3px var(--button-group-shadow-color);
 
             .zt-node-btn {
                 box-sizing: border-box;
@@ -369,8 +375,8 @@ body {
                 border-right: 1px solid var(--button-group-splitter-color);
 
                 &:hover {
-                    color: var(--title-color);
-                    background-color: #2a2a2a;
+                    color: var(--button-group-hover-color);
+                    background-color: var(--button-group-hover-bg-color);
                 }
 
                 &:last-child {
@@ -407,7 +413,7 @@ body {
 
 .context-menu-list {
     padding: 8px 4px;
-    background-color: #343134;
+    background-color: var(--ctx-menu-bg-color);
     //border-color: #4e525b;
     border-color: transparent;
     border-radius: 8px;
@@ -416,12 +422,12 @@ body {
     .context-menu-item {
         font-family: var(--font-family) !important;
         font-size: var(--main-font-size);
-        color: white;
+        color: var(--ctx-menu-font-color);
         background-color: transparent;
         border-radius: 4px;
 
         &.context-menu-hover {
-            background-color: #4e525b;
+            background-color: var(--ctx-menu-hover-bg-color);
         }
     }
 
@@ -432,7 +438,7 @@ body {
 
     .context-menu-icon::before {
         font-family: iconfont, serif;
-        color: white;
+        color: var(--ctx-menu-font-color);
     }
 }
 

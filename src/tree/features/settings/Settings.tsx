@@ -1,5 +1,5 @@
 import { sendMessage } from '@garinz/webext-bridge';
-import { Button, message, Modal } from 'antd';
+import { Button, message, Modal, Switch } from 'antd';
 import log from 'loglevel';
 import { useState } from 'react';
 import browser from 'webextension-polyfill';
@@ -116,6 +116,13 @@ const Settings = () => {
                 onOk={hideModal}
                 footer={null}
             >
+                <div className={'setting-section'}>
+                    <div className="setting-head divider">Appearance</div>
+                    <div className="settings-item">
+                        <span className="settings-item-desc">light/dark mode:</span>
+                        <Switch />
+                    </div>
+                </div>
                 <div className={'setting-section'}>
                     <div className="setting-head divider">
                         {browser.i18n.getMessage('settingsImportExport')}
