@@ -176,4 +176,4 @@ tags
 .jest
 .idea
 
-extension.zip
+*.zip

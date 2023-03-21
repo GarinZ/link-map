@@ -4,16 +4,15 @@
     "version": "1.0.3",
     "browserslist": "Chrome >= 96",
     "description": "Vertical Tabs Sidebar, But In Tree Structure",
-    "private": true,
     "author": "Garin",
     "license": "MIT",
-    "homepage": "https://garinzhang.com",
+    "homepage": "https://linkmap.cc",
     "repository": {
         "type": "git",
-        "url": "git+ssh://git@github.com/tjx666/awesome-chrome-extension-boilerplate.git"
+        "url": "git+ssh://git@github.com:GarinZ/link-map.git"
     },
     "bugs": {
-        "url": "https://garin_zh@163.com"
+        "url": "https://garin@linkmap.cc"
     },
     "engines": {
         "node": "^18.12.1"
