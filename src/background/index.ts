@@ -4,6 +4,7 @@ import browser from 'webextension-polyfill';
 
 import type { LocalStorageImportData } from '../import/App';
 import { getExtPageInfo, removeExtPageInfo, setExtPageInfo } from '../storage/ext-page-info';
+import { TabMasterDB } from '../storage/idb';
 import { setIsNewUser } from '../storage/new-user';
 import type { ExportJsonData } from '../tree/features/settings/Settings';
 import { isContentScriptPage, sendMessageToExt } from './event-bus';
@@ -13,12 +14,15 @@ try {
 
     // ext安装后的状态
     browser.runtime.onInstalled.addListener(async (details) => {
-        log.debug('Extension installed');
+        log.debug('Extension installed', details.reason);
         log.debug(__ENV__);
         // 清除localStorage中的extPageInfo
         if (details.reason === 'install') {
             await setIsNewUser(true);
         }
+        const db = new TabMasterDB();
+        await db.initSetting();
+
         await removeExtPageInfo();
     });
 

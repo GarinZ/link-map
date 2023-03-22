@@ -184,7 +184,7 @@ if (ENABLE_DEVTOOLS) {
         new HtmlWebpackTagsPlugin({
             tags: ['js/react-devtools.js'],
             append: false,
-            files: ['options.html', 'popup.html'],
+            files: ['options.html', 'popup.html', 'tree.html'],
         }),
     );
 }

@@ -115,5 +115,17 @@
     },
     "tipsFinish": {
         "message": "完成！可以删除这些节点并开始使用！"
+    },
+    "appearance": {
+        "message": "外观"
+    },
+    "theme": {
+        "message": "主题"
+    },
+    "themeLight": {
+        "message": "明亮模式"
+    },
+    "themeDark": {
+        "message": "暗黑模式"
     }
 }

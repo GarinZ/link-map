@@ -1,22 +1,5 @@
 @import url('../../../styles/common.less');
 
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-    background-color: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    display: none;
-    background-color: var(--scrollbar-bgc);
-    border: 1px solid var(--scrollbar-border);
-    border-radius: 50px;
-}
-
-::-webkit-scrollbar-corner {
-    background-color: transparent;
-}
-
 body {
     position: relative;
     height: 100vh;
@@ -34,6 +17,23 @@ body {
         display: flex;
         flex-direction: column;
         height: 100%;
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+            background-color: var(--main-bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            display: none;
+            background-color: var(--scrollbar-bgc);
+            border: 1px solid var(--scrollbar-border);
+            border-radius: 50px;
+        }
+
+        ::-webkit-scrollbar-corner {
+            background-color: var(--main-bg-color);
+        }
     }
 
     #header {
@@ -356,6 +356,7 @@ body {
             align-items: center;
             justify-content: center;
             height: 22px;
+            font-weight: normal;
             line-height: 22px;
             background-color: var(--button-group-bg-color);
             border-radius: 3px;

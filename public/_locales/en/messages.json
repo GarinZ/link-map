@@ -115,5 +115,17 @@
     },
     "tipsFinish": {
         "message": "Finish! you can delete these nodes now"
+    },
+    "appearance": {
+        "message": "Appearance"
+    },
+    "theme": {
+        "message": "Theme"
+    },
+    "themeLight": {
+        "message": "Light"
+    },
+    "themeDark": {
+        "message": "Dark"
     }
 }
