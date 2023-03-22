@@ -1,8 +1,8 @@
 ---
-name: feedback
-about: From Extension's feedback button
+name: Feedback
+about: Suggestion/Bug Report/Ask Help/New Feature Asking, etc.
 title: "[FeedBack] Give short description for your problems or suggestions"
-labels: ''
+labels: help wanted
 assignees: ''
 
 ---
