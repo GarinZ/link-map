@@ -23,3 +23,13 @@ With Link Map, even if you have a large number of tabs and windows, you can mana
 - [Edge Addon](https://microsoftedge.microsoft.com/addons/detail/link-map/penpmngcolockpbmeeafkmbefjijbaej)
 - Download from [Release](https://github.com/GarinZ/link-map/releases), load `.zip` file into Chrome/Edge from the extension/addon page.
 
+## 🔒 About Permission Usage
+- tabs: For supporting the main feature, which is tab management.
+- storage: For Saving and Recovering the tree view status by indexedDB. 
+- activeTab: To show currently active tab in the tree view.
+- windows: For supporting the main feature, which is window management.
+- downloads: Extension need to download `.json` file for the expoort function
+- system.display: To initialize the tree view position and width/height.
+
+## Have problmes or need help?
+- [issue](https://github.com/GarinZ/link-map/issues)
