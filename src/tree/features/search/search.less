@@ -3,7 +3,7 @@
 .search-input {
     display: flex;
     height: 30px;
-    padding-left: 8px;
+    padding: 0 8px;
     line-height: 30px;
     vertical-align: middle;
     background-color: var(--search-input-bg-color);
@@ -38,5 +38,9 @@
 
     &.focus {
         border-color: var(--search-input-border-focus-color);
+    }
+
+    .search-shortcut-info {
+        color: var(--search-input-placeholder-color);
     }
 }

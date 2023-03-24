@@ -29,6 +29,16 @@ const manifest: Manifest.WebExtensionManifest = {
     //         js: ['js/all.js', ...(__DEV__ ? [] : ['js/all.js'])],
     //     },
     // ],
+
+    commands: {
+        _execute_action: {
+            suggested_key: {
+                default: 'Shift+Ctrl+L',
+                mac: 'Shift+Command+L',
+            },
+            description: '__MSG_commandTriggerLinkMap__',
+        },
+    },
     action: {
         // default_popup: 'popup.html',
         default_icon: {

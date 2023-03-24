@@ -6,6 +6,7 @@ import { DEFAULT_SETTING } from '../../storage/idb';
 import { getIsNewUser, setIsNewUser } from '../../storage/new-user';
 import { SettingContext } from '../context';
 import Feedback from './feedback/Feedback';
+import Help from './help/Help';
 import Locate from './locate/Locate';
 import { Search } from './search/Search';
 import Settings from './settings/Settings';
@@ -18,9 +19,12 @@ import Welcome from './tutorial/Welcome';
 const App: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [setting, setSetting] = useState(DEFAULT_SETTING);
-    store.db.getSetting().then((setting) => {
-        setting && setSetting(setting);
-    });
+
+    useEffect(() => {
+        store.db.getSetting().then((setting) => {
+            setting && setSetting(setting);
+        });
+    }, []);
 
     useEffect(() => {
         $(':root').attr('theme', setting.theme);
@@ -54,6 +58,10 @@ const App: React.FC = () => {
                         <Feedback />
                     </span>
                 </div>
+                <Help />
+                {/* <FloatButton */}
+                {/*     icon={<i className={"iconfont icon-keyboard"} />} */}
+                {/*     href="https://www.notion.so/garin-public/Shortcuts-d0b12e0520fd41f7befb2be3e1112ee1" target="_blank" /> */}
                 <Modal
                     title={`🎉 ${browser.i18n.getMessage('welcomeTitle')}`}
                     open={isModalOpen}

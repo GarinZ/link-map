@@ -1,8 +1,10 @@
 import { escape } from 'lodash';
+import Mousetrap from 'mousetrap';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useState } from 'react';
 import browser from 'webextension-polyfill';
 
+import { getDisplayName, ShortcutMap } from '../shortcuts/config';
 import store from '../store';
 import { clearHighLightFields } from '../tab-master-tree/plugins/filter';
 
@@ -53,11 +55,14 @@ const onSearch = (val: string) => {
     }
 };
 
+let inputRef: HTMLInputElement | null = null;
+Mousetrap.bind(ShortcutMap.search.key, (e) => {
+    e.preventDefault();
+    inputRef!.focus();
+});
 export const Search = () => {
     const [value, setValue] = useState('');
     const [focus, setFocus] = useState(false);
-
-    let inputRef: HTMLInputElement | null = null;
 
     const onKeyUp = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e && e.keyCode === $.ui.keyCode.ESCAPE) {
@@ -85,13 +90,15 @@ export const Search = () => {
                 onKeyUp={onKeyUp}
                 value={value}
                 onChange={onChange}
-                placeholder={browser.i18n.getMessage('search')}
+                placeholder={`${browser.i18n.getMessage('search')}`}
                 onFocus={() => setFocus(true)}
                 onBlur={() => setFocus(false)}
             />
-            {/* <span className={'matches'}> */}
-            {/*     mataches: <span className={'count'} /> */}
-            {/* </span> */}
+            {focus ? null : (
+                <span className={'search-shortcut-info'}>
+                    {getDisplayName(ShortcutMap.search.key)}
+                </span>
+            )}
         </div>
     );
 };

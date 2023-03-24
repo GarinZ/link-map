@@ -127,5 +127,32 @@
     },
     "themeDark": {
         "message": "Dark"
+    },
+    "commandTriggerLinkMap": {
+        "message": "Open Link Map"
+    },
+    "goToPreviousNode": {
+        "message": "Go to previous node"
+    },
+    "goToNextNode": {
+        "message": "Go to next node"
+    },
+    "goToParentNode": {
+        "message": "Go to parent node"
+    },
+    "expand": {
+        "message": "Expand sub nodes"
+    },
+    "collapse": {
+        "message": "Collapse sub nodes"
+    },
+    "basicOperation": {
+        "message": "Basic Operation"
+    },
+    "navigation": {
+        "message": "Navigation"
+    },
+    "shortcut": {
+        "message": "Shortcut"
     }
 }

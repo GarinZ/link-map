@@ -127,5 +127,32 @@
     },
     "themeDark": {
         "message": "暗黑模式"
+    },
+    "commandTriggerLinkMap": {
+        "message": "打开Link Map"
+    },
+    "goToPreviousNode": {
+        "message": "选中前一个节点"
+    },
+    "goToNextNode": {
+        "message": "选中后一个节点"
+    },
+    "goToParentNode": {
+        "message": "选中父节点"
+    },
+    "expand": {
+        "message": "展开子节点"
+    },
+    "collapse": {
+        "message": "收起子节点"
+    },
+    "basicOperation": {
+        "message": "基本操作"
+    },
+    "navigation": {
+        "message": "导航"
+    },
+    "shortcut": {
+        "message": "快捷键"
     }
 }
