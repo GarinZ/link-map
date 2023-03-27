@@ -14,5 +14,7 @@ try {
         </HashRouter>,
     );
 } catch (error) {
+    // temp fix for tab missing error
+    location.reload();
     log.error(error);
 }
