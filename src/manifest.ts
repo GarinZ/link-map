@@ -29,9 +29,8 @@ const manifest: Manifest.WebExtensionManifest = {
     //         js: ['js/all.js', ...(__DEV__ ? [] : ['js/all.js'])],
     //     },
     // ],
-
     commands: {
-        _execute_action: {
+        openLinkMap: {
             suggested_key: {
                 default: 'Shift+Ctrl+L',
                 mac: 'Shift+Command+L',

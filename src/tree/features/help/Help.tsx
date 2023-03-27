@@ -1,15 +1,32 @@
 import { Popover } from 'antd';
+import type { RenderFunction } from 'antd/es/tooltip';
 import { groupBy, sortBy } from 'lodash';
-import React from 'react';
+import React, { useState } from 'react';
 import browser from 'webextension-polyfill';
 
-import { getDisplayName, ShortcutMap, shortcutTypesOrder } from '../shortcuts/config';
+import {
+    getDisplayName,
+    getShortCutMap,
+    ShortcutMap,
+    shortcutTypesOrder,
+} from '../shortcuts/config';
 
 import './help.less';
 
-const groupedShortcutMap = groupBy(Object.values(ShortcutMap), 'type');
+const defaultGroupedShortcutMap = groupBy(Object.values(ShortcutMap), 'type');
+const openShortcutSettingPage = (url: string | undefined) => {
+    if (!url) return;
+    browser.tabs.create({ url }).then((tab) => {
+        if (!tab.windowId) return;
+        browser.windows.update(tab.windowId, { focused: true });
+    });
+};
+const ShortcutsDoc: RenderFunction = () => {
+    const [groupedShortcutMap, setGroupedShortcutMap] = useState(defaultGroupedShortcutMap);
+    getShortCutMap().then((shortcutMap) => {
+        setGroupedShortcutMap(groupBy(Object.values(shortcutMap), 'type'));
+    });
 
-const shortcutsDoc = () => {
     return (
         <div className={'shortcuts-doc'}>
             {shortcutTypesOrder.map((type) => {
@@ -25,7 +42,20 @@ const shortcutsDoc = () => {
                                             {shortcut.name}
                                         </span>
                                         <span className={'shortcuts-doc-key'}>
-                                            {getDisplayName(shortcut.key)}
+                                            {shortcut.setUrl ? (
+                                                <a
+                                                    href={shortcut.setUrl}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    onClick={() =>
+                                                        openShortcutSettingPage(shortcut.setUrl)
+                                                    }
+                                                >
+                                                    {getDisplayName(shortcut.key)}
+                                                </a>
+                                            ) : (
+                                                getDisplayName(shortcut.key)
+                                            )}
                                         </span>
                                     </div>
                                 );
@@ -42,7 +72,7 @@ const Help: React.FC = () => {
     return (
         <Popover
             overlayClassName={'help-popover'}
-            content={shortcutsDoc}
+            content={ShortcutsDoc}
             title={browser.i18n.getMessage('shortcut')}
         >
             <div className={'help-float-btn'}>

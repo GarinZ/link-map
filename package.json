@@ -19,9 +19,10 @@
     },
     "scripts": {
         "preinstall": "npx only-allow pnpm",
-        "start": "cross-env NODE_ENV=development ts-node --files ./server/start.ts",
+        "start": "cross-env NODE_ENV=development TARGET=chrome ts-node --files ./server/start.ts",
         "devtools": "pnpm start --devtools",
-        "build": "cross-env NODE_ENV=production ts-node --files ./server/build.ts",
+        "build": "cross-env NODE_ENV=production TARGET=chrome ts-node --files ./server/build.ts",
+        "build-edge": "cross-env NODE_ENV=production TARGET=edge ts-node --files ./server/build.ts",
         "build:analyze": "pnpm build --analyze",
         "test": "pnpm build",
         "lint": "pnpm lint:es && pnpm lint:style",

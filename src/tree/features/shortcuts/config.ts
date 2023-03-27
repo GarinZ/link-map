@@ -2,6 +2,7 @@ import { message } from 'antd';
 import type { ExtendedKeyboardEvent } from 'mousetrap';
 import browser from 'webextension-polyfill';
 
+import { getShortcutSettingUrl } from '../../../config/browser-adapter-config';
 import { getOS } from '../../../utils';
 import { FancyTabMasterTree } from '../tab-master-tree/fancy-tab-master-tree';
 
@@ -23,6 +24,7 @@ interface IShortcut {
     type: ShortcutTypes;
     index: number;
     callback?: (e: ExtendedKeyboardEvent, tmTree: FancyTabMasterTree) => void;
+    setUrl?: string;
 }
 
 interface IShortcutMap {
@@ -71,6 +73,7 @@ export const ShortcutMap: IShortcutMap = {
         key: [getOS() === 'MacOS' ? 'Shift + Command + L' : 'Shift + Ctrl + L'],
         type: 'Basic Operation',
         index: 0,
+        setUrl: getShortcutSettingUrl(),
     },
     edit: {
         name: browser.i18n.getMessage('ctxMenuEdit'),
@@ -132,4 +135,11 @@ export const getDisplayName = (keys: string[]) => {
             return displayName.replace('Command', '⌘');
         })
         .join('/');
+};
+
+export const getShortCutMap = async () => {
+    const shortcuts = await browser.commands.getAll();
+    const activeShortCut = shortcuts.find((shortcut) => shortcut.name === 'openLinkMap')!.shortcut;
+    ShortcutMap.activeLinkMap.key = [activeShortCut?.split('').join(' + ') ?? 'unset'];
+    return ShortcutMap;
 };
