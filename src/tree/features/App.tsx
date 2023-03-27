@@ -14,7 +14,8 @@ import store from './store';
 import type { FancyTabMasterTree } from './tab-master-tree/fancy-tab-master-tree';
 import { TabMasterTree } from './tab-master-tree/TabMasterTree';
 import { buildTutorialNodes } from './tutorial/tutorial-nodes';
-import Welcome from './tutorial/Welcome';
+
+import '../../styles/app.less';
 
 const App: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,9 +69,7 @@ const App: React.FC = () => {
                     onCancel={handleCancel}
                     footer={null}
                     className={'welcome-modal'}
-                >
-                    <Welcome />
-                </Modal>
+                />
             </div>
         </SettingContext.Provider>
     );

@@ -37,6 +37,26 @@
         }
     }
 
+    .ant-select {
+        &.ant-select-open {
+            .ant-select-selector .ant-select-selection-item {
+                color: var(--select-selection-item-color);
+            }
+        }
+
+        .ant-select-selector {
+            background-color: var(--select-bg-color);
+
+            .ant-select-selection-item {
+                color: var(--select-font-color);
+            }
+        }
+
+        .ant-select-arrow {
+            color: var(--select-font-color);
+        }
+    }
+
     .setting-head {
         margin-bottom: 10px;
         font-size: 13px;
@@ -51,16 +71,25 @@
 
     .settings-item {
         margin-top: 10px;
+    }
+}
 
-        //.setting-item-btn {
-        //    //color: var(--main-font-color);
-        //    //background-color: transparent;
-        //    //transition: none;
-        //
-        //    &:hover {
-        //        //color: white;
-        //        //border-color: white;
-        //    }
-        //}
+.settings-select-popup.ant-select-dropdown {
+    background-color: var(--select-bg-color);
+
+    .ant-select-item {
+        color: var(--select-font-color);
+
+        &:hover {
+            background-color: var(--select-hover-bg-color);
+        }
+
+        &.ant-select-item-option-active {
+            background-color: var(--select-hover-bg-color);
+        }
+
+        &.ant-select-item-option-selected {
+            background-color: var(--select-selected-item-bg-color);
+        }
     }
 }

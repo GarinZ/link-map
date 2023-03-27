@@ -12,6 +12,7 @@ import { IMPORT_TREE_DND5_CONFIG } from './import-dnd';
 import type { TabOutliner } from './parse-tab-outliner';
 import { parseTabOutlinerData } from './parse-tab-outliner';
 
+import '../styles/app.less';
 import './import.less';
 
 export interface LinkMapImportData {

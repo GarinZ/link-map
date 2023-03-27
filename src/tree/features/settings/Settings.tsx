@@ -136,6 +136,7 @@ const Settings = () => {
                             style={{ width: 120 }}
                             size={'small'}
                             onChange={handleThemeChange}
+                            popupClassName={'settings-select-popup'}
                             options={[
                                 { value: 'light', label: browser.i18n.getMessage('themeLight') },
                                 { value: 'dark', label: browser.i18n.getMessage('themeDark') },
