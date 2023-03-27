@@ -23,3 +23,14 @@ Link Map是一个浏览器标签侧边栏，更适用于重度信息消费者。
 - [Edge Addon](https://microsoftedge.microsoft.com/addons/detail/link-map/penpmngcolockpbmeeafkmbefjijbaej)
 - 从[Release](https://github.com/GarinZ/link-map/releases)下载`.zip`文件，打开开发模式，将zip文件加载到浏览器中。
 
+## 🔒 关于的权限使用
+- tabs: 用于支持主要功能，即浏览器标签管理。
+- storage: 用于通过indexedDB保存和恢复树形视图的状态。
+- activeTab: 在树形视图中显示当前激活的标签。
+- windows: 用于支持主要功能，即窗口管理。
+- downloads: 扩展程序需要下载.json文件以进行导出功能。
+- system.display: 用于初始化树形视图的位置和宽度/高度。
+
+## 有问题或需要帮助？
+- [issue](https://github.com/GarinZ/link-map/issues)
+- [LinkMap的开发路线图](https://www.notion.so/linkmap/82a71b81a9be4e669ce174ed95fc0966)
