@@ -1,6 +1,7 @@
 import { onMessage } from '@garinz/webext-bridge';
 import React, { useEffect, useState } from 'react';
 
+import registerShortcuts from '../shortcuts/shortcuts';
 import Store from '../store';
 import type { FancyTabMasterTreeConfig } from './fancy-tab-master-tree';
 import { FancyTabMasterTree } from './fancy-tab-master-tree';
@@ -46,6 +47,7 @@ const registerBrowserEventHandlers = (tmTree: FancyTabMasterTree) => {
     onMessage('add-window', (msg) => {
         tmTree.createWindow(msg.data);
     });
+    registerShortcuts(tmTree);
 };
 
 export interface TabMasterTreeProps extends FancyTabMasterTreeConfig {
@@ -69,7 +71,9 @@ export const TabMasterTree: React.FC<TabMasterTreeProps> = ({ source, onInit, ..
             }
         });
         if (otherProps.enableBrowserEventHandler) {
-            loadedPromise.then(() => registerBrowserEventHandlers(tmTree));
+            loadedPromise.then(() => {
+                registerBrowserEventHandlers(tmTree);
+            });
         }
     }, []);
 

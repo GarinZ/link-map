@@ -30,3 +30,19 @@ export const downloadJsonWithExtensionAPI = (
 export const generateKeyByTime = (): string => {
     return Date.now().toString(36) + Math.random().toString(36).slice(2);
 };
+
+export const getOS = (): 'Win' | 'MacOS' | 'Other' => {
+    if (navigator.platform.includes('Win')) {
+        return 'Win';
+    } else if (navigator.platform.includes('Mac')) {
+        return 'MacOS';
+    } else {
+        return 'Other';
+    }
+};
+
+export const getFaviconUrl = (url: string) => {
+    return `chrome-extension://${browser.i18n.getMessage(
+        '@@extension_id',
+    )}/_favicon/?pageUrl=${url}&size=16`;
+};

@@ -108,6 +108,7 @@ const commonConfig: Configuration = {
         new DefinePlugin({
             __ENV__: JSON.stringify(process.env.NODE_ENV),
             __VERSION__: JSON.stringify(process.env.npm_package_version),
+            __TARGET__: JSON.stringify(process.env.TARGET),
         }),
     ],
     module: {
@@ -184,7 +185,7 @@ if (ENABLE_DEVTOOLS) {
         new HtmlWebpackTagsPlugin({
             tags: ['js/react-devtools.js'],
             append: false,
-            files: ['options.html', 'popup.html'],
+            files: ['options.html', 'popup.html', 'tree.html'],
         }),
     );
 }

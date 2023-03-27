@@ -2,7 +2,9 @@ import { Spin } from 'antd';
 import { useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
 
+import { DEFAULT_SETTING } from '../storage/idb';
 import type { ExportJsonData } from '../tree/features/settings/Settings';
+import store from '../tree/features/store';
 import type { TabData } from '../tree/features/tab-master-tree/nodes/tab-node-operations';
 import { NodeUtils } from '../tree/features/tab-master-tree/nodes/utils';
 import type { TabMasterTreeProps } from '../tree/features/tab-master-tree/TabMasterTree';
@@ -12,6 +14,7 @@ import { IMPORT_TREE_DND5_CONFIG } from './import-dnd';
 import type { TabOutliner } from './parse-tab-outliner';
 import { parseTabOutlinerData } from './parse-tab-outliner';
 
+import '../styles/app.less';
 import './import.less';
 
 export interface LinkMapImportData {
@@ -43,6 +46,17 @@ const resetProps = (data: ExportJsonData) => {
 const App = () => {
     const [loading, setLoading] = useState(true);
     const [importData, setImportData] = useState<ExportJsonData>({ rawData: [] });
+    const [setting, setSetting] = useState(DEFAULT_SETTING);
+
+    useEffect(() => {
+        store.db.getSetting().then((setting) => {
+            setting && setSetting(setting);
+        });
+    }, []);
+
+    useEffect(() => {
+        $(':root').attr('theme', setting.theme);
+    }, [setting]);
     const tabMasterTreeProps: TabMasterTreeProps = {
         source: importData.rawData,
         enableBrowserEventHandler: false,

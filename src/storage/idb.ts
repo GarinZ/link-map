@@ -1,8 +1,5 @@
-import type { DataTypeKey, GetDataType } from '@garinz/webext-bridge';
 import { Dexie } from 'dexie';
-import type { JsonValue } from 'type-fest';
 
-const DB_VERSION = 1;
 export const DB_KEY = 'snapshot';
 
 interface Snapshot {
@@ -11,26 +8,32 @@ interface Snapshot {
     updateTime: number;
 }
 
-export interface Message {
-    id?: number;
-    ts: number;
-    messageId: DataTypeKey;
-    data: any;
+export interface Setting {
+    id: number;
+    theme: 'light' | 'dark';
+    display: 'popup' | 'tab' | 'embedded-sidebar';
 }
+
+export const DEFAULT_SETTING: Setting = {
+    id: 1,
+    theme: 'dark',
+    display: 'popup',
+};
 
 export class TabMasterDB extends Dexie {
     // Declare implicit table properties.
     // (just to inform Typescript. Instanced by Dexie in stores() method)
     snapshot!: Dexie.Table<Snapshot, string>;
-    mq!: Dexie.Table<Message, number>;
+    setting!: Dexie.Table<Setting, number>;
 
     // ...other tables goes here...
 
     constructor() {
         super('TabMasterDB');
-        this.version(DB_VERSION).stores({
+
+        this.version(2).stores({
             snapshot: 'id',
-            mq: '++id',
+            setting: 'id',
             // ...other tables goes here...
         });
     }
@@ -44,25 +47,18 @@ export class TabMasterDB extends Dexie {
         await this.snapshot.put({ data: snapshot, id: DB_KEY, updateTime: Date.now() });
     }
 
-    async pushMsg<K extends DataTypeKey>(messageId: K, message: GetDataType<K, JsonValue>) {
-        await this.mq.add({ messageId, data: message, ts: Date.now() });
-    }
-
-    async popMsg() {
-        const message = await this.mq.orderBy('ts').first();
-        if (message) {
-            await this.mq.delete(message.id!);
+    async initSetting() {
+        const currentSetting = await this.getSetting();
+        if (!currentSetting) {
+            await this.setting.put(DEFAULT_SETTING);
         }
-        return message;
     }
 
-    async clearMsg() {
-        await this.mq.clear();
+    async getSetting() {
+        return this.setting.get(1);
     }
 
-    async consumeAllMsg() {
-        const messages = await this.mq.toArray();
-        await this.mq.clear();
-        return messages;
+    async updateSettingPartial(setting: Partial<Setting>) {
+        await this.setting.update(1, setting);
     }
 }

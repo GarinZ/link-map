@@ -1,0 +1,62 @@
+.help-float-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    line-height: 30px;
+    color: var(--btn-icon-color);
+    text-align: center;
+    cursor: pointer;
+    background-color: var(--main-bg-color);
+    border: 1px solid var(--btn-border-color);
+    border-radius: 15px;
+    box-shadow: 0 0 5px 0 rgb(0 0 0 / 20%);
+    transition: all 0.3s;
+
+    &:focus-visible {
+        outline: 0;
+    }
+
+    &:hover {
+        color: var(--main-font-color);
+        background-color: var(--btn-hover-bg-color);
+    }
+}
+
+.help-popover {
+    .ant-popover-arrow {
+        display: none;
+    }
+}
+
+.shortcuts-doc {
+    .shortcuts-doc-section {
+        margin-bottom: 10px;
+    }
+
+    .shortcuts-doc-type {
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .shortcuts-doc-content {
+        font-size: 12px;
+    }
+
+    .shortcuts-doc-item {
+        display: flex;
+        margin-bottom: 3px;
+    }
+
+    .shortcuts-doc-name {
+        flex: 1;
+    }
+
+    .shortcuts-doc-key {
+        padding: 0 4px;
+        background-color: #d9d9d9;
+        border-radius: 4px;
+    }
+}

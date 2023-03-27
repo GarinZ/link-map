@@ -80,12 +80,18 @@ export const registerContextMenu = () => {
                     newNode.editStart();
                     break;
                 }
-                case 'insertNodeAsFirstSubNode':
-                    node.addNode(NoteNodeOperations.createData(), 'firstChild').editStart();
+                case 'insertNodeAsFirstSubNode': {
+                    const newTag = node.addNode(NoteNodeOperations.createData(), 'firstChild');
+                    node.setExpanded(true);
+                    newTag.editStart();
                     break;
-                case 'insertNodeAsLastSubNode':
-                    node.addNode(NoteNodeOperations.createData(), 'child').editStart();
+                }
+                case 'insertNodeAsLastSubNode': {
+                    const newTag = node.addNode(NoteNodeOperations.createData(), 'child');
+                    node.setExpanded(true);
+                    newTag.editStart();
                     break;
+                }
                 case 'focusCurrentNode':
                     node.setActive();
                     node.tree.filterBranches((node) => node.isActive(), { mode: 'hide' });

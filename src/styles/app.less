@@ -1,0 +1,58 @@
+@import url('./iconfont/iconfont.css');
+@import url('./dark-mode.less');
+@import url('./light-mode.less');
+
+html {
+    button.ant-btn {
+        font-size: 12px;
+        color: var(--btn-icon-color);
+        background-color: var(--btn-bg-color);
+        border: 1px solid var(--btn-border-color);
+        box-shadow: none;
+
+        &:focus-visible {
+            outline: 0;
+        }
+
+        &:hover {
+            color: var(--main-font-color);
+            //background-color: var(--btn-hover-bg-color);
+        }
+    }
+}
+
+.ant-modal {
+    .ant-modal-header {
+        background-color: var(--main-bg-color);
+
+        .ant-modal-title {
+            color: var(--main-font-color);
+        }
+    }
+
+    .ant-modal-content {
+        color: var(--main-font-color);
+        background-color: var(--main-bg-color);
+
+        .ant-modal-close-x {
+            color: var(--main-font-color);
+        }
+    }
+}
+
+.ant-float-btn {
+    .ant-float-btn-body {
+        background-color: var(--main-bg-color);
+
+        .iconfont {
+            color: var(--main-font-color);
+        }
+    }
+}
+
+body {
+    --main-font-size: 11px;
+    --font-family: inter, ui-sans-serif, system-ui, -apple-system, blinkmacsystemfont, 'Segoe UI',
+        roboto, 'Helvetica Neue', arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}

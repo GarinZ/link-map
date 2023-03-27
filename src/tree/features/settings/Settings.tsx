@@ -1,10 +1,11 @@
 import { sendMessage } from '@garinz/webext-bridge';
-import { Button, message, Modal } from 'antd';
+import { Button, message, Modal, Select } from 'antd';
 import log from 'loglevel';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import browser from 'webextension-polyfill';
 
 import { downloadJsonWithExtensionAPI, getFormattedData } from '../../../utils';
+import { SettingContext } from '../../context';
 import Feedback from '../feedback/Feedback';
 import store from '../store';
 import type { TreeData, TreeNode } from '../tab-master-tree/nodes/nodes';
@@ -32,6 +33,7 @@ const handleExport = () => {
 
 const Settings = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { setting, setSetting } = useContext(SettingContext);
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -98,6 +100,11 @@ const Settings = () => {
         }
     };
 
+    const handleThemeChange = async (value: 'dark' | 'light') => {
+        await store.db.updateSettingPartial({ theme: value });
+        setSetting({ ...setting, theme: value });
+    };
+
     return (
         <div className="settings-container">
             <div>
@@ -116,6 +123,27 @@ const Settings = () => {
                 onOk={hideModal}
                 footer={null}
             >
+                <div className={'setting-section'}>
+                    <div className="setting-head divider">
+                        {browser.i18n.getMessage('appearance')}
+                    </div>
+                    <div className="settings-item">
+                        <span className="settings-item-desc">
+                            {browser.i18n.getMessage('theme')}:
+                        </span>
+                        <Select
+                            value={setting.theme}
+                            style={{ width: 120 }}
+                            size={'small'}
+                            onChange={handleThemeChange}
+                            popupClassName={'settings-select-popup'}
+                            options={[
+                                { value: 'light', label: browser.i18n.getMessage('themeLight') },
+                                { value: 'dark', label: browser.i18n.getMessage('themeDark') },
+                            ]}
+                        />
+                    </div>
+                </div>
                 <div className={'setting-section'}>
                     <div className="setting-head divider">
                         {browser.i18n.getMessage('settingsImportExport')}
@@ -142,7 +170,7 @@ const Settings = () => {
                     </div>
                     <div className="settings-item">
                         <span className="settings-item-desc">
-                            {browser.i18n.getMessage('feedbackDesc')}
+                            {browser.i18n.getMessage('feedbackDesc')}:
                         </span>
                         <Feedback />
                     </div>

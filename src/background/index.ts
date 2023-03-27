@@ -4,7 +4,8 @@ import browser from 'webextension-polyfill';
 
 import type { LocalStorageImportData } from '../import/App';
 import { getExtPageInfo, removeExtPageInfo, setExtPageInfo } from '../storage/ext-page-info';
-import { setIsNewUser } from '../storage/new-user';
+import { TabMasterDB } from '../storage/idb';
+import { setIsNewUser, setIsUpdate } from '../storage/user-journey';
 import type { ExportJsonData } from '../tree/features/settings/Settings';
 import { isContentScriptPage, sendMessageToExt } from './event-bus';
 
@@ -13,12 +14,20 @@ try {
 
     // ext安装后的状态
     browser.runtime.onInstalled.addListener(async (details) => {
-        log.debug('Extension installed');
+        log.debug('Extension installed', details.reason);
         log.debug(__ENV__);
+        log.debug(__TARGET__);
         // 清除localStorage中的extPageInfo
         if (details.reason === 'install') {
             await setIsNewUser(true);
         }
+        if (details.reason === 'update') {
+            // chrome.runtime.getManifest().version
+            await setIsUpdate(true);
+        }
+        const db = new TabMasterDB();
+        await db.initSetting();
+
         await removeExtPageInfo();
     });
 
@@ -49,12 +58,7 @@ try {
         await setExtPageInfo({ windowId, tabId });
     });
 
-    /**
-     * 点击插件按钮：打开一个TreeView页面
-     * 将extIdPair更新到localStorage中
-     * This Method Wouldn't Fire if popup has benn set
-     */
-    browser.action.onClicked.addListener(async () => {
+    const focusOrCreateExtWindow = async () => {
         const extIdPair = await getExtPageInfo();
         if (extIdPair == null) {
             await openNewExtWindow();
@@ -67,7 +71,14 @@ try {
                 await openNewExtWindow();
             }
         }
-    });
+    };
+
+    /**
+     * 点击插件按钮：打开一个TreeView页面
+     * 将extIdPair更新到localStorage中
+     * This Method Wouldn't Fire if popup has benn set
+     */
+    browser.action.onClicked.addListener(focusOrCreateExtWindow);
 
     // #### 浏览器Fire的事件
     browser.tabs.onCreated.addListener(async (tab) => {
@@ -175,6 +186,12 @@ try {
 
     onMessage('import-tabOutliner-data', async (data) => {
         createImportPage({ data: data.data, type: 'tabOutliner' });
+    });
+
+    browser.commands.onCommand.addListener(async (command) => {
+        if (command === 'openLinkMap') {
+            await focusOrCreateExtWindow();
+        }
     });
 } catch (error) {
     log.error(error);

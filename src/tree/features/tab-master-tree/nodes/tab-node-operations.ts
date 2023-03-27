@@ -1,6 +1,7 @@
 import { escape } from 'lodash';
 import type { Tabs } from 'webextension-polyfill';
 
+import { getFaviconUrl } from '../../../../utils';
 import type { TreeData, TreeNode } from './nodes';
 import { NodeUtils } from './utils';
 import { WindowNodeOperations } from './window-node-operations';
@@ -15,6 +16,34 @@ export interface TabData extends Tabs.Tab, TreeData {
 }
 
 export const TabNodeOperations = {
+    createSimple(url: string, title: string, alias = ''): TreeNode<TabData> {
+        console.log(getFaviconUrl(url));
+        const defaultTab = {
+            title,
+            url,
+            windowId: 0,
+            id: 0,
+            active: false,
+            favIconUrl: '',
+            index: 0,
+            pinned: false,
+            openerTabId: 0,
+            closed: true,
+            nodeType: 'tab',
+            tabActive: false,
+            alias,
+        } as TabData;
+
+        return {
+            title: escape(title),
+            key: `${defaultTab.id}`,
+            icon: {
+                html: `<img class="fancytree-icon" src="${getFaviconUrl(url)}" alt="">`,
+            },
+            expanded: true,
+            data: defaultTab,
+        };
+    },
     createData(tab: Tabs.Tab): TreeNode<TabData> {
         const { title, windowId, favIconUrl, id, active } = tab;
         const escapedTitle = title ? escape(title) : '';

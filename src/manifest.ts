@@ -8,7 +8,15 @@ const manifest: Manifest.WebExtensionManifest = {
     description: '__MSG_extDesc__',
     manifest_version: 3,
     minimum_chrome_version: pkg.browserslist.split(' ')[2],
-    permissions: ['tabs', 'storage', 'activeTab', 'windows', 'downloads', 'system.display'],
+    permissions: [
+        'tabs',
+        'storage',
+        'activeTab',
+        'windows',
+        'downloads',
+        'system.display',
+        'favicon',
+    ],
     content_security_policy: {
         extension_pages: "script-src 'self' http://localhost; object-src 'self';",
     },
@@ -29,6 +37,15 @@ const manifest: Manifest.WebExtensionManifest = {
     //         js: ['js/all.js', ...(__DEV__ ? [] : ['js/all.js'])],
     //     },
     // ],
+    commands: {
+        openLinkMap: {
+            suggested_key: {
+                default: 'Shift+Ctrl+L',
+                mac: 'Shift+Command+L',
+            },
+            description: '__MSG_commandTriggerLinkMap__',
+        },
+    },
     action: {
         // default_popup: 'popup.html',
         default_icon: {

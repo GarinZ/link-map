@@ -1,7 +1,10 @@
+import { notification } from 'antd';
 import browser from 'webextension-polyfill';
 
+import { getReviewUrl } from '../../../config/browser-adapter-config';
 import type { FancyTabMasterTree } from '../tab-master-tree/fancy-tab-master-tree';
 import { NoteNodeOperations } from '../tab-master-tree/nodes/note-node-operations';
+import { TabNodeOperations } from '../tab-master-tree/nodes/tab-node-operations';
 
 export const buildTutorialNodes = (tmTree: FancyTabMasterTree): void => {
     const rootNote = tmTree.tree.getRootNode();
@@ -43,4 +46,47 @@ export const buildTutorialNodes = (tmTree: FancyTabMasterTree): void => {
         NoteNodeOperations.createData(`8. 🎉 ${browser.i18n.getMessage('tipsFinish')}`),
     ];
     tutorialNode.addChildren(steps);
+};
+
+export const openUpdateNotification = () => {
+    notification.open({
+        message: `⭐ ${browser.i18n.getMessage('updateNoteTitle')}`,
+        description: browser.i18n.getMessage('updateNoteContent'),
+        duration: 3,
+    });
+};
+
+export const buildUpdateTutorialNodes = (tmTree: FancyTabMasterTree): void => {
+    const rootNote = tmTree.tree.getRootNode();
+    const tutorialNode = rootNote.addNode(
+        NoteNodeOperations.createData(`🎁 ${browser.i18n.getMessage('updateTutorialNode')}`),
+        'firstChild',
+    );
+    tutorialNode
+        .addNode(
+            NoteNodeOperations.createData(
+                `⌨️ ${browser.i18n.getMessage('updateTutorialFeature1')}`,
+            ),
+        )
+        .addNode(
+            NoteNodeOperations.createData(browser.i18n.getMessage('updateTutorialFeature1Desc')),
+        );
+    tutorialNode
+        .addNode(
+            NoteNodeOperations.createData(
+                `🌅 ${browser.i18n.getMessage('updateTutorialFeature2')}`,
+            ),
+        )
+        .addNode(
+            NoteNodeOperations.createData(browser.i18n.getMessage('updateTutorialFeature2Desc')),
+        );
+    tutorialNode
+        .addNode(NoteNodeOperations.createData(`🧡 ${browser.i18n.getMessage('reviewLinkMap')}`))
+        .addNode(
+            TabNodeOperations.createSimple(
+                getReviewUrl(),
+                browser.i18n.getMessage('reviewLinkMapDesc2'),
+                ` 👉${browser.i18n.getMessage('reviewLinkMapDesc')}`,
+            ),
+        );
 };

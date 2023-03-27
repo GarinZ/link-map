@@ -25,6 +25,7 @@ specifiers:
   '@types/jquery.contextmenu': 1.7.35
   '@types/jqueryui': 1.12.16
   '@types/lodash': 4.14.190
+  '@types/mousetrap': 1.6.11
   '@types/mustache': 4.2.2
   '@types/node': 18.11.9
   '@types/react': 18.0.25
@@ -85,6 +86,7 @@ specifiers:
   lodash: 4.17.21
   loglevel: 1.8.1
   mini-css-extract-plugin: 2.7.0
+  mousetrap: 1.6.5
   mustache: 4.2.0
   normalize.css: 8.0.1
   open: 8.4.0
@@ -129,6 +131,7 @@ dependencies:
   firebaseui: 6.0.2_firebase@9.17.1
   lodash: 4.17.21
   loglevel: 1.8.1
+  mousetrap: 1.6.5
   mustache: 4.2.0
   normalize.css: 8.0.1
   react: 18.2.0
@@ -161,6 +164,7 @@ devDependencies:
   '@types/jquery.contextmenu': 1.7.35
   '@types/jqueryui': 1.12.16
   '@types/lodash': 4.14.190
+  '@types/mousetrap': 1.6.11
   '@types/mustache': 4.2.2
   '@types/node': 18.11.9
   '@types/react': 18.0.25
@@ -3169,6 +3173,10 @@ packages:
 
   /@types/minimist/1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
+    dev: true
+
+  /@types/mousetrap/1.6.11:
+    resolution: {integrity: sha512-F0oAily9Q9QQpv9JKxKn0zMKfOo36KHCW7myYsmUyf2t0g+sBTbG3UleTPoguHdE1z3GLFr3p7/wiOio52QFjQ==}
     dev: true
 
   /@types/mustache/4.2.2:
@@ -8646,6 +8654,10 @@ packages:
     dependencies:
       minimist: 1.2.7
     dev: true
+
+  /mousetrap/1.6.5:
+    resolution: {integrity: sha512-QNo4kEepaIBwiT8CDhP98umTetp+JNfQYBWvC1pc6/OAibuXtRcxZ58Qz8skvEHYvURne/7R8T5VoOI7rDsEUA==}
+    dev: false
 
   /ms/2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
