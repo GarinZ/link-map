@@ -131,6 +131,9 @@
     "commandTriggerLinkMap": {
         "message": "Open Link Map"
     },
+    "commandUnset": {
+        "message": "Not set"
+    },
     "goToPreviousNode": {
         "message": "Go to previous node"
     },

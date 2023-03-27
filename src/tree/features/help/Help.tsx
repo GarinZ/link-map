@@ -1,9 +1,9 @@
 import { Popover } from 'antd';
-import type { RenderFunction } from 'antd/es/tooltip';
-import { groupBy, sortBy } from 'lodash';
+import { groupBy, isEqual, sortBy } from 'lodash';
 import React, { useState } from 'react';
 import browser from 'webextension-polyfill';
 
+import type { IShortcutMap, ShortcutTypes } from '../shortcuts/config';
 import {
     getDisplayName,
     getShortCutMap,
@@ -13,7 +13,6 @@ import {
 
 import './help.less';
 
-const defaultGroupedShortcutMap = groupBy(Object.values(ShortcutMap), 'type');
 const openShortcutSettingPage = (url: string | undefined) => {
     if (!url) return;
     browser.tabs.create({ url }).then((tab) => {
@@ -21,16 +20,12 @@ const openShortcutSettingPage = (url: string | undefined) => {
         browser.windows.update(tab.windowId, { focused: true });
     });
 };
-const ShortcutsDoc: RenderFunction = () => {
-    const [groupedShortcutMap, setGroupedShortcutMap] = useState(defaultGroupedShortcutMap);
-    getShortCutMap().then((shortcutMap) => {
-        setGroupedShortcutMap(groupBy(Object.values(shortcutMap), 'type'));
-    });
-
+type GroupedShortcutMap = { [key in ShortcutTypes]: IShortcutMap };
+const shortcutsDoc = (groupedShortcutMap: GroupedShortcutMap) => {
     return (
         <div className={'shortcuts-doc'}>
             {shortcutTypesOrder.map((type) => {
-                const shortcuts = groupedShortcutMap[type.type];
+                const shortcuts = groupedShortcutMap[type.type as ShortcutTypes];
                 return (
                     <div className={'shortcuts-doc-section'} key={type.type}>
                         <div className={'shortcuts-doc-type'}>{type.name}</div>
@@ -69,11 +64,24 @@ const ShortcutsDoc: RenderFunction = () => {
 };
 
 const Help: React.FC = () => {
+    const [groupedShortcutMap, setGroupedShortcutMap] = useState(
+        groupBy(Object.values(ShortcutMap), 'type'),
+    );
+    const onOpenChange = async (open: boolean) => {
+        if (!open) return;
+        const newShortcutMap = await getShortCutMap();
+        if (isEqual(newShortcutMap, groupedShortcutMap)) {
+            return;
+        }
+        setGroupedShortcutMap(groupBy(Object.values(newShortcutMap), 'type'));
+    };
+
     return (
         <Popover
             overlayClassName={'help-popover'}
-            content={ShortcutsDoc}
+            content={shortcutsDoc(groupedShortcutMap as unknown as GroupedShortcutMap)}
             title={browser.i18n.getMessage('shortcut')}
+            onOpenChange={onOpenChange}
         >
             <div className={'help-float-btn'}>
                 <i className="iconfont icon-keyboard" />

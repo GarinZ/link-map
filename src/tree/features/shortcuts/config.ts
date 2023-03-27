@@ -7,7 +7,7 @@ import { getOS } from '../../../utils';
 import { FancyTabMasterTree } from '../tab-master-tree/fancy-tab-master-tree';
 
 const DEFAULT_MESSAGE_DURATION = 0.5;
-type ShortcutTypes = 'Basic Operation' | 'Navigation';
+export type ShortcutTypes = 'Basic Operation' | 'Navigation';
 export const shortcutTypesOrder = [
     {
         type: 'Basic Operation',
@@ -18,6 +18,7 @@ export const shortcutTypesOrder = [
         name: browser.i18n.getMessage('navigation'),
     },
 ];
+
 interface IShortcut {
     name: string;
     key: string[];
@@ -27,7 +28,7 @@ interface IShortcut {
     setUrl?: string;
 }
 
-interface IShortcutMap {
+export interface IShortcutMap {
     [shortcutType: string]: IShortcut;
 }
 
@@ -140,6 +141,9 @@ export const getDisplayName = (keys: string[]) => {
 export const getShortCutMap = async () => {
     const shortcuts = await browser.commands.getAll();
     const activeShortCut = shortcuts.find((shortcut) => shortcut.name === 'openLinkMap')!.shortcut;
-    ShortcutMap.activeLinkMap.key = [activeShortCut?.split('').join(' + ') ?? 'unset'];
+    const key = activeShortCut
+        ? activeShortCut?.split('').join(' + ')
+        : browser.i18n.getMessage('commandUnset');
+    ShortcutMap.activeLinkMap.key = [key];
     return ShortcutMap;
 };

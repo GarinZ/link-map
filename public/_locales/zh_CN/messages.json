@@ -131,6 +131,9 @@
     "commandTriggerLinkMap": {
         "message": "打开Link Map"
     },
+    "commandUnset": {
+        "message": "未设置"
+    },
     "goToPreviousNode": {
         "message": "选中前一个节点"
     },
