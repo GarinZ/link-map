@@ -30,7 +30,8 @@ Link Map是一个浏览器标签侧边栏，更适用于重度信息消费者。
 - windows: 用于支持主要功能，即窗口管理。
 - downloads: 扩展程序需要下载.json文件以进行导出功能。
 - system.display: 用于初始化树形视图的位置和宽度/高度。
+- favicon: 用于初始化那些树中的从未访问过的Tab节点的图标。
 
 ## 有问题或需要帮助？
 - [issue](https://github.com/GarinZ/link-map/issues)
-- [LinkMap的开发路线图](https://www.notion.so/linkmap/82a71b81a9be4e669ce174ed95fc0966)
+- [LinkMap的开发路线图](https://www.notion.so/82a71b81a9be4e669ce174ed95fc0966?v=a8921f99dee745c683a690228ee2294a)
