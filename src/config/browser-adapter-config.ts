@@ -5,5 +5,5 @@ export const getShortcutSettingUrl = () => {
 export const getReviewUrl = () => {
     return __TARGET__ === 'edge'
         ? 'https://microsoftedge.microsoft.com/addons/detail/link-map/penpmngcolockpbmeeafkmbefjijbaej'
-        : 'https://chrome.google.com/webstore/search/linkmap';
+        : 'https://chrome.google.com/webstore/detail/link-map/jappgmhllahigjolfpgbjdfhciabdnde';
 };
