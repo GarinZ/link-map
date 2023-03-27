@@ -5,7 +5,7 @@ import browser from 'webextension-polyfill';
 import type { LocalStorageImportData } from '../import/App';
 import { getExtPageInfo, removeExtPageInfo, setExtPageInfo } from '../storage/ext-page-info';
 import { TabMasterDB } from '../storage/idb';
-import { setIsNewUser } from '../storage/new-user';
+import { setIsNewUser, setIsUpdate } from '../storage/user-journey';
 import type { ExportJsonData } from '../tree/features/settings/Settings';
 import { isContentScriptPage, sendMessageToExt } from './event-bus';
 
@@ -20,6 +20,10 @@ try {
         // 清除localStorage中的extPageInfo
         if (details.reason === 'install') {
             await setIsNewUser(true);
+        }
+        if (details.reason === 'update') {
+            // chrome.runtime.getManifest().version
+            await setIsUpdate(true);
         }
         const db = new TabMasterDB();
         await db.initSetting();

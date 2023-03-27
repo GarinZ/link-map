@@ -40,3 +40,9 @@ export const getOS = (): 'Win' | 'MacOS' | 'Other' => {
         return 'Other';
     }
 };
+
+export const getFaviconUrl = (url: string) => {
+    return `chrome-extension://${browser.i18n.getMessage(
+        '@@extension_id',
+    )}/_favicon/?pageUrl=${url}&size=16`;
+};

@@ -8,7 +8,15 @@ const manifest: Manifest.WebExtensionManifest = {
     description: '__MSG_extDesc__',
     manifest_version: 3,
     minimum_chrome_version: pkg.browserslist.split(' ')[2],
-    permissions: ['tabs', 'storage', 'activeTab', 'windows', 'downloads', 'system.display'],
+    permissions: [
+        'tabs',
+        'storage',
+        'activeTab',
+        'windows',
+        'downloads',
+        'system.display',
+        'favicon',
+    ],
     content_security_policy: {
         extension_pages: "script-src 'self' http://localhost; object-src 'self';",
     },

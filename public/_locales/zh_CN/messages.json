@@ -157,5 +157,35 @@
     },
     "shortcut": {
         "message": "快捷键"
+    },
+    "updateNoteTitle": {
+        "message": "Link Map感觉自己更强大了！"
+    },
+    "updateNoteContent": {
+        "message": "现在Link Map有一些新技能（但不多，就两个），看一看最顶部的节点了解它新解锁的能力"
+    },
+    "updateTutorialNode": {
+        "message": "新功能 v1.0.5"
+    },
+    "updateTutorialFeature1": {
+        "message": "快捷键"
+    },
+    "updateTutorialFeature1Desc": {
+        "message": "在右下角的按钮中可以查看所有快捷键"
+    },
+    "updateTutorialFeature2": {
+        "message": "明亮/黑暗模式主题"
+    },
+    "updateTutorialFeature2Desc": {
+        "message": "在设置中可以切换主题"
+    },
+    "reviewLinkMap": {
+        "message": "Link Map有没有帮到你或者有什么想吐槽的？"
+    },
+    "reviewLinkMapDesc": {
+        "message": "双击这个节点"
+    },
+    "reviewLinkMapDesc2": {
+        "message": "给Link Map评分"
     }
 }

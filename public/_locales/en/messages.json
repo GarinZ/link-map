@@ -157,5 +157,35 @@
     },
     "shortcut": {
         "message": "Shortcut"
+    },
+    "updateNoteTitle": {
+        "message": "Link Map feels stronger!"
+    },
+    "updateNoteContent": {
+        "message": "Now that Link Map has some new skills (but not many, just two), take a look at the top node to learn about its newly unlocked abilities"
+    },
+    "updateTutorialNode": {
+        "message": "New features in v1.0.5"
+    },
+    "updateTutorialFeature1": {
+        "message": "Shortcuts"
+    },
+    "updateTutorialFeature1Desc": {
+        "message": "To checkout all available shortcut, hover on the floating button on the right bottom corner."
+    },
+    "updateTutorialFeature2": {
+        "message": "Light/Dark mode"
+    },
+    "updateTutorialFeature2Desc": {
+        "message": "Now you can switch between light/dark mode in the setting"
+    },
+    "reviewLinkMap": {
+        "message": "Do you like Link Map or have any suggestions?"
+    },
+    "reviewLinkMapDesc": {
+        "message": "Double click this node"
+    },
+    "reviewLinkMapDesc2": {
+        "message": "Review Link Map"
     }
 }

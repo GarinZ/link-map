@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
 
 import { DEFAULT_SETTING } from '../../storage/idb';
-import { getIsNewUser, setIsNewUser } from '../../storage/new-user';
+import { getIsNewUser, getIsUpdate, setIsNewUser, setIsUpdate } from '../../storage/user-journey';
 import { SettingContext } from '../context';
 import Feedback from './feedback/Feedback';
 import Help from './help/Help';
@@ -13,9 +13,22 @@ import Settings from './settings/Settings';
 import store from './store';
 import type { FancyTabMasterTree } from './tab-master-tree/fancy-tab-master-tree';
 import { TabMasterTree } from './tab-master-tree/TabMasterTree';
-import { buildTutorialNodes } from './tutorial/tutorial-nodes';
+import {
+    buildTutorialNodes,
+    buildUpdateTutorialNodes,
+    openUpdateNotification,
+} from './tutorial/tutorial-utils';
+import Welcome from './tutorial/Welcome';
 
 import '../../styles/app.less';
+
+const updateNotification = async (tmTree: FancyTabMasterTree) => {
+    const isUpdate = await getIsUpdate();
+    if (!isUpdate) return;
+    await setIsUpdate(false);
+    openUpdateNotification();
+    buildUpdateTutorialNodes(tmTree);
+};
 
 const App: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,7 +48,7 @@ const App: React.FC = () => {
         setIsModalOpen(false);
     };
 
-    const showNewThings = async (tmTree: FancyTabMasterTree) => {
+    const newUserWelcome = async (tmTree: FancyTabMasterTree) => {
         const isNewUser = await getIsNewUser();
         if (!isNewUser) {
             return;
@@ -43,6 +56,13 @@ const App: React.FC = () => {
         await setIsNewUser(false);
         buildTutorialNodes(tmTree);
         setIsModalOpen(true);
+    };
+
+    const showNewThings = async (tmTree: FancyTabMasterTree) => {
+        // for new user
+        newUserWelcome(tmTree);
+        // for update
+        updateNotification(tmTree);
     };
 
     return (
@@ -60,16 +80,15 @@ const App: React.FC = () => {
                     </span>
                 </div>
                 <Help />
-                {/* <FloatButton */}
-                {/*     icon={<i className={"iconfont icon-keyboard"} />} */}
-                {/*     href="https://www.notion.so/garin-public/Shortcuts-d0b12e0520fd41f7befb2be3e1112ee1" target="_blank" /> */}
                 <Modal
                     title={`🎉 ${browser.i18n.getMessage('welcomeTitle')}`}
                     open={isModalOpen}
                     onCancel={handleCancel}
                     footer={null}
                     className={'welcome-modal'}
-                />
+                >
+                    <Welcome />
+                </Modal>
             </div>
         </SettingContext.Provider>
     );
