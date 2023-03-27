@@ -40,7 +40,11 @@ const shortcutsDoc = () => {
 
 const Help: React.FC = () => {
     return (
-        <Popover content={shortcutsDoc} title={browser.i18n.getMessage('shortcut')}>
+        <Popover
+            overlayClassName={'help-popover'}
+            content={shortcutsDoc}
+            title={browser.i18n.getMessage('shortcut')}
+        >
             <div className={'help-float-btn'}>
                 <i className="iconfont icon-keyboard" />
             </div>
