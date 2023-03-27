@@ -30,6 +30,7 @@ With Link Map, even if you have a large number of tabs and windows, you can mana
 - windows: For supporting the main feature, which is window management.
 - downloads: Extension need to download `.json` file for the expoort function
 - system.display: To initialize the tree view position and width/height.
+- favicon: To initialize icon for tab node which has never been visited.
 
 ## Have problmes or need help?
 - [issue](https://github.com/GarinZ/link-map/issues)
