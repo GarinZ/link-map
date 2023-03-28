@@ -21,7 +21,7 @@ Link Map是一个浏览器标签侧边栏，更适用于重度信息消费者。
 ## 📦 安装
 - [Chrome商店](https://chrome.google.com/webstore/detail/link-map/jappgmhllahigjolfpgbjdfhciabdnde)
 - [Edge Addon](https://microsoftedge.microsoft.com/addons/detail/link-map/penpmngcolockpbmeeafkmbefjijbaej)
-- 从[Release](https://github.com/GarinZ/link-map/releases)下载`.zip`文件，打开开发模式，将zip文件加载到浏览器中。
+- 从[Release](https://github.com/GarinZ/link-map/releases)下载`.zip`文件，打开开发模式，解压zip文件，将解压后的文件夹加载到浏览器中。
 
 ## 🔒 关于的权限使用
 - tabs: 用于支持主要功能，即浏览器标签管理。
