@@ -34,4 +34,4 @@ With Link Map, even if you have a large number of tabs and windows, you can mana
 
 ## Have problmes or need help?
 - [issue](https://github.com/GarinZ/link-map/issues)
-- [LinkMap's RoadMap](https://www.notion.so/82a71b81a9be4e669ce174ed95fc0966?v=a8921f99dee745c683a690228ee2294a)
+- [LinkMap's RoadMap](https://garin-public.notion.site/Link-Map-0f228ba1e9e541aca685ab0622269e09)
