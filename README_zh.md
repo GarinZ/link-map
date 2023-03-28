@@ -34,4 +34,4 @@ Link Map是一个浏览器标签侧边栏，更适用于重度信息消费者。
 
 ## 有问题或需要帮助？
 - [issue](https://github.com/GarinZ/link-map/issues)
-- [LinkMap的开发路线图](https://www.notion.so/82a71b81a9be4e669ce174ed95fc0966?v=a8921f99dee745c683a690228ee2294a)
+- [LinkMap的开发路线图](https://garin-public.notion.site/Link-Map-0f228ba1e9e541aca685ab0622269e09)
