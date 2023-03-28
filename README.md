@@ -21,7 +21,7 @@ With Link Map, even if you have a large number of tabs and windows, you can mana
 ## 📦 Install
 - [Chrome Web Store](https://chrome.google.com/webstore/detail/link-map/jappgmhllahigjolfpgbjdfhciabdnde)
 - [Edge Addon](https://microsoftedge.microsoft.com/addons/detail/link-map/penpmngcolockpbmeeafkmbefjijbaej)
-- Download from [Release](https://github.com/GarinZ/link-map/releases), load `.zip` file into Chrome/Edge from the extension/addon page.
+- Download from [Release](https://github.com/GarinZ/link-map/releases), unzip the `.zip` file, load the directory into Chrome/Edge from the extension/addon page.
 
 ## 🔒 About Permission Usage
 - tabs: For supporting the main feature, which is tab management.
