@@ -2,6 +2,11 @@ import type { Manifest } from 'webextension-polyfill';
 
 import pkg from '../package.json';
 
+// command key enums
+export const commandKeyMap = {
+    openLinkMap: 'openLinkMap',
+};
+
 const manifest: Manifest.WebExtensionManifest = {
     name: pkg.displayName,
     version: pkg.version,
@@ -38,7 +43,7 @@ const manifest: Manifest.WebExtensionManifest = {
     //     },
     // ],
     commands: {
-        openLinkMap: {
+        [commandKeyMap.openLinkMap]: {
             suggested_key: {
                 default: 'Shift+Ctrl+L',
                 mac: 'Shift+Command+L',
