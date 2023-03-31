@@ -17,7 +17,6 @@ export interface TabData extends Tabs.Tab, TreeData {
 
 export const TabNodeOperations = {
     createSimple(url: string, title: string, alias = ''): TreeNode<TabData> {
-        console.log(getFaviconUrl(url));
         const defaultTab = {
             title,
             url,

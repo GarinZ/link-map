@@ -1,8 +1,10 @@
 import { message } from 'antd';
+import log from 'loglevel';
 import type { ExtendedKeyboardEvent } from 'mousetrap';
 import browser from 'webextension-polyfill';
 
 import { getShortcutSettingUrl } from '../../../config/browser-adapter-config';
+import { commandKeyMap } from '../../../manifest';
 import { getOS } from '../../../utils';
 import { FancyTabMasterTree } from '../tab-master-tree/fancy-tab-master-tree';
 
@@ -138,11 +140,18 @@ export const getDisplayName = (keys: string[]) => {
         .join('/');
 };
 
+const keyDisplayNameByOS = (key: string) => {
+    return getOS() === 'MacOS' ? [...key].join(' + ') : key.split('+').join(' + ');
+};
+
 export const getShortCutMap = async () => {
     const shortcuts = await browser.commands.getAll();
-    const activeShortCut = shortcuts.find((shortcut) => shortcut.name === 'openLinkMap')!.shortcut;
+    const activeShortCut = shortcuts.find(
+        (shortcut) => shortcut.name === commandKeyMap.openLinkMap,
+    )!.shortcut;
+    log.debug('activeShortCut', activeShortCut);
     const key = activeShortCut
-        ? activeShortCut?.split('').join(' + ')
+        ? keyDisplayNameByOS(activeShortCut)
         : browser.i18n.getMessage('commandUnset');
     ShortcutMap.activeLinkMap.key = [key];
     return ShortcutMap;
