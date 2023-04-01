@@ -34,6 +34,9 @@ const App: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [setting, setSetting] = useState(DEFAULT_SETTING);
 
+    // const matchMediaDark = window.matchMedia('(prefers-color-scheme: dark)');
+    // const isDarkMode = matchMediaDark.matches;
+
     useEffect(() => {
         store.db.getSetting().then((setting) => {
             setting && setSetting(setting);
@@ -41,8 +44,21 @@ const App: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        $(':root').attr('theme', setting.theme);
-    }, [setting]);
+        const $root = $(':root');
+        if (setting.theme === 'auto') {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const handleChange = () => {
+                mediaQuery.matches ? $root.attr('theme', 'dark') : $root.attr('theme', 'light');
+            };
+            const isDarkMode = mediaQuery.matches;
+            $root.attr('theme', isDarkMode ? 'dark' : 'light');
+            mediaQuery.addEventListener('change', handleChange);
+            return () => mediaQuery.removeEventListener('change', handleChange);
+        } else {
+            $root.attr('theme', setting.theme);
+            return () => {};
+        }
+    }, [setting.theme]);
 
     const handleCancel = () => {
         setIsModalOpen(false);

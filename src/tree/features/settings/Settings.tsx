@@ -4,6 +4,7 @@ import log from 'loglevel';
 import { useContext, useState } from 'react';
 import browser from 'webextension-polyfill';
 
+import type { ThemeType } from '../../../storage/idb';
 import { downloadJsonWithExtensionAPI, getFormattedData } from '../../../utils';
 import { SettingContext } from '../../context';
 import Feedback from '../feedback/Feedback';
@@ -100,7 +101,7 @@ const Settings = () => {
         }
     };
 
-    const handleThemeChange = async (value: 'dark' | 'light') => {
+    const handleThemeChange = async (value: ThemeType) => {
         await store.db.updateSettingPartial({ theme: value });
         setSetting({ ...setting, theme: value });
     };
@@ -140,6 +141,7 @@ const Settings = () => {
                             options={[
                                 { value: 'light', label: browser.i18n.getMessage('themeLight') },
                                 { value: 'dark', label: browser.i18n.getMessage('themeDark') },
+                                { value: 'auto', label: browser.i18n.getMessage('themeAuto') },
                             ]}
                         />
                     </div>

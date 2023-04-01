@@ -122,6 +122,9 @@
     "theme": {
         "message": "主题"
     },
+    "themeAuto": {
+        "message": "跟随系统"
+    },
     "themeLight": {
         "message": "明亮模式"
     },

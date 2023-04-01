@@ -122,6 +122,9 @@
     "theme": {
         "message": "Theme"
     },
+    "themeAuto": {
+        "message": "Auto"
+    },
     "themeLight": {
         "message": "Light"
     },
