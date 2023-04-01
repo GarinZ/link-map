@@ -290,10 +290,10 @@ export class FancyTabMasterTree {
     public async windowFocus(windowId: number): Promise<void> {
         // devtools的windowId为-1，不做处理
         if (windowId < 0) return;
-        const windowNode = this.tree.getNodeByKey(`${windowId}`);
-        if (!windowNode.data.isBackgroundPage) {
-            windowNode.scrollIntoView();
-        }
+        // const windowNode = this.tree.getNodeByKey(`${windowId}`);
+        // if (!windowNode.data.isBackgroundPage) {
+        //     windowNode.scrollIntoView();
+        // }
         await this.syncActiveTab(windowId);
     }
 
@@ -331,6 +331,8 @@ FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventDat
         case NODE_REMOVE:
             log.debug('[tree]: remove button clicked');
             FancyTabMasterTree.removeNodes(data.node);
+            // prevent default to prevent scroll up
+            event.preventDefault();
             break;
         case NODE_EDIT:
             log.debug('[tree]: edit button clicked');
