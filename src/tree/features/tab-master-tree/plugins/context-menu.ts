@@ -17,10 +17,30 @@ export const registerContextMenu = () => {
             delete: {
                 name: browser.i18n.getMessage('ctxMenuDelete'),
                 icon: () => 'iconfont icon-trash context-menu-icon',
+                items: {
+                    deleteNode: {
+                        name: 'Delete Node',
+                        icon: () => 'iconfont icon-pointer context-menu-icon',
+                    },
+                    deleteSubTree: {
+                        name: 'Delete Subtree',
+                        icon: () => 'iconfont icon-node-multiple context-menu-icon',
+                    },
+                },
             },
             close: {
                 name: browser.i18n.getMessage('ctxMenuClose'),
                 icon: () => 'iconfont icon-roundclosefill context-menu-icon',
+                items: {
+                    closeNode: {
+                        name: 'Close Node',
+                        icon: () => 'iconfont icon-pointer context-menu-icon',
+                    },
+                    closeSubTree: {
+                        name: 'Close Subtree',
+                        icon: () => 'iconfont icon-node-multiple context-menu-icon',
+                    },
+                },
             },
             // focus: {
             //     name: 'Focus',
@@ -68,11 +88,17 @@ export const registerContextMenu = () => {
                 case 'edit':
                     node.editStart();
                     break;
-                case 'delete':
-                    FancyTabMasterTree.removeNodes(node);
+                case 'deleteNode':
+                    FancyTabMasterTree.removeNodes(node, 'item');
                     break;
-                case 'close':
-                    FancyTabMasterTree.closeNodes(node);
+                case 'deleteSubTree':
+                    FancyTabMasterTree.removeNodes(node, 'all');
+                    break;
+                case 'closeNode':
+                    FancyTabMasterTree.closeNodes(node, 'item');
+                    break;
+                case 'closeSubTree':
+                    FancyTabMasterTree.closeNodes(node, 'all');
                     break;
                 case 'insertNodeAsParent': {
                     const newNode = node.addNode(NoteNodeOperations.createData(), 'before');

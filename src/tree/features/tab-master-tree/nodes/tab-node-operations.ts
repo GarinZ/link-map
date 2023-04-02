@@ -135,12 +135,12 @@ export const TabNodeOperations = {
             toUpdateNode.removeClass('tab-active');
         }
     },
-    getToCloseTabNodes(fromNode: FancytreeNode): FancytreeNode[] {
+    getToCloseTabNodes(fromNode: FancytreeNode, mode: 'item' | 'all'): FancytreeNode[] {
         const toCloseTabNodes: FancytreeNode[] = [];
-        const expanded = fromNode.expanded === undefined || fromNode.expanded;
-        if (expanded && fromNode.data.nodeType === 'tab' && !fromNode.data.closed) {
+        const isCloseItem = mode === 'item';
+        if (isCloseItem && fromNode.data.nodeType === 'tab' && !fromNode.data.closed) {
             toCloseTabNodes.push(fromNode);
-        } else if (expanded && fromNode.data.nodeType === 'window') {
+        } else if (isCloseItem && fromNode.data.nodeType === 'window') {
             fromNode.visit((node) => {
                 const { nodeType, windowId } = node.data;
                 // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
@@ -153,7 +153,7 @@ export const TabNodeOperations = {
                 }
                 return true;
             });
-        } else if (!expanded) {
+        } else if (!isCloseItem) {
             // 2. node合起：关闭下面所有tab节点
             fromNode.visit((node) => {
                 const { nodeType } = node.data;

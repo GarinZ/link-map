@@ -26,6 +26,7 @@ import 'jquery.fancytree/dist/skin-xp/ui.fancytree.min.css';
 const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE, NODE_EDIT } = TPL_CONSTANTS;
 
 type FancytreeNode = Fancytree.FancytreeNode;
+type OperationTarget = 'item' | 'all' | 'auto';
 
 export interface FancyTabMasterTreeConfig {
     dndConfig?: Fancytree.Extensions.DragAndDrop5;
@@ -52,7 +53,7 @@ export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
     db?: TabMasterDB;
     enablePersist: boolean;
-    static closeNodes: (targetNode: FancytreeNode, updateClosed?: boolean) => void;
+    static closeNodes: (targetNode: FancytreeNode, mode?: OperationTarget) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
     static createWindowNodeAsParent: (
@@ -72,7 +73,7 @@ export class FancyTabMasterTree {
         url: string | string[],
     ) => Promise<{ windowNode: FancytreeNode; window: Windows.Window }>;
 
-    static removeNodes: (targetNode: FancytreeNode) => void;
+    static removeNodes: (targetNode: FancytreeNode, mode?: OperationTarget) => void;
 
     constructor($container: JQuery, config: FancyTabMasterTreeConfig = DefaultConfig) {
         config = merge({}, DefaultConfig, config);
@@ -388,9 +389,10 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
 /**
  * 关闭节点
  */
-FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
+FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode, mode: OperationTarget = 'auto') => {
     // 1. 更新tabNodes的closed状态
-    const toClosedTabNodes = TabNodeOperations.getToCloseTabNodes(targetNode);
+    const operationMode = getOperationMode(targetNode, mode);
+    const toClosedTabNodes = TabNodeOperations.getToCloseTabNodes(targetNode, operationMode);
     const windowIdSet = new Set<number>();
     const tabIdSet = new Set<number>();
     toClosedTabNodes.forEach((node) => {
@@ -461,18 +463,22 @@ FancyTabMasterTree.openWindow = async (
     return { windowNode: newWindowNode, window: newWindow };
 };
 
-FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode) => {
-    const toCloseTabNodes = TabNodeOperations.getToCloseTabNodes(targetNode);
+FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode, mode: OperationTarget = 'auto') => {
+    // 1, 计算需要关闭的tabNodes
+    const operationMode = getOperationMode(targetNode, mode);
+    const toCloseTabNodes = TabNodeOperations.getToCloseTabNodes(targetNode, operationMode);
     const windowIdSet = new Set<number>();
     const tabIdSet = new Set<number>();
     toCloseTabNodes.forEach((node) => {
         windowIdSet.add(node.data.windowId);
         tabIdSet.add(node.data.id);
     });
-    if (targetNode.expanded) {
+    // 2. 移除节点
+    if (operationMode === 'item') {
         NodeUtils.moveChildrenAsNextSiblings(targetNode);
     }
     targetNode.remove();
+    // 3. 更新windowNode的closed状态
     windowIdSet.forEach((windowId) => {
         const windowNode = targetNode.tree.getNodeByKey(windowId.toString());
         if (!windowNode) return;
@@ -480,3 +486,13 @@ FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode) => {
     });
     tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
 };
+
+function getOperationMode(targetNode: FancytreeNode, mode: OperationTarget = 'auto') {
+    let closeMode: 'item' | 'all';
+    if (mode === 'item' || mode === 'all') {
+        closeMode = mode;
+    } else {
+        closeMode = targetNode.expanded === undefined || targetNode.expanded ? 'item' : 'all';
+    }
+    return closeMode;
+}
