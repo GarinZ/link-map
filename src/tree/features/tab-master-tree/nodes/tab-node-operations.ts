@@ -8,6 +8,7 @@ import { NodeUtils } from './utils';
 import { WindowNodeOperations } from './window-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
+const NEW_TAB_URL = 'chrome://newtab/';
 
 export interface TabData extends Tabs.Tab, TreeData {
     windowId: number;
@@ -71,7 +72,7 @@ export const TabNodeOperations = {
         };
     },
     add(tree: Fancytree.Fancytree, newNode: TreeNode<TabData>, active: boolean): FancytreeNode {
-        const { windowId, index, openerTabId } = newNode.data;
+        const { windowId, index, openerTabId, pendingUrl, url } = newNode.data;
         const windowNode = tree.getNodeByKey(`${windowId}`);
         // 1. 先根据index - 1找到前一个节点
         const prevNode = windowNode.findFirst(
@@ -79,12 +80,13 @@ export const TabNodeOperations = {
         );
         // 2. 如果index - 1不存在，说明是第一个节点，直接添加为windowNode的子节点
         let createdNode = null;
-        if (prevNode === null) {
+        if (pendingUrl === NEW_TAB_URL || url === NEW_TAB_URL) {
+            createdNode = windowNode.addChildren(newNode);
+        } else if (prevNode === null) {
             createdNode = windowNode.addNode(newNode, 'firstChild');
         } else if (prevNode.data.id === openerTabId) {
             // 3.1 如果相等，说明是openerTab的子节点，直接添加为openerTab的子节点
             createdNode = prevNode.addNode(newNode, 'firstChild');
-            prevNode.expanded = true;
         } else if (!prevNode.data.openerTabId || prevNode.data.openerTabId === openerTabId) {
             // 3.2 prevNode有openerTabId，但是不等于newTab的openerTabId，说明newTab是prevNode的兄弟节点
             createdNode = prevNode.addNode(newNode, 'after');
@@ -96,6 +98,7 @@ export const TabNodeOperations = {
             this.updatePartial(createdNode, { active: true });
         }
         WindowNodeOperations.updateWindowStatus(windowNode);
+        createdNode.makeVisible();
         return createdNode;
     },
     removeItem(toRemoveNode: FancytreeNode, force = false): boolean {
