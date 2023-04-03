@@ -235,6 +235,7 @@ export class FancyTabMasterTree {
     }
 
     public moveTab(_windowId: number, tabId: number, fromIndex: number, toIndex: number): void {
+        log.debug(`move tab ${tabId} from ${fromIndex} to ${toIndex}`);
         if (toIndex === fromIndex) return;
         const toMoveNode = this.tree.getNodeByKey(`${tabId}`);
         // attach时会竞态触发move事件，如果之前排序过就不要再排一次
@@ -247,13 +248,13 @@ export class FancyTabMasterTree {
         if (!toRemoveNode) return;
         const windowNode = TabNodeOperations.findWindowNode(toRemoveNode);
         const hasRemove = TabNodeOperations.removeItem(toRemoveNode);
+        if (!hasRemove) {
+            TabNodeOperations.updatePartial(toRemoveNode, { closed: true, active: false });
+        }
         // tab remove不会触发tab active事件，需要手动更新
         if (windowNode) {
-            const syncSuccess = await this.syncActiveTab(windowNode.data.windowId);
-            if (!hasRemove || !syncSuccess) {
-                TabNodeOperations.updatePartial(toRemoveNode, { closed: true, active: false });
-                WindowNodeOperations.updateWindowStatus(windowNode);
-            }
+            await this.syncActiveTab(windowNode.data.windowId);
+            WindowNodeOperations.updateWindowStatus(windowNode);
         }
     }
 

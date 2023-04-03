@@ -234,6 +234,28 @@ declare namespace Fancytree {
          */
         visit(fn: (node: FancytreeNode) => any): boolean;
 
+        /** Call fn(node) for all nodes in vertical order, top down (or bottom up).<br>
+         * Stop iteration, if fn() returns false.<br>
+         * Return false if iteration was stopped.
+         *
+         * @param {function} fn the callback function.
+         *     Return false to stop iteration, return "skip" to skip this node and children only.
+         * @param {object} [options]
+         *     Defaults:
+         *     {start: First top node, reverse: false, includeSelf: true, includeHidden: false}
+         * @returns {boolean} false if iteration was cancelled
+         * @since 2.28
+         */
+        visitRows(
+            fn: (node: FancytreeNode) => boolean,
+            options: {
+                start: FancytreeNode;
+                reverse: boolean;
+                includeSelf: boolean;
+                includeHidden: boolean;
+            },
+        ): boolean;
+
         /** Write warning to browser console (prepending tree info) */
         warn(msg: any): void;
 

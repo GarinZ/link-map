@@ -1,4 +1,5 @@
 import { escape } from 'lodash';
+import log from 'loglevel';
 import type { Tabs } from 'webextension-polyfill';
 
 import { getFaviconUrl } from '../../../../utils';
@@ -12,6 +13,7 @@ export interface TabData extends Tabs.Tab, TreeData {
     windowId: number;
     nodeType: 'tab';
     dndOperated?: boolean; // 用于拖拽后设置的flag，避免回调再次move一次
+    dndMovedTime?: number;
     tabActive: boolean;
 }
 
@@ -204,7 +206,11 @@ export const TabNodeOperations = {
         toWindowId = toWindowId ?? toMoveNode.data.windowId;
         const targetWindowNode = tree.getNodeByKey(`${toWindowId}`);
         // 1. 按需移动节点
-        if (!toMoveNode.data.dndOperated) {
+        if (
+            !toMoveNode.data.dndOperated &&
+            (!toMoveNode.data.dndMovedTime || Date.now() - toMoveNode.data.dndMovedTime > 1000)
+        ) {
+            log.debug('callback move executed');
             NodeUtils.moveChildrenAsNextSiblings(toMoveNode);
             if (toIndex === 0) {
                 toMoveNode.moveTo(targetWindowNode, 'firstChild');
