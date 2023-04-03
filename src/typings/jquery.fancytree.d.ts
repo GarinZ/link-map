@@ -256,10 +256,10 @@ declare namespace Fancytree {
         visitRows(
             fn: (node: FancytreeNode) => boolean,
             options: {
-                start: FancytreeNode;
-                reverse: boolean;
-                includeSelf: boolean;
-                includeHidden: boolean;
+                start?: FancytreeNode;
+                reverse?: boolean;
+                includeSelf?: boolean;
+                includeHidden?: boolean;
             },
         ): boolean;
 

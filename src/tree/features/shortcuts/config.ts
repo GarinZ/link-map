@@ -105,7 +105,9 @@ export const ShortcutMap: IShortcutMap = {
             const activeNode = tmTree.tree.getActiveNode();
             if (!activeNode) return;
             e.preventDefault();
+            const nextActiveNode = getNextOrPrevNode(activeNode);
             FancyTabMasterTree.removeNodes(activeNode);
+            nextActiveNode?.setActive();
         },
     },
     copyLink: {
@@ -156,3 +158,23 @@ export const getShortCutMap = async () => {
     ShortcutMap.activeLinkMap.key = [key];
     return ShortcutMap;
 };
+
+export function getNextOrPrevNode(node: Fancytree.FancytreeNode): Fancytree.FancytreeNode | null {
+    let targetNode: Fancytree.FancytreeNode | null = null;
+    node.tree.visitRows(
+        (n) => {
+            targetNode = n;
+            return false;
+        },
+        { start: node, includeSelf: false },
+    );
+    if (targetNode) return targetNode;
+    node.tree.visitRows(
+        (n) => {
+            targetNode = n;
+            return false;
+        },
+        { start: node, includeSelf: true, reverse: true },
+    );
+    return targetNode;
+}
