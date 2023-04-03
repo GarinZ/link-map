@@ -38,7 +38,7 @@ const OperationBar: React.FC = () => {
     return (
         <div className={'operation-bar'}>
             <Tooltip
-                title={'Locate Active Tab'}
+                title={browser.i18n.getMessage('locate')}
                 showArrow={false}
                 mouseEnterDelay={delay}
                 placement={'bottomLeft'}
@@ -52,7 +52,7 @@ const OperationBar: React.FC = () => {
                 </div>
             </Tooltip>
             <Tooltip
-                title={'Collapse All'}
+                title={browser.i18n.getMessage('collapseAll')}
                 showArrow={false}
                 mouseEnterDelay={delay}
                 placement={'bottomLeft'}
@@ -66,7 +66,7 @@ const OperationBar: React.FC = () => {
                 </div>
             </Tooltip>
             <Tooltip
-                title={'Expand All'}
+                title={browser.i18n.getMessage('expandAll')}
                 showArrow={false}
                 mouseEnterDelay={delay}
                 placement={'bottomLeft'}

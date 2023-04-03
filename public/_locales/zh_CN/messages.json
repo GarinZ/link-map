@@ -190,5 +190,14 @@
     },
     "reviewLinkMapDesc2": {
         "message": "给Link Map评分"
+    },
+    "locate": {
+        "message": "定位标签节点"
+    },
+    "collapseAll": {
+        "message": "收起全部"
+    },
+    "expandAll": {
+        "message": "展开全部"
     }
 }

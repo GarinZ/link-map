@@ -87,7 +87,6 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
             // Drop a non-node
             targetNode.addNode({ title: transfer.getData('text') }, data.hitMode);
         }
-        targetNode.setExpanded();
     },
     dragEnd(_node: Fancytree.FancytreeNode, _data: DND5Data) {},
 };

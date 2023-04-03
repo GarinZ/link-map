@@ -190,5 +190,14 @@
     },
     "reviewLinkMapDesc2": {
         "message": "Review Link Map"
+    },
+    "locate": {
+        "message": "Locate Active Tab Node"
+    },
+    "collapseAll": {
+        "message": "Expand All"
+    },
+    "expandAll": {
+        "message": "Collapse All"
     }
 }
