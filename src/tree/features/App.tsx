@@ -7,7 +7,7 @@ import { getIsNewUser, getIsUpdate, setIsNewUser, setIsUpdate } from '../../stor
 import { SettingContext } from '../context';
 import Feedback from './feedback/Feedback';
 import Help from './help/Help';
-import Locate from './locate/Locate';
+import OperationBar from './operation-bar/OperationBar';
 import { Search } from './search/Search';
 import Settings from './settings/Settings';
 import store from './store';
@@ -86,9 +86,9 @@ const App: React.FC = () => {
             <div className="app">
                 <div id="header">
                     <Search />
-                    <Locate />
                     <Settings />
                 </div>
+                <OperationBar />
                 <TabMasterTree onInit={showNewThings} />
                 <div id="footer">
                     <span className={'footer-item'}>

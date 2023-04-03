@@ -91,7 +91,14 @@ declare namespace Fancytree {
         /** Write to browser console if debugLevel >= 2 (prepending tree name)  */
         debug(msg: any): void;
 
-        /** Expand (or collapse) all parent nodes. */
+        /**
+         * Expand (or collapse) all parent nodes.
+         * This convenience method uses `tree.visit()` and `tree.setExpanded()`
+         * internally.
+         *
+         * @param {boolean} [flag=true] pass false to collapse
+         * @param {object} [options] passed to setExpanded()
+         */
         expandAll(flag?: boolean, options?: Object): void;
 
         /** [ext-filter] Dimm or hide whole branches.
