@@ -168,22 +168,55 @@
         "message": "Link Map感觉自己更强大了！"
     },
     "updateNoteContent": {
-        "message": "现在Link Map有一些新技能（但不多，就两个），看一看最顶部的节点了解它新解锁的能力"
+        "message": "没错Link Map又更新了，这次根据大家的反馈增加了一些功能和优化，快看看吧（对，细节还是在最顶部的节点）"
     },
     "updateTutorialNode": {
-        "message": "新功能 v1.0.5"
+        "message": "新功能！（v1.0.7）"
     },
     "updateTutorialFeature1": {
-        "message": "快捷键"
+        "message": "保存：让节点一直保留在树中"
     },
-    "updateTutorialFeature1Desc": {
-        "message": "在右下角的按钮中可以查看所有快捷键"
+    "updateTutorialFeature1Desc1": {
+        "message": "保存可以保证标签不会在关闭时在树中被删除"
+    },
+    "updateTutorialFeature1Desc2": {
+        "message": "可以使用右键下拉菜单或快捷键使用保存"
+    },
+    "updateTutorialFeature1Desc3": {
+        "message": "收起节点时保存，就可以批量保存一批节点"
     },
     "updateTutorialFeature2": {
-        "message": "明亮/黑暗模式主题"
+        "message": "笔记快捷键：像RoamResearch一样使用LinkMap"
     },
-    "updateTutorialFeature2Desc": {
-        "message": "在设置中可以切换主题"
+    "updateTutorialFeature2Desc1": {
+        "message": "现在可以通过快捷键创建笔记节点"
+    },
+    "updateTutorialFeature2Desc2": {
+        "message": "在浏览网页时可以快速记录想法，就像RoamResearch"
+    },
+    "updateTutorialFeature3": {
+        "message": "LinkMap扩展图标旁展示已打开标签数量"
+    },
+    "updateTutorialFeature4": {
+        "message": "展开/收起全部：让LinkMap更加整洁"
+    },
+    "updateTutorialFeature4Desc1": {
+        "message": "在搜索框的下方你可以发现使用它们"
+    },
+    "updateTutorialFeature4Desc2": {
+        "message": "在右键菜单中可以只对当前节点展开/收起全部"
+    },
+    "updateTutorialFeature5": {
+        "message": "一些小优化"
+    },
+    "updateTutorialFeature5Desc1": {
+        "message": "“新标签”现在会在树中平级创建"
+    },
+    "updateTutorialFeature5Desc2": {
+        "message": "右键菜单中的“删除/关闭”增加了一些选项"
+    },
+    "updateTutorialFeature5Desc3": {
+        "message": "主题中可以选择“跟随系统”自动切换亮/暗模式"
     },
     "reviewLinkMap": {
         "message": "Link Map有没有帮到你或者有什么想吐槽的？"

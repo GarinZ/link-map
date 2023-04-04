@@ -1,10 +1,8 @@
 import { notification } from 'antd';
 import browser from 'webextension-polyfill';
 
-import { getReviewUrl } from '../../../config/browser-adapter-config';
 import type { FancyTabMasterTree } from '../tab-master-tree/fancy-tab-master-tree';
 import { NoteNodeOperations } from '../tab-master-tree/nodes/note-node-operations';
-import { TabNodeOperations } from '../tab-master-tree/nodes/tab-node-operations';
 
 export const buildTutorialNodes = (tmTree: FancyTabMasterTree): void => {
     const rootNote = tmTree.tree.getRootNode();
@@ -56,37 +54,99 @@ export const openUpdateNotification = () => {
     });
 };
 
+const V1_0_7 = {
+    title: `🎁 ${browser.i18n.getMessage('updateTutorialNode')}`,
+    icon: { html: '<i class="fancytree-icon note"></i>' },
+    expanded: true,
+    data: { nodeType: 'note' },
+    children: [
+        {
+            title: `1. 🔒 ${browser.i18n.getMessage('updateTutorialFeature1')}`,
+            icon: { html: '<i class="fancytree-icon note"></i>' },
+            data: { nodeType: 'note' },
+            children: [
+                {
+                    title: browser.i18n.getMessage('updateTutorialFeature1Desc1'),
+                    icon: { html: '<i class="fancytree-icon note"></i>' },
+                    data: { nodeType: 'note' },
+                },
+                {
+                    title: browser.i18n.getMessage('updateTutorialFeature1Desc2'),
+                    icon: { html: '<i class="fancytree-icon note"></i>' },
+                    data: { nodeType: 'note' },
+                },
+                {
+                    title: browser.i18n.getMessage('updateTutorialFeature1Desc3'),
+                    icon: { html: '<i class="fancytree-icon note"></i>' },
+                    data: { nodeType: 'note' },
+                },
+            ],
+        },
+        {
+            title: `2. ⌨️ ${browser.i18n.getMessage('updateTutorialFeature2')}`,
+            icon: { html: '<i class="fancytree-icon note"></i>' },
+            data: { nodeType: 'note' },
+            children: [
+                {
+                    title: browser.i18n.getMessage('updateTutorialFeature2Desc1'),
+                    icon: { html: '<i class="fancytree-icon note"></i>' },
+                    data: { nodeType: 'note' },
+                },
+                {
+                    title: browser.i18n.getMessage('updateTutorialFeature2Desc2'),
+                    icon: { html: '<i class="fancytree-icon note"></i>' },
+                    data: { nodeType: 'note' },
+                },
+            ],
+        },
+        {
+            title: `3. 🔟 ${browser.i18n.getMessage('updateTutorialFeature3')}`,
+            icon: { html: '<i class="fancytree-icon note"></i>' },
+            data: { nodeType: 'note' },
+        },
+        {
+            title: `4. 📂 ${browser.i18n.getMessage('updateTutorialFeature4')}`,
+            icon: { html: '<i class="fancytree-icon note"></i>' },
+            data: { nodeType: 'note' },
+            children: [
+                {
+                    title: browser.i18n.getMessage('updateTutorialFeature4Desc1'),
+                    icon: { html: '<i class="fancytree-icon note"></i>' },
+                    data: { nodeType: 'note' },
+                },
+                {
+                    title: browser.i18n.getMessage('updateTutorialFeature4Desc2'),
+                    icon: { html: '<i class="fancytree-icon note"></i>' },
+                    data: { nodeType: 'note' },
+                },
+            ],
+        },
+        {
+            title: `5. 🌻 ${browser.i18n.getMessage('updateTutorialFeature5')}`,
+            icon: { html: '<i class="fancytree-icon note"></i>' },
+            data: { nodeType: 'note' },
+            children: [
+                {
+                    title: browser.i18n.getMessage('updateTutorialFeature5Desc1'),
+                    icon: { html: '<i class="fancytree-icon note"></i>' },
+                    data: { nodeType: 'note' },
+                },
+                {
+                    title: browser.i18n.getMessage('updateTutorialFeature5Desc2'),
+                    icon: { html: '<i class="fancytree-icon note"></i>' },
+                    data: { nodeType: 'note' },
+                },
+                {
+                    title: browser.i18n.getMessage('updateTutorialFeature5Desc3'),
+                    icon: { html: '<i class="fancytree-icon note"></i>' },
+                    data: { nodeType: 'note' },
+                },
+            ],
+        },
+    ],
+} as Fancytree.NodeData;
+
 export const buildUpdateTutorialNodes = (tmTree: FancyTabMasterTree): void => {
     const rootNote = tmTree.tree.getRootNode();
-    const tutorialNode = rootNote.addNode(
-        NoteNodeOperations.createData(`🎁 ${browser.i18n.getMessage('updateTutorialNode')}`),
-        'firstChild',
-    );
-    tutorialNode
-        .addNode(
-            NoteNodeOperations.createData(
-                `⌨️ ${browser.i18n.getMessage('updateTutorialFeature1')}`,
-            ),
-        )
-        .addNode(
-            NoteNodeOperations.createData(browser.i18n.getMessage('updateTutorialFeature1Desc')),
-        );
-    tutorialNode
-        .addNode(
-            NoteNodeOperations.createData(
-                `🌅 ${browser.i18n.getMessage('updateTutorialFeature2')}`,
-            ),
-        )
-        .addNode(
-            NoteNodeOperations.createData(browser.i18n.getMessage('updateTutorialFeature2Desc')),
-        );
-    tutorialNode
-        .addNode(NoteNodeOperations.createData(`🧡 ${browser.i18n.getMessage('reviewLinkMap')}`))
-        .addNode(
-            TabNodeOperations.createSimple(
-                getReviewUrl(),
-                browser.i18n.getMessage('reviewLinkMapDesc2'),
-                ` 👉${browser.i18n.getMessage('reviewLinkMapDesc')}`,
-            ),
-        );
+    rootNote.addNode(V1_0_7, 'firstChild');
 };

@@ -168,22 +168,55 @@
         "message": "Link Map feels stronger!"
     },
     "updateNoteContent": {
-        "message": "Now that Link Map has some new skills (but not many, just two), take a look at the top node to learn about its newly unlocked abilities"
+        "message": "That's right Link Map has been updated again, this time with some additional features and optimizations based on your feedback, check it out (yes, the details are still in the top node)"
     },
     "updateTutorialNode": {
-        "message": "New features in v1.0.5"
+        "message": "New features in v1.0.7"
     },
     "updateTutorialFeature1": {
-        "message": "Shortcuts"
+        "message": "Save: keep the node in the tree at all times"
     },
-    "updateTutorialFeature1Desc": {
-        "message": "To checkout all available shortcut, hover on the floating button on the right bottom corner."
+    "updateTutorialFeature1Desc1": {
+        "message": "Save ensures that tags are not deleted in the tree when it is closed"
+    },
+    "updateTutorialFeature1Desc2": {
+        "message": "Save can be used using the right-click drop-down menu or shortcut keys"
+    },
+    "updateTutorialFeature1Desc3": {
+        "message": "Save when putting away nodes, you can save a batch of nodes"
     },
     "updateTutorialFeature2": {
-        "message": "Light/Dark mode"
+        "message": "Notes shortcut: use LinkMap like RoamResearch"
     },
-    "updateTutorialFeature2Desc": {
-        "message": "Now you can switch between light/dark mode in the setting"
+    "updateTutorialFeature2Desc1": {
+        "message": "Notes nodes can now be created via shortcuts"
+    },
+    "updateTutorialFeature2Desc2": {
+        "message": "Quickly record ideas while browsing the web, like RoamResearch"
+    },
+    "updateTutorialFeature3": {
+        "message": "Show the number of open tabs next to the LinkMap extension icon"
+    },
+    "updateTutorialFeature4": {
+        "message": "Expand/Collapse All: Make LinkMap more tidy"
+    },
+    "updateTutorialFeature4Desc1": {
+        "message": "Below the search box you can find use them"
+    },
+    "updateTutorialFeature4Desc2": {
+        "message": "In the right-click menu you can expand/collapse all for the current node only"
+    },
+    "updateTutorialFeature5": {
+        "message": "Some minor optimizations"
+    },
+    "updateTutorialFeature5Desc1": {
+        "message": "'New tabs' will now be created level by level in the tree"
+    },
+    "updateTutorialFeature5Desc2": {
+        "message": "Some options have been added to the 'Delete/Close' in the right-click menu"
+    },
+    "updateTutorialFeature5Desc3": {
+        "message": "The theme has the 'auto' option to automatically switch between light/dark modes"
     },
     "reviewLinkMap": {
         "message": "Do you like Link Map or have any suggestions?"

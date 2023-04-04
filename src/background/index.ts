@@ -29,8 +29,8 @@ try {
         }
         if (
             details.reason === 'update' &&
-            details.previousVersion !== '1.0.5' &&
-            browser.runtime.getManifest().version === '1.0.5'
+            // details.previousVersion !== '1.0.7' &&
+            browser.runtime.getManifest().version === '1.0.7'
         ) {
             // chrome.runtime.getManifest().version
             await setIsUpdate(true);

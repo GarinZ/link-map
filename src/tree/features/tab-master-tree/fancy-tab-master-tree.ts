@@ -548,7 +548,7 @@ function getOperationMode(targetNode: FancytreeNode, mode: OperationTarget = 'au
     if (mode === 'item' || mode === 'all') {
         closeMode = mode;
     } else {
-        closeMode = targetNode.expanded === undefined || targetNode.expanded ? 'item' : 'all';
+        closeMode = targetNode.expanded ? 'item' : 'all';
     }
     return closeMode;
 }
