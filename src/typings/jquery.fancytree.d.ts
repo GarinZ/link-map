@@ -91,7 +91,14 @@ declare namespace Fancytree {
         /** Write to browser console if debugLevel >= 2 (prepending tree name)  */
         debug(msg: any): void;
 
-        /** Expand (or collapse) all parent nodes. */
+        /**
+         * Expand (or collapse) all parent nodes.
+         * This convenience method uses `tree.visit()` and `tree.setExpanded()`
+         * internally.
+         *
+         * @param {boolean} [flag=true] pass false to collapse
+         * @param {object} [options] passed to setExpanded()
+         */
         expandAll(flag?: boolean, options?: Object): void;
 
         /** [ext-filter] Dimm or hide whole branches.
@@ -233,6 +240,28 @@ declare namespace Fancytree {
          * @returns false, if the iterator was stopped.
          */
         visit(fn: (node: FancytreeNode) => any): boolean;
+
+        /** Call fn(node) for all nodes in vertical order, top down (or bottom up).<br>
+         * Stop iteration, if fn() returns false.<br>
+         * Return false if iteration was stopped.
+         *
+         * @param {function} fn the callback function.
+         *     Return false to stop iteration, return "skip" to skip this node and children only.
+         * @param {object} [options]
+         *     Defaults:
+         *     {start: First top node, reverse: false, includeSelf: true, includeHidden: false}
+         * @returns {boolean} false if iteration was cancelled
+         * @since 2.28
+         */
+        visitRows(
+            fn: (node: FancytreeNode) => boolean,
+            options: {
+                start?: FancytreeNode;
+                reverse?: boolean;
+                includeSelf?: boolean;
+                includeHidden?: boolean;
+            },
+        ): boolean;
 
         /** Write warning to browser console (prepending tree info) */
         warn(msg: any): void;

@@ -65,7 +65,7 @@ export const WindowNodeOperations = {
         return node;
     },
     updatePartial(windowNode: FancytreeNode, updateProperties: Partial<WindowData>): void {
-        const { id, closed } = updateProperties;
+        const { id, closed, save } = updateProperties;
         windowNode.data = { ...windowNode.data, ...updateProperties };
         if (id) {
             windowNode.key = `${id}`;
@@ -74,6 +74,9 @@ export const WindowNodeOperations = {
         if (closed !== undefined) {
             closed ? windowNode.addClass('closed') : windowNode.removeClass('closed');
             windowNode.renderTitle();
+        }
+        if (save !== undefined) {
+            save ? windowNode.addClass('saved') : windowNode.removeClass('saved');
         }
     },
     remove(targetNode: FancytreeNode, force = false): void {

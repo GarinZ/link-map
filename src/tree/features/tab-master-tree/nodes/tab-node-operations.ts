@@ -1,4 +1,5 @@
 import { escape } from 'lodash';
+import log from 'loglevel';
 import type { Tabs } from 'webextension-polyfill';
 
 import { getFaviconUrl } from '../../../../utils';
@@ -7,11 +8,13 @@ import { NodeUtils } from './utils';
 import { WindowNodeOperations } from './window-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
+const NEW_TAB_URL = 'chrome://newtab/';
 
 export interface TabData extends Tabs.Tab, TreeData {
     windowId: number;
     nodeType: 'tab';
     dndOperated?: boolean; // 用于拖拽后设置的flag，避免回调再次move一次
+    dndMovedTime?: number;
     tabActive: boolean;
 }
 
@@ -69,7 +72,7 @@ export const TabNodeOperations = {
         };
     },
     add(tree: Fancytree.Fancytree, newNode: TreeNode<TabData>, active: boolean): FancytreeNode {
-        const { windowId, index, openerTabId } = newNode.data;
+        const { windowId, index, openerTabId, pendingUrl, url } = newNode.data;
         const windowNode = tree.getNodeByKey(`${windowId}`);
         // 1. 先根据index - 1找到前一个节点
         const prevNode = windowNode.findFirst(
@@ -77,12 +80,13 @@ export const TabNodeOperations = {
         );
         // 2. 如果index - 1不存在，说明是第一个节点，直接添加为windowNode的子节点
         let createdNode = null;
-        if (prevNode === null) {
+        if (pendingUrl === NEW_TAB_URL || url === NEW_TAB_URL) {
+            createdNode = windowNode.addChildren(newNode);
+        } else if (prevNode === null) {
             createdNode = windowNode.addNode(newNode, 'firstChild');
         } else if (prevNode.data.id === openerTabId) {
             // 3.1 如果相等，说明是openerTab的子节点，直接添加为openerTab的子节点
             createdNode = prevNode.addNode(newNode, 'firstChild');
-            prevNode.expanded = true;
         } else if (!prevNode.data.openerTabId || prevNode.data.openerTabId === openerTabId) {
             // 3.2 prevNode有openerTabId，但是不等于newTab的openerTabId，说明newTab是prevNode的兄弟节点
             createdNode = prevNode.addNode(newNode, 'after');
@@ -94,6 +98,7 @@ export const TabNodeOperations = {
             this.updatePartial(createdNode, { active: true });
         }
         WindowNodeOperations.updateWindowStatus(windowNode);
+        createdNode.makeVisible();
         return createdNode;
     },
     removeItem(toRemoveNode: FancytreeNode, force = false): boolean {
@@ -111,7 +116,7 @@ export const TabNodeOperations = {
         return true;
     },
     updatePartial(toUpdateNode: FancytreeNode, updateProps: Partial<TabData>) {
-        const { title, favIconUrl, id, active, closed } = updateProps;
+        const { title, favIconUrl, id, active, closed, save } = updateProps;
         toUpdateNode.data = { ...toUpdateNode.data, ...updateProps };
         if (id) toUpdateNode.key = `${id}`;
         if (title) toUpdateNode.setTitle(escape(title));
@@ -133,14 +138,16 @@ export const TabNodeOperations = {
         } else if (active === false) {
             toUpdateNode.data.tabActive = false;
             toUpdateNode.removeClass('tab-active');
+        } else if (save !== undefined) {
+            save ? toUpdateNode.addClass('saved') : toUpdateNode.removeClass('saved');
         }
     },
-    getToCloseTabNodes(fromNode: FancytreeNode): FancytreeNode[] {
+    getToCloseTabNodes(fromNode: FancytreeNode, mode: 'item' | 'all'): FancytreeNode[] {
         const toCloseTabNodes: FancytreeNode[] = [];
-        const expanded = fromNode.expanded === undefined || fromNode.expanded;
-        if (expanded && fromNode.data.nodeType === 'tab' && !fromNode.data.closed) {
+        const isCloseItem = mode === 'item';
+        if (isCloseItem && fromNode.data.nodeType === 'tab' && !fromNode.data.closed) {
             toCloseTabNodes.push(fromNode);
-        } else if (expanded && fromNode.data.nodeType === 'window') {
+        } else if (isCloseItem && fromNode.data.nodeType === 'window') {
             fromNode.visit((node) => {
                 const { nodeType, windowId } = node.data;
                 // 2.1 同window下的tab需要手动关闭，非同window下的tab通过onWindowRemoved回调关闭
@@ -153,7 +160,7 @@ export const TabNodeOperations = {
                 }
                 return true;
             });
-        } else if (!expanded) {
+        } else if (!isCloseItem) {
             // 2. node合起：关闭下面所有tab节点
             fromNode.visit((node) => {
                 const { nodeType } = node.data;
@@ -204,7 +211,11 @@ export const TabNodeOperations = {
         toWindowId = toWindowId ?? toMoveNode.data.windowId;
         const targetWindowNode = tree.getNodeByKey(`${toWindowId}`);
         // 1. 按需移动节点
-        if (!toMoveNode.data.dndOperated) {
+        if (
+            !toMoveNode.data.dndOperated &&
+            (!toMoveNode.data.dndMovedTime || Date.now() - toMoveNode.data.dndMovedTime > 1000)
+        ) {
+            log.debug('callback move executed');
             NodeUtils.moveChildrenAsNextSiblings(toMoveNode);
             if (toIndex === 0) {
                 toMoveNode.moveTo(targetWindowNode, 'firstChild');

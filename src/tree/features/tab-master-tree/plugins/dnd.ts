@@ -87,7 +87,6 @@ export const DND5_CONFIG: Fancytree.Extensions.DragAndDrop5 = {
             // Drop a non-node
             targetNode.addNode({ title: transfer.getData('text') }, data.hitMode);
         }
-        targetNode.setExpanded();
     },
     dragEnd(_node: Fancytree.FancytreeNode, _data: DND5Data) {},
 };
@@ -134,8 +133,12 @@ export async function tabMoveOnDrop(
             const toMoveTabIds = toMoveTabNodes.map((node) => node.data.id);
             await browser.tabs.move(toMoveTabIds, { windowId: newWindow.id, index: 0 });
             await browser.tabs.remove(newWindow.tabs![0].id!);
-        } else if (windowNode) {
-            // 移动到同一个窗口 || 不同窗口
+        } else if (windowNode && windowNode.data.id === sourceNode.data.windowId) {
+            // 移动到同一个窗口
+            // chrome浏览器在同窗口批量移动窗口上行为不一致，这里全部重置窗口顺序
+            await syncTabOrderWithTree(windowNode);
+        } else if (windowNode && windowNode.data.id !== sourceNode.data.windowId) {
+            // 移动到不同窗口
             const openedSubTabNodes = WindowNodeOperations.findAllSubTabNodes(windowNode, true);
             const toIndex = openedSubTabNodes.findIndex(
                 (node) => node.data.id === sourceNode.data.id,
@@ -163,4 +166,18 @@ export async function tabMoveOnDrop(
                 TabNodeOperations.updatePartial(node, { windowId: windowNode.data.id }),
         );
     }
+}
+
+export async function syncTabOrderWithTree(windowNode: FancytreeNode) {
+    const openedSubTabNodes = WindowNodeOperations.findAllSubTabNodes(windowNode, true);
+    openedSubTabNodes.forEach((node) => {
+        node.data.dndMovedTime = Date.now();
+    });
+    await browser.tabs.move(
+        openedSubTabNodes.map((item) => item.data.id),
+        {
+            index: 0,
+            windowId: windowNode.data.id,
+        },
+    );
 }

@@ -5,6 +5,7 @@ export interface TreeData {
     closed?: boolean;
     alias?: string;
     nodeType: NodeType;
+    save?: boolean;
 }
 
 export type NodeData = TabData | WindowData;

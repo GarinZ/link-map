@@ -6,6 +6,7 @@ import browser from 'webextension-polyfill';
 import { TabMasterDB } from '../../../storage/idb';
 import { dataCheckAndSupply } from './nodes/data-check';
 import type { TreeData, TreeNode } from './nodes/nodes';
+import { NoteNodeOperations } from './nodes/note-node-operations';
 import type { TabData } from './nodes/tab-node-operations';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import { NodeUtils } from './nodes/utils';
@@ -26,6 +27,7 @@ import 'jquery.fancytree/dist/skin-xp/ui.fancytree.min.css';
 const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE, NODE_EDIT } = TPL_CONSTANTS;
 
 type FancytreeNode = Fancytree.FancytreeNode;
+type OperationTarget = 'item' | 'all' | 'auto';
 
 export interface FancyTabMasterTreeConfig {
     dndConfig?: Fancytree.Extensions.DragAndDrop5;
@@ -52,7 +54,7 @@ export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
     db?: TabMasterDB;
     enablePersist: boolean;
-    static closeNodes: (targetNode: FancytreeNode, updateClosed?: boolean) => void;
+    static closeNodes: (targetNode: FancytreeNode, mode?: OperationTarget) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
     static createWindowNodeAsParent: (
@@ -72,7 +74,12 @@ export class FancyTabMasterTree {
         url: string | string[],
     ) => Promise<{ windowNode: FancytreeNode; window: Windows.Window }>;
 
-    static removeNodes: (targetNode: FancytreeNode) => void;
+    static removeNodes: (targetNode: FancytreeNode, mode?: OperationTarget) => void;
+    static save: (node: Fancytree.FancytreeNode) => void;
+    static insertTag: (
+        node: Fancytree.FancytreeNode,
+        mode: 'parent' | 'child' | 'firstChild' | 'after',
+    ) => void;
 
     constructor($container: JQuery, config: FancyTabMasterTreeConfig = DefaultConfig) {
         config = merge({}, DefaultConfig, config);
@@ -234,6 +241,7 @@ export class FancyTabMasterTree {
     }
 
     public moveTab(_windowId: number, tabId: number, fromIndex: number, toIndex: number): void {
+        log.debug(`move tab ${tabId} from ${fromIndex} to ${toIndex}`);
         if (toIndex === fromIndex) return;
         const toMoveNode = this.tree.getNodeByKey(`${tabId}`);
         // attach时会竞态触发move事件，如果之前排序过就不要再排一次
@@ -246,13 +254,13 @@ export class FancyTabMasterTree {
         if (!toRemoveNode) return;
         const windowNode = TabNodeOperations.findWindowNode(toRemoveNode);
         const hasRemove = TabNodeOperations.removeItem(toRemoveNode);
+        if (!hasRemove) {
+            TabNodeOperations.updatePartial(toRemoveNode, { closed: true, active: false });
+        }
         // tab remove不会触发tab active事件，需要手动更新
         if (windowNode) {
-            const syncSuccess = await this.syncActiveTab(windowNode.data.windowId);
-            if (!hasRemove || !syncSuccess) {
-                TabNodeOperations.updatePartial(toRemoveNode, { closed: true, active: false });
-                WindowNodeOperations.updateWindowStatus(windowNode);
-            }
+            await this.syncActiveTab(windowNode.data.windowId);
+            WindowNodeOperations.updateWindowStatus(windowNode);
         }
     }
 
@@ -290,10 +298,10 @@ export class FancyTabMasterTree {
     public async windowFocus(windowId: number): Promise<void> {
         // devtools的windowId为-1，不做处理
         if (windowId < 0) return;
-        const windowNode = this.tree.getNodeByKey(`${windowId}`);
-        if (!windowNode.data.isBackgroundPage) {
-            windowNode.scrollIntoView();
-        }
+        // const windowNode = this.tree.getNodeByKey(`${windowId}`);
+        // if (!windowNode.data.isBackgroundPage) {
+        //     windowNode.scrollIntoView();
+        // }
         await this.syncActiveTab(windowId);
     }
 
@@ -331,6 +339,8 @@ FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventDat
         case NODE_REMOVE:
             log.debug('[tree]: remove button clicked');
             FancyTabMasterTree.removeNodes(data.node);
+            // prevent default to prevent scroll up
+            event.preventDefault();
             break;
         case NODE_EDIT:
             log.debug('[tree]: edit button clicked');
@@ -386,9 +396,10 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
 /**
  * 关闭节点
  */
-FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode) => {
+FancyTabMasterTree.closeNodes = (targetNode: FancytreeNode, mode: OperationTarget = 'auto') => {
     // 1. 更新tabNodes的closed状态
-    const toClosedTabNodes = TabNodeOperations.getToCloseTabNodes(targetNode);
+    const operationMode = getOperationMode(targetNode, mode);
+    const toClosedTabNodes = TabNodeOperations.getToCloseTabNodes(targetNode, operationMode);
     const windowIdSet = new Set<number>();
     const tabIdSet = new Set<number>();
     toClosedTabNodes.forEach((node) => {
@@ -459,18 +470,22 @@ FancyTabMasterTree.openWindow = async (
     return { windowNode: newWindowNode, window: newWindow };
 };
 
-FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode) => {
-    const toCloseTabNodes = TabNodeOperations.getToCloseTabNodes(targetNode);
+FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode, mode: OperationTarget = 'auto') => {
+    // 1, 计算需要关闭的tabNodes
+    const operationMode = getOperationMode(targetNode, mode);
+    const toCloseTabNodes = TabNodeOperations.getToCloseTabNodes(targetNode, operationMode);
     const windowIdSet = new Set<number>();
     const tabIdSet = new Set<number>();
     toCloseTabNodes.forEach((node) => {
         windowIdSet.add(node.data.windowId);
         tabIdSet.add(node.data.id);
     });
-    if (targetNode.expanded) {
+    // 2. 移除节点
+    if (operationMode === 'item') {
         NodeUtils.moveChildrenAsNextSiblings(targetNode);
     }
     targetNode.remove();
+    // 3. 更新windowNode的closed状态
     windowIdSet.forEach((windowId) => {
         const windowNode = targetNode.tree.getNodeByKey(windowId.toString());
         if (!windowNode) return;
@@ -478,3 +493,63 @@ FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode) => {
     });
     tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
 };
+
+FancyTabMasterTree.save = (node: FancytreeNode) => {
+    const newSaveStatus = !node.data.save;
+    if (!node.isExpanded()) {
+        node.visit((child) => {
+            if (child.data.nodeType === 'note') return;
+            TabNodeOperations.updatePartial(child, { save: newSaveStatus });
+        }, true);
+    }
+    if (node.data.nodeType === 'window') {
+        WindowNodeOperations.findAllSubTabNodes(node).forEach((tabNode) => {
+            TabNodeOperations.updatePartial(tabNode, { save: newSaveStatus });
+        });
+        WindowNodeOperations.updatePartial(node, { save: newSaveStatus });
+    }
+    if (node.data.nodeType === 'tab') {
+        TabNodeOperations.updatePartial(node, { save: newSaveStatus });
+    }
+};
+
+FancyTabMasterTree.insertTag = (
+    node: FancytreeNode,
+    mode: 'parent' | 'child' | 'firstChild' | 'after',
+) => {
+    switch (mode) {
+        case 'parent': {
+            const newNode = node.addNode(NoteNodeOperations.createData(), 'before');
+            node.moveTo(newNode, 'child');
+            newNode.editStart();
+            break;
+        }
+        case 'child': {
+            const newNode = node.addNode(NoteNodeOperations.createData(), 'child');
+            node.setExpanded(true);
+            newNode.editStart();
+            break;
+        }
+        case 'firstChild': {
+            const newNode = node.addNode(NoteNodeOperations.createData(), 'firstChild');
+            node.setExpanded(true);
+            newNode.editStart();
+            break;
+        }
+        default: {
+            const newNode = node.addNode(NoteNodeOperations.createData(), 'after');
+            newNode.editStart();
+            break;
+        }
+    }
+};
+
+function getOperationMode(targetNode: FancytreeNode, mode: OperationTarget = 'auto') {
+    let closeMode: 'item' | 'all';
+    if (mode === 'item' || mode === 'all') {
+        closeMode = mode;
+    } else {
+        closeMode = targetNode.expanded ? 'item' : 'all';
+    }
+    return closeMode;
+}

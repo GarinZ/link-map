@@ -12,6 +12,12 @@ import { isContentScriptPage, sendMessageToExt } from './event-bus';
 try {
     log.setLevel(__ENV__ === 'development' ? 'debug' : 'silent');
 
+    async function syncTabsCountInBadge() {
+        const allTabs = await browser.tabs.query({});
+        await browser.action.setBadgeBackgroundColor({ color: '#2b2d31' });
+        await browser.action.setBadgeText({ text: allTabs.length.toString() });
+    }
+
     // ext安装后的状态
     browser.runtime.onInstalled.addListener(async (details) => {
         log.debug('Extension installed', details.reason);
@@ -23,15 +29,15 @@ try {
         }
         if (
             details.reason === 'update' &&
-            details.previousVersion !== '1.0.5' &&
-            browser.runtime.getManifest().version === '1.0.5'
+            details.previousVersion !== '1.0.7' &&
+            browser.runtime.getManifest().version === '1.0.7'
         ) {
             // chrome.runtime.getManifest().version
             await setIsUpdate(true);
         }
         const db = new TabMasterDB();
         await db.initSetting();
-
+        await syncTabsCountInBadge();
         await removeExtPageInfo();
     });
 
@@ -86,6 +92,7 @@ try {
 
     // #### 浏览器Fire的事件
     browser.tabs.onCreated.addListener(async (tab) => {
+        syncTabsCountInBadge();
         // 1. 如果创建的是contentScript则忽略
         log.debug('[bg]: tab created!', tab);
         if (isContentScriptPage(tab.url) || isContentScriptPage(tab.pendingUrl)) return;
@@ -95,6 +102,7 @@ try {
     });
 
     browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
+        syncTabsCountInBadge();
         // optimize 1. 如果删除的是自己怎么办？
         log.debug('[bg]: tab removed!');
         // 如果删除的是extPage，记录window的width/height/left/top到localStorage

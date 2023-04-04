@@ -8,9 +8,10 @@ interface Snapshot {
     updateTime: number;
 }
 
+export type ThemeType = 'light' | 'dark' | 'auto';
 export interface Setting {
     id: number;
-    theme: 'light' | 'dark';
+    theme: ThemeType;
     display: 'popup' | 'tab' | 'embedded-sidebar';
 }
 

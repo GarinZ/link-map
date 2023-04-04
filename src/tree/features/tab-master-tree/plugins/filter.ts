@@ -6,9 +6,9 @@ export const FILTER_OPTIONS: Fancytree.Extensions.Filter = {
     hideExpandedCounter: true, // Hide counter badge if parent is expanded
     hideExpanders: true, // Hide expanders if all child nodes are hidden by filter
     highlight: true, // Highlight matches by wrapping inside <mark> tags
-    leavesOnly: true, // Match end nodes only
+    leavesOnly: false, // Match end nodes only
     nodata: true, // Display a 'no data' status node if result is empty
-    mode: 'dimm', // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+    mode: 'hide', // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
 };
 
 export const clearHighLightFields = (node: Fancytree.FancytreeNode) => {

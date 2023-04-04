@@ -1,7 +1,6 @@
 import browser from 'webextension-polyfill';
 
 import { FancyTabMasterTree } from '../fancy-tab-master-tree';
-import { NoteNodeOperations } from '../nodes/note-node-operations';
 
 import 'jquery-contextmenu/dist/jquery.contextMenu.min.js';
 import 'jquery-contextmenu/dist/jquery.contextMenu.min.css';
@@ -10,6 +9,10 @@ export const registerContextMenu = () => {
     $.contextMenu({
         selector: '#tree span.fancytree-title',
         items: {
+            save: {
+                name: browser.i18n.getMessage('save'),
+                icon: () => 'iconfont icon-lock context-menu-icon',
+            },
             edit: {
                 name: browser.i18n.getMessage('ctxMenuEdit'),
                 icon: () => 'iconfont icon-edit context-menu-icon',
@@ -17,10 +20,30 @@ export const registerContextMenu = () => {
             delete: {
                 name: browser.i18n.getMessage('ctxMenuDelete'),
                 icon: () => 'iconfont icon-trash context-menu-icon',
+                items: {
+                    deleteNode: {
+                        name: 'Delete Node',
+                        icon: () => 'iconfont icon-pointer context-menu-icon',
+                    },
+                    deleteSubTree: {
+                        name: 'Delete Subtree',
+                        icon: () => 'iconfont icon-node-multiple context-menu-icon',
+                    },
+                },
             },
             close: {
                 name: browser.i18n.getMessage('ctxMenuClose'),
                 icon: () => 'iconfont icon-roundclosefill context-menu-icon',
+                items: {
+                    closeNode: {
+                        name: 'Close Node',
+                        icon: () => 'iconfont icon-pointer context-menu-icon',
+                    },
+                    closeSubTree: {
+                        name: 'Close Subtree',
+                        icon: () => 'iconfont icon-node-multiple context-menu-icon',
+                    },
+                },
             },
             // focus: {
             //     name: 'Focus',
@@ -61,35 +84,46 @@ export const registerContextMenu = () => {
                     },
                 },
             },
+            expandAll: {
+                name: browser.i18n.getMessage('expandAll'),
+                icon: () => 'iconfont icon-expand_all context-menu-icon',
+            },
+            collapseAll: {
+                name: browser.i18n.getMessage('collapseAll'),
+                icon: () => 'iconfont icon-collapse_all context-menu-icon',
+            },
         },
         callback(itemKey: string, opt) {
             const node = $.ui.fancytree.getNode(opt.$trigger);
             switch (itemKey) {
+                case 'save':
+                    FancyTabMasterTree.save(node);
+                    break;
                 case 'edit':
                     node.editStart();
                     break;
-                case 'delete':
-                    FancyTabMasterTree.removeNodes(node);
+                case 'deleteNode':
+                    FancyTabMasterTree.removeNodes(node, 'item');
                     break;
-                case 'close':
-                    FancyTabMasterTree.closeNodes(node);
+                case 'deleteSubTree':
+                    FancyTabMasterTree.removeNodes(node, 'all');
+                    break;
+                case 'closeNode':
+                    FancyTabMasterTree.closeNodes(node, 'item');
+                    break;
+                case 'closeSubTree':
+                    FancyTabMasterTree.closeNodes(node, 'all');
                     break;
                 case 'insertNodeAsParent': {
-                    const newNode = node.addNode(NoteNodeOperations.createData(), 'before');
-                    node.moveTo(newNode, 'child');
-                    newNode.editStart();
+                    FancyTabMasterTree.insertTag(node, 'parent');
                     break;
                 }
                 case 'insertNodeAsFirstSubNode': {
-                    const newTag = node.addNode(NoteNodeOperations.createData(), 'firstChild');
-                    node.setExpanded(true);
-                    newTag.editStart();
+                    FancyTabMasterTree.insertTag(node, 'firstChild');
                     break;
                 }
                 case 'insertNodeAsLastSubNode': {
-                    const newTag = node.addNode(NoteNodeOperations.createData(), 'child');
-                    node.setExpanded(true);
-                    newTag.editStart();
+                    FancyTabMasterTree.insertTag(node, 'child');
                     break;
                 }
                 case 'focusCurrentNode':
@@ -104,6 +138,12 @@ export const registerContextMenu = () => {
                     break;
                 case 'copyMarkdownLink':
                     navigator.clipboard.writeText(`[${node.data.title}](${node.data.url})`);
+                    break;
+                case 'expandAll':
+                    node.visit((node) => node.setExpanded(true), true);
+                    break;
+                case 'collapseAll':
+                    node.visit((node) => node.setExpanded(false), true);
                     break;
             }
         },

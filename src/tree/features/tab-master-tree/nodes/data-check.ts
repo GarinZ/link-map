@@ -8,6 +8,11 @@ export function dataCheckAndSupply(treeDataList: Fancytree.NodeData[]): void {
         if (data.nodeType === 'note' && node.icon === undefined) {
             node.icon = DEFAULT_DATE.icon;
         }
-        data.closed ? (node.extraClasses = 'closed') : (node.extraClasses = '');
+        if (data.closed) {
+            NodeUtils.addExtraClasses(node, ['closed']);
+        }
+        if (data.save) {
+            NodeUtils.addExtraClasses(node, ['saved']);
+        }
     });
 }
