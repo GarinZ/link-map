@@ -10,7 +10,7 @@ export const registerContextMenu = () => {
         selector: '#tree span.fancytree-title',
         items: {
             save: {
-                name: 'Save',
+                name: browser.i18n.getMessage('save'),
                 icon: () => 'iconfont icon-lock context-menu-icon',
             },
             edit: {
@@ -84,6 +84,14 @@ export const registerContextMenu = () => {
                     },
                 },
             },
+            expandAll: {
+                name: browser.i18n.getMessage('expandAll'),
+                icon: () => 'iconfont icon-expand_all context-menu-icon',
+            },
+            collapseAll: {
+                name: browser.i18n.getMessage('collapseAll'),
+                icon: () => 'iconfont icon-collapse_all context-menu-icon',
+            },
         },
         callback(itemKey: string, opt) {
             const node = $.ui.fancytree.getNode(opt.$trigger);
@@ -130,6 +138,12 @@ export const registerContextMenu = () => {
                     break;
                 case 'copyMarkdownLink':
                     navigator.clipboard.writeText(`[${node.data.title}](${node.data.url})`);
+                    break;
+                case 'expandAll':
+                    node.visit((node) => node.setExpanded(true), true);
+                    break;
+                case 'collapseAll':
+                    node.visit((node) => node.setExpanded(false), true);
                     break;
             }
         },

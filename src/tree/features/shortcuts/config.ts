@@ -77,7 +77,7 @@ export const ShortcutMap: IShortcutMap = {
     },
     expandAll: {
         name: browser.i18n.getMessage('expandAll'),
-        key: ['shift+command+]'],
+        key: [getOS() === 'MacOS' ? 'shift+command+]' : 'shift+ctrl+]'],
         type: 'Navigation',
         index: 6,
         callback: (_e, tmTree) => {
@@ -86,7 +86,7 @@ export const ShortcutMap: IShortcutMap = {
     },
     collapseAll: {
         name: browser.i18n.getMessage('collapseAll'),
-        key: ['shift+command+['],
+        key: [getOS() === 'MacOS' ? 'shift+command+[' : 'shift+ctrl+['],
         type: 'Navigation',
         index: 7,
         callback: (_e, tmTree) => {
@@ -116,8 +116,8 @@ export const ShortcutMap: IShortcutMap = {
         },
     },
     save: {
-        name: 'Save',
-        key: ['command+s'],
+        name: browser.i18n.getMessage('save'),
+        key: [getOS() === 'MacOS' ? 'command+s' : 'ctrl+s'],
         type: 'Basic Operation',
         index: 2,
         callback: async (e, tmTree) => {
@@ -159,7 +159,7 @@ export const ShortcutMap: IShortcutMap = {
             const activeNode = tmTree.tree.getActiveNode();
             if (!activeNode) return;
             e.preventDefault();
-            const nextActiveNode = getNextOrPrevNode(activeNode);
+            const nextActiveNode = getPrevOrNextNode(activeNode);
             FancyTabMasterTree.removeNodes(activeNode);
             nextActiveNode?.setActive();
         },
@@ -186,7 +186,7 @@ export const ShortcutMap: IShortcutMap = {
     },
     insertTagAsParent: {
         name: browser.i18n.getMessage('ctxMenuNotesCreateAsParent'),
-        key: ['shift+command+enter'],
+        key: [getOS() === 'MacOS' ? 'shift+command+enter' : 'shift+ctrl+enter'],
         type: 'Tag',
         index: 1,
         callback: (e, tmTree) => {
@@ -198,7 +198,7 @@ export const ShortcutMap: IShortcutMap = {
     },
     insertTagAsLastChild: {
         name: browser.i18n.getMessage('ctxMenuNotesCreateAsLastSubNode'),
-        key: ['command+enter'],
+        key: [getOS() === 'MacOS' ? 'command+enter' : 'ctrl+enter'],
         type: 'Tag',
         index: 2,
         callback: (e, tmTree) => {
@@ -243,14 +243,14 @@ export const getShortCutMap = async () => {
     return ShortcutMap;
 };
 
-export function getNextOrPrevNode(node: Fancytree.FancytreeNode): Fancytree.FancytreeNode | null {
+export function getPrevOrNextNode(node: Fancytree.FancytreeNode): Fancytree.FancytreeNode | null {
     let targetNode: Fancytree.FancytreeNode | null = null;
     node.tree.visitRows(
         (n) => {
             targetNode = n;
             return false;
         },
-        { start: node, includeSelf: false },
+        { start: node, includeSelf: true, reverse: true },
     );
     if (targetNode) return targetNode;
     node.tree.visitRows(
@@ -258,7 +258,7 @@ export function getNextOrPrevNode(node: Fancytree.FancytreeNode): Fancytree.Fanc
             targetNode = n;
             return false;
         },
-        { start: node, includeSelf: true, reverse: true },
+        { start: node, includeSelf: false },
     );
     return targetNode;
 }
