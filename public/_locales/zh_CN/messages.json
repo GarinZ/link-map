@@ -199,5 +199,8 @@
     },
     "expandAll": {
         "message": "展开全部"
+    },
+    "activeOrOpen": {
+        "message": "激活/打开"
     }
 }

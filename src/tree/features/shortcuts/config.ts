@@ -71,6 +71,24 @@ export const ShortcutMap: IShortcutMap = {
         type: 'Navigation',
         index: 5,
     },
+    expandAll: {
+        name: browser.i18n.getMessage('expandAll'),
+        key: ['shift+command+]'],
+        type: 'Navigation',
+        index: 6,
+        callback: (_e, tmTree) => {
+            tmTree.tree.expandAll();
+        },
+    },
+    collapseAll: {
+        name: browser.i18n.getMessage('collapseAll'),
+        key: ['shift+command+['],
+        type: 'Navigation',
+        index: 7,
+        callback: (_e, tmTree) => {
+            tmTree.tree.expandAll(false);
+        },
+    },
     activeLinkMap: {
         name: browser.i18n.getMessage('commandTriggerLinkMap'),
         key: [getOS() === 'MacOS' ? 'Shift + Command + L' : 'Shift + Ctrl + L'],
@@ -78,17 +96,27 @@ export const ShortcutMap: IShortcutMap = {
         index: 0,
         setUrl: getShortcutSettingUrl(),
     },
+    activeOrOpen: {
+        name: browser.i18n.getMessage('activeOrOpen'),
+        key: ['enter', 'double-Click'],
+        type: 'Basic Operation',
+        index: 1,
+        callback: async (_e, tmTree) => {
+            const activeNode = tmTree.tree.getActiveNode();
+            await FancyTabMasterTree.onDbClick(activeNode);
+        },
+    },
     edit: {
         name: browser.i18n.getMessage('ctxMenuEdit'),
         key: ['shift+click'],
         type: 'Basic Operation',
-        index: 1,
+        index: 2,
     },
     close: {
         name: browser.i18n.getMessage('ctxMenuClose'),
         key: [getOS() === 'MacOS' ? 'command+backspace' : 'ctrl+backspace'],
         type: 'Basic Operation',
-        index: 2,
+        index: 3,
         callback: (e, tmTree) => {
             const activeNode = tmTree.tree.getActiveNode();
             if (!activeNode) return;
@@ -100,7 +128,7 @@ export const ShortcutMap: IShortcutMap = {
         name: browser.i18n.getMessage('ctxMenuDelete'),
         key: [getOS() === 'MacOS' ? 'shift+command+backspace' : 'shift+ctrl+backspace'],
         type: 'Basic Operation',
-        index: 3,
+        index: 4,
         callback: (e, tmTree) => {
             const activeNode = tmTree.tree.getActiveNode();
             if (!activeNode) return;
@@ -114,7 +142,7 @@ export const ShortcutMap: IShortcutMap = {
         name: browser.i18n.getMessage('ctxMenuCopyLink'),
         key: [getOS() === 'MacOS' ? 'command+c' : 'ctrl+c'],
         type: 'Basic Operation',
-        index: 4,
+        index: 5,
         callback: (e, tmTree) => {
             const activeNode = tmTree.tree.getActiveNode();
             if (!activeNode) return;
