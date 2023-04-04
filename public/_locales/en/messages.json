@@ -183,7 +183,7 @@
         "message": "Save can be used using the right-click drop-down menu or shortcut keys"
     },
     "updateTutorialFeature1Desc3": {
-        "message": "Save when putting away nodes, you can save a batch of nodes"
+        "message": "To Save a batch of nodes, collapse first and then Save"
     },
     "updateTutorialFeature2": {
         "message": "Notes shortcut: use LinkMap like RoamResearch"
@@ -210,7 +210,7 @@
         "message": "Some minor optimizations"
     },
     "updateTutorialFeature5Desc1": {
-        "message": "'New tabs' will now be created level by level in the tree"
+        "message": "'New tabs' will now be created in the same level in the tree"
     },
     "updateTutorialFeature5Desc2": {
         "message": "Some options have been added to the 'Delete/Close' in the right-click menu"

@@ -498,6 +498,7 @@ FancyTabMasterTree.save = (node: FancytreeNode) => {
     const newSaveStatus = !node.data.save;
     if (!node.isExpanded()) {
         node.visit((child) => {
+            if (child.data.nodeType === 'note') return;
             TabNodeOperations.updatePartial(child, { save: newSaveStatus });
         }, true);
     }

@@ -29,7 +29,7 @@ try {
         }
         if (
             details.reason === 'update' &&
-            // details.previousVersion !== '1.0.7' &&
+            details.previousVersion !== '1.0.7' &&
             browser.runtime.getManifest().version === '1.0.7'
         ) {
             // chrome.runtime.getManifest().version
