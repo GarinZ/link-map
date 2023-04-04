@@ -103,14 +103,20 @@ export const ShortcutMap: IShortcutMap = {
         index: 1,
         callback: async (_e, tmTree) => {
             const activeNode = tmTree.tree.getActiveNode();
+            if (!activeNode) return;
             await FancyTabMasterTree.onDbClick(activeNode);
         },
     },
     edit: {
         name: browser.i18n.getMessage('ctxMenuEdit'),
-        key: ['shift+click'],
+        key: ['shift+click', 'space'],
         type: 'Basic Operation',
         index: 2,
+        callback: (_e, tmTree) => {
+            const activeNode = tmTree.tree.getActiveNode();
+            if (!activeNode) return;
+            activeNode.editStart();
+        },
     },
     close: {
         name: browser.i18n.getMessage('ctxMenuClose'),
