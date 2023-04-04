@@ -56,6 +56,9 @@
     "ctxMenuNotesCreateAsLastSubNode": {
         "message": "Create as Last Child"
     },
+    "ctxMenuNotesCreateAfter": {
+        "message": "Create After(Only for Tag Node)"
+    },
     "importPageInfo": {
         "message": "Drag and Drop the nodes below to the Link Map Tree to import the data."
     },
@@ -147,10 +150,10 @@
         "message": "Go to parent node"
     },
     "expand": {
-        "message": "Expand sub nodes"
+        "message": "Expand"
     },
     "collapse": {
-        "message": "Collapse sub nodes"
+        "message": "Collapse"
     },
     "basicOperation": {
         "message": "Basic Operation"

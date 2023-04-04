@@ -24,7 +24,7 @@
         "message": "反馈"
     },
     "feedbackDesc": {
-        "message": "反馈"
+        "message": "反馈关于LinkMap的建议/问题"
     },
     "ctxMenuEdit": {
         "message": "编辑"
@@ -45,7 +45,7 @@
         "message": "复制Markdown链接"
     },
     "ctxMenuNotes": {
-        "message": "标签"
+        "message": "笔记"
     },
     "ctxMenuNotesCreateAsParent": {
         "message": "作为父节点"
@@ -55,6 +55,9 @@
     },
     "ctxMenuNotesCreateAsLastSubNode": {
         "message": "作为最后一个子节点"
+    },
+    "ctxMenuNotesCreateAfter": {
+        "message": "作为下一个节点(仅对笔记节点生效)"
     },
     "importPageInfo": {
         "message": "根据需要将下面的节点拖拽到LinkMap中就可以完成数据导入"
@@ -147,10 +150,10 @@
         "message": "选中父节点"
     },
     "expand": {
-        "message": "展开子节点"
+        "message": "展开"
     },
     "collapse": {
-        "message": "收起子节点"
+        "message": "收起"
     },
     "basicOperation": {
         "message": "基本操作"

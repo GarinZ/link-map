@@ -76,8 +76,10 @@ export class FancyTabMasterTree {
 
     static removeNodes: (targetNode: FancytreeNode, mode?: OperationTarget) => void;
     static save: (node: Fancytree.FancytreeNode) => void;
-    static insertTagAsParent: (node: Fancytree.FancytreeNode) => void;
-    static insertTagAsLastChild: (node: Fancytree.FancytreeNode) => void;
+    static insertTag: (
+        node: Fancytree.FancytreeNode,
+        mode: 'parent' | 'child' | 'firstChild' | 'after',
+    ) => void;
 
     constructor($container: JQuery, config: FancyTabMasterTreeConfig = DefaultConfig) {
         config = merge({}, DefaultConfig, config);
@@ -510,16 +512,35 @@ FancyTabMasterTree.save = (node: FancytreeNode) => {
     }
 };
 
-FancyTabMasterTree.insertTagAsParent = (node: FancytreeNode) => {
-    const newNode = node.addNode(NoteNodeOperations.createData(), 'before');
-    node.moveTo(newNode, 'child');
-    newNode.editStart();
-};
-
-FancyTabMasterTree.insertTagAsLastChild = (node: FancytreeNode) => {
-    const newTag = node.addNode(NoteNodeOperations.createData(), 'child');
-    node.setExpanded(true);
-    newTag.editStart();
+FancyTabMasterTree.insertTag = (
+    node: FancytreeNode,
+    mode: 'parent' | 'child' | 'firstChild' | 'after',
+) => {
+    switch (mode) {
+        case 'parent': {
+            const newNode = node.addNode(NoteNodeOperations.createData(), 'before');
+            node.moveTo(newNode, 'child');
+            newNode.editStart();
+            break;
+        }
+        case 'child': {
+            const newNode = node.addNode(NoteNodeOperations.createData(), 'child');
+            node.setExpanded(true);
+            newNode.editStart();
+            break;
+        }
+        case 'firstChild': {
+            const newNode = node.addNode(NoteNodeOperations.createData(), 'firstChild');
+            node.setExpanded(true);
+            newNode.editStart();
+            break;
+        }
+        default: {
+            const newNode = node.addNode(NoteNodeOperations.createData(), 'after');
+            newNode.editStart();
+            break;
+        }
+    }
 };
 
 function getOperationMode(targetNode: FancytreeNode, mode: OperationTarget = 'auto') {

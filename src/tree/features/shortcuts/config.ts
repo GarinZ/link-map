@@ -9,7 +9,7 @@ import { getOS } from '../../../utils';
 import { FancyTabMasterTree } from '../tab-master-tree/fancy-tab-master-tree';
 
 const DEFAULT_MESSAGE_DURATION = 0.5;
-export type ShortcutTypes = 'Basic Operation' | 'Navigation';
+export type ShortcutTypes = 'Basic Operation' | 'Navigation' | 'Tag';
 export const shortcutTypesOrder = [
     {
         type: 'Basic Operation',
@@ -18,6 +18,10 @@ export const shortcutTypesOrder = [
     {
         type: 'Navigation',
         name: browser.i18n.getMessage('navigation'),
+    },
+    {
+        type: 'Tag',
+        name: browser.i18n.getMessage('ctxMenuNotes'),
     },
 ];
 
@@ -104,7 +108,11 @@ export const ShortcutMap: IShortcutMap = {
         callback: async (_e, tmTree) => {
             const activeNode = tmTree.tree.getActiveNode();
             if (!activeNode) return;
-            await FancyTabMasterTree.onDbClick(activeNode);
+            if (activeNode.data.nodeType === 'note') {
+                FancyTabMasterTree.insertTag(activeNode, 'after');
+            } else {
+                await FancyTabMasterTree.onDbClick(activeNode);
+            }
         },
     },
     save: {
@@ -156,35 +164,11 @@ export const ShortcutMap: IShortcutMap = {
             nextActiveNode?.setActive();
         },
     },
-    insertTagAsParent: {
-        name: browser.i18n.getMessage('ctxMenuNotesCreateAsParent'),
-        key: ['shift+command+enter'],
-        type: 'Basic Operation',
-        index: 5,
-        callback: (e, tmTree) => {
-            const activeNode = tmTree.tree.getActiveNode();
-            if (!activeNode) return;
-            e.preventDefault();
-            FancyTabMasterTree.insertTagAsParent(activeNode);
-        },
-    },
-    insertTagAsLastChild: {
-        name: browser.i18n.getMessage('ctxMenuNotesCreateAsLastSubNode'),
-        key: ['command+enter'],
-        type: 'Basic Operation',
-        index: 6,
-        callback: (e, tmTree) => {
-            const activeNode = tmTree.tree.getActiveNode();
-            if (!activeNode) return;
-            e.preventDefault();
-            FancyTabMasterTree.insertTagAsLastChild(activeNode);
-        },
-    },
     copyLink: {
         name: browser.i18n.getMessage('ctxMenuCopyLink'),
         key: [getOS() === 'MacOS' ? 'command+c' : 'ctrl+c'],
         type: 'Basic Operation',
-        index: 7,
+        index: 5,
         callback: (e, tmTree) => {
             const activeNode = tmTree.tree.getActiveNode();
             if (!activeNode) return;
@@ -192,6 +176,36 @@ export const ShortcutMap: IShortcutMap = {
             navigator.clipboard.writeText(activeNode.data.url || '').then(() => {
                 message.success('Copy url successfully', DEFAULT_MESSAGE_DURATION);
             });
+        },
+    },
+    insertTagAsAfter: {
+        name: browser.i18n.getMessage('ctxMenuNotesCreateAfter'),
+        key: ['enter'],
+        type: 'Tag',
+        index: 0,
+    },
+    insertTagAsParent: {
+        name: browser.i18n.getMessage('ctxMenuNotesCreateAsParent'),
+        key: ['shift+command+enter'],
+        type: 'Tag',
+        index: 1,
+        callback: (e, tmTree) => {
+            const activeNode = tmTree.tree.getActiveNode();
+            if (!activeNode) return;
+            e.preventDefault();
+            FancyTabMasterTree.insertTag(activeNode, 'parent');
+        },
+    },
+    insertTagAsLastChild: {
+        name: browser.i18n.getMessage('ctxMenuNotesCreateAsLastSubNode'),
+        key: ['command+enter'],
+        type: 'Tag',
+        index: 2,
+        callback: (e, tmTree) => {
+            const activeNode = tmTree.tree.getActiveNode();
+            if (!activeNode) return;
+            e.preventDefault();
+            FancyTabMasterTree.insertTag(activeNode, 'child');
         },
     },
 };

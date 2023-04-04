@@ -1,7 +1,6 @@
 import browser from 'webextension-polyfill';
 
 import { FancyTabMasterTree } from '../fancy-tab-master-tree';
-import { NoteNodeOperations } from '../nodes/note-node-operations';
 
 import 'jquery-contextmenu/dist/jquery.contextMenu.min.js';
 import 'jquery-contextmenu/dist/jquery.contextMenu.min.css';
@@ -108,17 +107,15 @@ export const registerContextMenu = () => {
                     FancyTabMasterTree.closeNodes(node, 'all');
                     break;
                 case 'insertNodeAsParent': {
-                    FancyTabMasterTree.insertTagAsParent(node);
+                    FancyTabMasterTree.insertTag(node, 'parent');
                     break;
                 }
                 case 'insertNodeAsFirstSubNode': {
-                    const newTag = node.addNode(NoteNodeOperations.createData(), 'firstChild');
-                    node.setExpanded(true);
-                    newTag.editStart();
+                    FancyTabMasterTree.insertTag(node, 'firstChild');
                     break;
                 }
                 case 'insertNodeAsLastSubNode': {
-                    FancyTabMasterTree.insertTagAsLastChild(node);
+                    FancyTabMasterTree.insertTag(node, 'child');
                     break;
                 }
                 case 'focusCurrentNode':
