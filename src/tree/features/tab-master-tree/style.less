@@ -127,7 +127,6 @@ body {
             line-height: 22px;
 
             .expander-style();
-            .icon-style();
             #fancytree-title-style();
             .fancytree-active-style();
 
@@ -142,6 +141,8 @@ body {
 
             .edit-input();
         }
+
+        .icon-style();
     }
 }
 
@@ -236,37 +237,50 @@ body {
 }
 
 .icon-style {
-    span.fancytree-custom-icon {
-        line-height: 16px;
-        text-align: center;
+    span.fancytree-node {
+        span.fancytree-custom-icon {
+            line-height: 16px;
+            text-align: center;
+
+            .fancytree-icon {
+                margin-left: 0;
+            }
+        }
+
+        &.closed {
+            .fancytree-icon {
+                filter: grayscale(1);
+            }
+        }
+
+        i.fancytree-icon.note {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: rgb(34 190 107);
+            border-radius: 4px;
+        }
 
         .fancytree-icon {
-            margin-left: 0;
+            vertical-align: middle;
         }
-    }
 
-    &.closed {
-        .fancytree-icon {
-            filter: grayscale(1);
+        img.fancytree-icon {
+            background-color: var(--icon-bg-color);
+            border: 1px solid var(--icon-border-color);
+            border-radius: 3px;
         }
-    }
 
-    i.fancytree-icon.note {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        background-color: rgb(34 190 107);
-        border-radius: 4px;
-    }
-
-    .fancytree-icon {
-        vertical-align: middle;
-    }
-
-    img.fancytree-icon {
-        background-color: var(--icon-bg-color);
-        border: 1px solid var(--icon-border-color);
-        border-radius: 3px;
+        &.saved::before {
+            position: absolute;
+            top: 10px;
+            left: 32px;
+            z-index: 1;
+            font-family: iconfont, serif !important;
+            font-size: 12px;
+            color: #c5c5c5;
+            content: '\e69e';
+        }
     }
 }
 

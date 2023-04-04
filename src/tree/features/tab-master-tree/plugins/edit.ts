@@ -28,5 +28,6 @@ export const EDIT_OPTIONS: Fancytree.EditOptions = {
             // $(data.node.span).addClass('pending');
             node.setTitle((this as FancytreeNode).data.title);
         }
+        node.setActive();
     },
 };

@@ -10,6 +10,10 @@ export const registerContextMenu = () => {
     $.contextMenu({
         selector: '#tree span.fancytree-title',
         items: {
+            save: {
+                name: 'Save',
+                icon: () => 'iconfont icon-lock context-menu-icon',
+            },
             edit: {
                 name: browser.i18n.getMessage('ctxMenuEdit'),
                 icon: () => 'iconfont icon-edit context-menu-icon',
@@ -85,6 +89,9 @@ export const registerContextMenu = () => {
         callback(itemKey: string, opt) {
             const node = $.ui.fancytree.getNode(opt.$trigger);
             switch (itemKey) {
+                case 'save':
+                    FancyTabMasterTree.save(node);
+                    break;
                 case 'edit':
                     node.editStart();
                     break;
@@ -101,9 +108,7 @@ export const registerContextMenu = () => {
                     FancyTabMasterTree.closeNodes(node, 'all');
                     break;
                 case 'insertNodeAsParent': {
-                    const newNode = node.addNode(NoteNodeOperations.createData(), 'before');
-                    node.moveTo(newNode, 'child');
-                    newNode.editStart();
+                    FancyTabMasterTree.insertTagAsParent(node);
                     break;
                 }
                 case 'insertNodeAsFirstSubNode': {
@@ -113,9 +118,7 @@ export const registerContextMenu = () => {
                     break;
                 }
                 case 'insertNodeAsLastSubNode': {
-                    const newTag = node.addNode(NoteNodeOperations.createData(), 'child');
-                    node.setExpanded(true);
-                    newTag.editStart();
+                    FancyTabMasterTree.insertTagAsLastChild(node);
                     break;
                 }
                 case 'focusCurrentNode':

@@ -5,6 +5,8 @@ import type { TabData } from './tab-node-operations';
 import type { WindowData } from './window-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
+
+const VALID_CLASS_NAMES = new Set(['closed', 'saved', 'tab-active']);
 export const NodeUtils = {
     moveChildrenAsNextSiblings(node: FancytreeNode) {
         if (node.children && node.children.length > 0) {
@@ -25,8 +27,8 @@ export const NodeUtils = {
         });
     },
     canRemove(node: FancytreeNode) {
-        const { closed, alias } = node.data;
-        return !closed && !alias;
+        const { closed, alias, save } = node.data;
+        return !closed && !alias && !save;
     },
     flatTabNodes(windowNode: FancytreeNode): FancytreeNode[] {
         const tabNodes: FancytreeNode[] = [];
@@ -47,5 +49,14 @@ export const NodeUtils = {
             }
         });
         return tabNodes;
+    },
+    addExtraClasses: (node: Fancytree.NodeData, newClasses: string[]): void => {
+        const extraClasses = node.extraClasses ? node.extraClasses.split(' ') : [];
+        const classSet = new Set([...extraClasses, ...newClasses]);
+        node.extraClasses = [...classSet].filter((c) => VALID_CLASS_NAMES.has(c)).join(' ');
+    },
+    removeExtraClasses: (node: Fancytree.NodeData, removeClasses: string[]): void => {
+        const extraClasses = node.extraClasses ? node.extraClasses.split(' ') : [];
+        node.extraClasses = extraClasses.filter((item) => !removeClasses.includes(item)).join(' ');
     },
 };

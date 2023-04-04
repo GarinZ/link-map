@@ -202,5 +202,8 @@
     },
     "activeOrOpen": {
         "message": "激活/打开"
+    },
+    "save": {
+        "message": "保存"
     }
 }

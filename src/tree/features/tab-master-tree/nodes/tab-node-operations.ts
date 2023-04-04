@@ -116,7 +116,7 @@ export const TabNodeOperations = {
         return true;
     },
     updatePartial(toUpdateNode: FancytreeNode, updateProps: Partial<TabData>) {
-        const { title, favIconUrl, id, active, closed } = updateProps;
+        const { title, favIconUrl, id, active, closed, save } = updateProps;
         toUpdateNode.data = { ...toUpdateNode.data, ...updateProps };
         if (id) toUpdateNode.key = `${id}`;
         if (title) toUpdateNode.setTitle(escape(title));
@@ -138,6 +138,8 @@ export const TabNodeOperations = {
         } else if (active === false) {
             toUpdateNode.data.tabActive = false;
             toUpdateNode.removeClass('tab-active');
+        } else if (save !== undefined) {
+            save ? toUpdateNode.addClass('saved') : toUpdateNode.removeClass('saved');
         }
     },
     getToCloseTabNodes(fromNode: FancytreeNode, mode: 'item' | 'all'): FancytreeNode[] {

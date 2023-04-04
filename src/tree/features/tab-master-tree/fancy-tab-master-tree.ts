@@ -6,6 +6,7 @@ import browser from 'webextension-polyfill';
 import { TabMasterDB } from '../../../storage/idb';
 import { dataCheckAndSupply } from './nodes/data-check';
 import type { TreeData, TreeNode } from './nodes/nodes';
+import { NoteNodeOperations } from './nodes/note-node-operations';
 import type { TabData } from './nodes/tab-node-operations';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import { NodeUtils } from './nodes/utils';
@@ -74,6 +75,9 @@ export class FancyTabMasterTree {
     ) => Promise<{ windowNode: FancytreeNode; window: Windows.Window }>;
 
     static removeNodes: (targetNode: FancytreeNode, mode?: OperationTarget) => void;
+    static save: (node: Fancytree.FancytreeNode) => void;
+    static insertTagAsParent: (node: Fancytree.FancytreeNode) => void;
+    static insertTagAsLastChild: (node: Fancytree.FancytreeNode) => void;
 
     constructor($container: JQuery, config: FancyTabMasterTreeConfig = DefaultConfig) {
         config = merge({}, DefaultConfig, config);
@@ -486,6 +490,36 @@ FancyTabMasterTree.removeNodes = (targetNode: FancytreeNode, mode: OperationTarg
         WindowNodeOperations.updateWindowStatus(windowNode);
     });
     tabIdSet.size > 0 && browser.tabs.remove([...tabIdSet]);
+};
+
+FancyTabMasterTree.save = (node: FancytreeNode) => {
+    const newSaveStatus = !node.data.save;
+    if (!node.isExpanded()) {
+        node.visit((child) => {
+            TabNodeOperations.updatePartial(child, { save: newSaveStatus });
+        }, true);
+    }
+    if (node.data.nodeType === 'window') {
+        WindowNodeOperations.findAllSubTabNodes(node).forEach((tabNode) => {
+            TabNodeOperations.updatePartial(tabNode, { save: newSaveStatus });
+        });
+        WindowNodeOperations.updatePartial(node, { save: newSaveStatus });
+    }
+    if (node.data.nodeType === 'tab') {
+        TabNodeOperations.updatePartial(node, { save: newSaveStatus });
+    }
+};
+
+FancyTabMasterTree.insertTagAsParent = (node: FancytreeNode) => {
+    const newNode = node.addNode(NoteNodeOperations.createData(), 'before');
+    node.moveTo(newNode, 'child');
+    newNode.editStart();
+};
+
+FancyTabMasterTree.insertTagAsLastChild = (node: FancytreeNode) => {
+    const newTag = node.addNode(NoteNodeOperations.createData(), 'child');
+    node.setExpanded(true);
+    newTag.editStart();
 };
 
 function getOperationMode(targetNode: FancytreeNode, mode: OperationTarget = 'auto') {
