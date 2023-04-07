@@ -2,13 +2,14 @@ import { escape } from 'lodash';
 import log from 'loglevel';
 import type { Tabs } from 'webextension-polyfill';
 
+import { getNewTabUrl } from '../../../../config/browser-adapter-config';
 import { getFaviconUrl } from '../../../../utils';
 import type { TreeData, TreeNode } from './nodes';
 import { NodeUtils } from './utils';
 import { WindowNodeOperations } from './window-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
-const NEW_TAB_URL = 'chrome://newtab/';
+const NEW_TAB_URL = getNewTabUrl();
 
 export interface TabData extends Tabs.Tab, TreeData {
     windowId: number;
