@@ -9,6 +9,7 @@ chrome.runtime.id = 'test-id';
 Object.assign(global, {
     chrome,
     browser: chrome,
+    __TARGET__: 'chrome',
 });
 Object.assign(global, {
     $,
