@@ -7,3 +7,7 @@ export const getReviewUrl = () => {
         ? 'https://microsoftedge.microsoft.com/addons/detail/link-map/penpmngcolockpbmeeafkmbefjijbaej'
         : 'https://chrome.google.com/webstore/detail/link-map/jappgmhllahigjolfpgbjdfhciabdnde';
 };
+
+export const getNewTabUrl = () => {
+    return __TARGET__ === 'edge' ? 'edge://newtab/' : 'chrome://newtab/';
+};

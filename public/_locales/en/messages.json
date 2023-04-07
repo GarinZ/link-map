@@ -231,10 +231,10 @@
         "message": "Locate Active Tab Node"
     },
     "collapseAll": {
-        "message": "Expand All"
+        "message": "Collapse All"
     },
     "expandAll": {
-        "message": "Collapse All"
+        "message": "Expand All"
     },
     "activeOrOpen": {
         "message": "Active/Open"
