@@ -1,5 +1,6 @@
 import { sendMessage } from '@garinz/webext-bridge';
-import { Button, message, Modal, Select } from 'antd';
+import { Button, message, Modal, Select, Upload } from 'antd';
+import type { RcFile } from 'antd/es/upload/interface';
 import log from 'loglevel';
 import { useContext, useState } from 'react';
 import browser from 'webextension-polyfill';
@@ -44,62 +45,30 @@ const Settings = () => {
         setIsModalOpen(false);
     };
 
-    const handleImport = async () => {
-        try {
-            if (!window.showOpenFilePicker || !window.showSaveFilePicker) {
-                message.error('Your browser does not support this feature.');
-                return;
-            }
-            const [fileHandle] = await window.showOpenFilePicker({
-                types: [
-                    {
-                        description: 'JSON files',
-                        accept: { 'application/json': ['.json'] },
-                    },
-                ],
-            });
-            const file = await fileHandle.getFile();
-            const fileContent = await file.text();
-            const jsonData: ExportJsonData = JSON.parse(fileContent);
-            // TODO: 这里需要做一些数据校验
-            log.debug('import-data', jsonData);
-            await sendMessage('import-data', jsonData);
-            hideModal();
-        } catch {
-            // do nothing
-        }
+    const handleLinkMapImport = async (file: RcFile) => {
+        const fileContent = await file.text();
+        const jsonData: ExportJsonData = JSON.parse(fileContent);
+        // TODO: 这里需要做一些数据校验
+        log.debug('import-data', jsonData);
+        await sendMessage('import-data', jsonData);
+        hideModal();
+        return '';
     };
 
-    const handleTabOutlinerImport = async () => {
-        try {
-            if (!window.showOpenFilePicker || !window.showSaveFilePicker) {
-                message.error('Your browser does not support this feature.');
-                return;
-            }
-            const [fileHandle] = await window.showOpenFilePicker({
-                types: [
-                    {
-                        description: 'JSON files',
-                        accept: { 'application/json': ['.tree'] },
-                    },
-                ],
-            });
-            const file = await fileHandle.getFile();
-            const fileContent = await file.text();
-            const jsonData = JSON.parse(fileContent);
-            if (
-                !Array.isArray(jsonData) ||
-                !jsonData[jsonData.length - 1].type ||
-                jsonData[jsonData.length - 1].type !== 11111
-            ) {
-                message.error('Invalid Tab Outliner data.');
-                return;
-            }
-            await sendMessage('import-tabOutliner-data', jsonData);
-            hideModal();
-        } catch {
-            // do nothing
+    const handleTabOutlinerImport = async (file: RcFile) => {
+        const fileContent = await file.text();
+        const jsonData = JSON.parse(fileContent);
+        if (
+            !Array.isArray(jsonData) ||
+            !jsonData[jsonData.length - 1].type ||
+            jsonData[jsonData.length - 1].type !== 11111
+        ) {
+            message.error('Invalid Tab Outliner data.');
+            return '';
         }
+        await sendMessage('import-tabOutliner-data', jsonData);
+        hideModal();
+        return '';
     };
 
     const handleThemeChange = async (value: ThemeType) => {
@@ -157,14 +126,28 @@ const Settings = () => {
                         </Button>
                     </div>
                     <div className="settings-item">
-                        <Button className="setting-item-btn" onClick={handleImport}>
-                            {browser.i18n.getMessage('importLinkMapData')}
-                        </Button>
+                        <Upload
+                            name={'file'}
+                            action={handleLinkMapImport}
+                            fileList={[]}
+                            accept={'.json'}
+                        >
+                            <Button className="setting-item-btn">
+                                {browser.i18n.getMessage('importLinkMapData')}
+                            </Button>
+                        </Upload>
                     </div>
                     <div className="settings-item">
-                        <Button className="setting-item-btn" onClick={handleTabOutlinerImport}>
-                            {browser.i18n.getMessage('importTabOutlinerData')}
-                        </Button>
+                        <Upload
+                            name={'file'}
+                            action={handleTabOutlinerImport}
+                            fileList={[]}
+                            accept={'.json, .tree'}
+                        >
+                            <Button className="setting-item-btn">
+                                {browser.i18n.getMessage('importTabOutlinerData')}
+                            </Button>
+                        </Upload>
                     </div>
                 </div>
                 <div className={'setting-section'}>
