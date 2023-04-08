@@ -28,10 +28,10 @@ With Link Map, even if you have a large number of tabs and windows, you can mana
 - storage: For Saving and Recovering the tree view status by indexedDB. 
 - activeTab: To show currently active tab in the tree view.
 - windows: For supporting the main feature, which is window management.
-- downloads: Extension need to download `.json` file for the expoort function
+- downloads: Extension need to download `.json` file for the export function
 - system.display: To initialize the tree view position and width/height.
 - favicon: To initialize icon for tab node which has never been visited.
 
-## Have problmes or need help?
+## Have problems or need help?
 - [issue](https://github.com/GarinZ/link-map/issues)
 - [LinkMap's RoadMap](https://garin-public.notion.site/Link-Map-0f228ba1e9e541aca685ab0622269e09)
