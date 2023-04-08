@@ -93,6 +93,7 @@ const Settings = () => {
                 jsonData[jsonData.length - 1].type !== 11111
             ) {
                 message.error('Invalid Tab Outliner data.');
+                return;
             }
             await sendMessage('import-tabOutliner-data', jsonData);
             hideModal();
