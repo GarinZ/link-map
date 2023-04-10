@@ -9,16 +9,21 @@ interface Snapshot {
 }
 
 export type ThemeType = 'light' | 'dark' | 'auto';
+
 export interface Setting {
     id: number;
     theme: ThemeType;
     display: 'popup' | 'tab' | 'embedded-sidebar';
+    autoScrollToActiveTab: boolean;
+    createNewTabByLevel: boolean;
 }
 
 export const DEFAULT_SETTING: Setting = {
     id: 1,
     theme: 'dark',
     display: 'popup',
+    autoScrollToActiveTab: true,
+    createNewTabByLevel: true,
 };
 
 export class TabMasterDB extends Dexie {

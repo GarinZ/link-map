@@ -247,5 +247,14 @@
     },
     "copySubtreeAsMarkdown": {
         "message": "Copy Subtree as Markdown"
+    },
+    "options": {
+        "message": "Options"
+    },
+    "autoScrollToActiveTab": {
+        "message": "Auto Scroll to Active Tab"
+    },
+    "createNewTabByLevel": {
+        "message": "Create New Tab by Level"
     }
 }

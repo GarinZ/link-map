@@ -1,6 +1,7 @@
 import { onMessage } from '@garinz/webext-bridge';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
+import { SettingContext } from '../../context';
 import registerShortcuts from '../shortcuts/shortcuts';
 import Store from '../store';
 import type { FancyTabMasterTreeConfig } from './fancy-tab-master-tree';
@@ -63,10 +64,11 @@ export interface TabMasterTreeProps extends FancyTabMasterTreeConfig {
 export const TabMasterTree: React.FC<TabMasterTreeProps> = ({ source, onInit, ...otherProps }) => {
     let treeContainer: HTMLElement | null = null;
     const [tabMasterTree, setTabMasterTree] = useState<FancyTabMasterTree | null>(null);
+    const { setting } = useContext(SettingContext);
     useEffect(() => {
         const $el = $(treeContainer!);
         const config: FancyTabMasterTreeConfig = { ...otherProps };
-        const tmTree = new FancyTabMasterTree($el, config);
+        const tmTree = new FancyTabMasterTree($el, config, setting);
         setTabMasterTree(tmTree);
         Store.tree = tmTree.tree;
         const loadedPromise = tmTree.initTree(source).then(() => {
@@ -80,6 +82,11 @@ export const TabMasterTree: React.FC<TabMasterTreeProps> = ({ source, onInit, ..
             });
         }
     }, []);
+    useEffect(() => {
+        if (tabMasterTree) {
+            tabMasterTree.settings = setting;
+        }
+    }, [setting.autoScrollToActiveTab, setting.createNewTabByLevel, tabMasterTree]);
 
     useEffect(() => {
         if (source && tabMasterTree) {

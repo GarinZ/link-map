@@ -1,10 +1,11 @@
-import { Tooltip } from 'antd';
+import { Popover, Tooltip } from 'antd';
 import React from 'react';
 import browser from 'webextension-polyfill';
 
 import { getPrevFocusWindowId } from '../../../storage/basic';
 import store from '../store';
 import type { WindowData } from '../tab-master-tree/nodes/window-node-operations';
+import OptionPanel from './options-panel/OptionsPanel';
 
 import './operation-bar.less';
 
@@ -89,6 +90,24 @@ const OperationBar: React.FC = () => {
                 >
                     <i className={'iconfont icon-expand_all'} />
                 </div>
+            </Tooltip>
+            <Tooltip
+                title={browser.i18n.getMessage('options')}
+                showArrow={false}
+                mouseEnterDelay={delay}
+                placement={'topLeft'}
+            >
+                <Popover
+                    placement="bottomLeft"
+                    content={<OptionPanel />}
+                    trigger="click"
+                    showArrow={false}
+                    overlayClassName={'options-panel-overlay'}
+                >
+                    <div className={'operation-bar-item options'} aria-hidden="true">
+                        <i className={'iconfont icon-more'} />
+                    </div>
+                </Popover>
             </Tooltip>
         </div>
     );

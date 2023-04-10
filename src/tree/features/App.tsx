@@ -1,4 +1,5 @@
 import { Modal } from 'antd';
+import { merge } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
 
@@ -37,9 +38,10 @@ const App: React.FC = () => {
     // const matchMediaDark = window.matchMedia('(prefers-color-scheme: dark)');
     // const isDarkMode = matchMediaDark.matches;
 
+    // init setting in memory from indexedDB
     useEffect(() => {
         store.db.getSetting().then((setting) => {
-            setting && setSetting(setting);
+            setting && setSetting(merge(DEFAULT_SETTING, setting));
         });
     }, []);
 

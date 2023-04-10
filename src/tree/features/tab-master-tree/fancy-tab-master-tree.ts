@@ -4,7 +4,8 @@ import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
 import { setPrevFocusWindowId } from '../../../storage/basic';
-import { TabMasterDB } from '../../../storage/idb';
+import type { Setting } from '../../../storage/idb';
+import { DEFAULT_SETTING, TabMasterDB } from '../../../storage/idb';
 import { dataCheckAndSupply } from './nodes/data-check';
 import type { TreeData, TreeNode } from './nodes/nodes';
 import { NoteNodeOperations } from './nodes/note-node-operations';
@@ -55,6 +56,7 @@ export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
     db?: TabMasterDB;
     enablePersist: boolean;
+    settings?: Setting;
     static closeNodes: (targetNode: FancytreeNode, mode?: OperationTarget) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
@@ -84,12 +86,17 @@ export class FancyTabMasterTree {
 
     static copySubtree: (node: Fancytree.FancytreeNode, mode: 'txt' | 'md') => void;
 
-    constructor($container: JQuery, config: FancyTabMasterTreeConfig = DefaultConfig) {
+    constructor(
+        $container: JQuery,
+        config: FancyTabMasterTreeConfig = DefaultConfig,
+        setting?: Setting,
+    ) {
         config = merge({}, DefaultConfig, config);
         const extensions = ['dnd5', 'filter'];
         if (config.enableEdit) {
             extensions.push('edit');
         }
+        this.settings = setting ?? DEFAULT_SETTING;
         $container.fancytree({
             active: true,
             extensions,
@@ -226,7 +233,13 @@ export class FancyTabMasterTree {
         const targetNode = this.tree.getNodeByKey(`${tab.id}`);
         if (targetNode) return targetNode;
         const newNodeData = TabNodeOperations.createData(tab);
-        return TabNodeOperations.add(this.tree, newNodeData, tab.active);
+        log.debug('createNewTabByLevel', this.settings?.createNewTabByLevel);
+        return TabNodeOperations.add(
+            this.tree,
+            newNodeData,
+            tab.active,
+            this.settings?.createNewTabByLevel,
+        );
     }
 
     public createWindow(window: Windows.Window): FancytreeNode {
@@ -240,7 +253,14 @@ export class FancyTabMasterTree {
         // devtools的windowId为-1，不做处理
         const tabNode = this.tree.getNodeByKey(`${tabId}`);
         if (windowId < 0 || !tabNode) return;
-        TabNodeOperations.updatePartial(this.tree.getNodeByKey(`${tabId}`), { active: true });
+        TabNodeOperations.updatePartial(tabNode, { active: true });
+        if (this.settings?.autoScrollToActiveTab) {
+            browser.windows.getCurrent().then((currentWindow) => {
+                if (currentWindow.id === windowId) return;
+                tabNode.makeVisible({ scrollIntoView: true });
+                tabNode.setActive(true);
+            });
+        }
     }
 
     public moveTab(_windowId: number, tabId: number, fromIndex: number, toIndex: number): void {

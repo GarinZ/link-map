@@ -247,5 +247,14 @@
     },
     "copySubtreeAsMarkdown": {
         "message": "复制全部为Markdown"
+    },
+    "options": {
+        "message": "选项"
+    },
+    "autoScrollToActiveTab": {
+        "message": "自动滚动到激活的标签"
+    },
+    "createNewTabByLevel": {
+        "message": "根据层级创建新标签"
     }
 }
