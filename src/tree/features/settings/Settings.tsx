@@ -1,10 +1,11 @@
-import { sendMessage } from '@garinz/webext-bridge';
 import { Button, message, Modal, Select, Upload } from 'antd';
 import type { RcFile } from 'antd/es/upload/interface';
 import log from 'loglevel';
 import { useContext, useState } from 'react';
 import browser from 'webextension-polyfill';
 
+import type { LocalStorageImportData } from '../../../import/App';
+import type { TabOutliner } from '../../../import/parse-tab-outliner';
 import type { ThemeType } from '../../../storage/idb';
 import { downloadJsonWithExtensionAPI, getFormattedData } from '../../../utils';
 import { SettingContext } from '../../context';
@@ -33,6 +34,23 @@ const handleExport = () => {
     });
 };
 
+const createImportPage = async (importData: LocalStorageImportData) => {
+    const displayInfos = await chrome.system.display.getInfo();
+    const primaryDisplayInfo = displayInfos.find((item) => item.isPrimary);
+    const width = primaryDisplayInfo ? Math.floor(primaryDisplayInfo.workArea.width / 5) : 895;
+    const height = primaryDisplayInfo ? primaryDisplayInfo.workArea.height : 1050;
+    await browser.windows.create({
+        url: 'import.html',
+        type: 'popup',
+        width,
+        height,
+        left: 0,
+        top: 0,
+        focused: true,
+    });
+    await browser.storage.local.set({ importData });
+};
+
 const Settings = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { setting, setSetting } = useContext(SettingContext);
@@ -50,7 +68,7 @@ const Settings = () => {
         const jsonData: ExportJsonData = JSON.parse(fileContent);
         // TODO: 这里需要做一些数据校验
         log.debug('import-data', jsonData);
-        await sendMessage('import-data', jsonData);
+        await createImportPage({ data: jsonData, type: 'linkMap' });
         hideModal();
         return '';
     };
@@ -66,7 +84,7 @@ const Settings = () => {
             message.error('Invalid Tab Outliner data.');
             return '';
         }
-        await sendMessage('import-tabOutliner-data', jsonData);
+        await createImportPage({ data: jsonData as TabOutliner.ExportData, type: 'tabOutliner' });
         hideModal();
         return '';
     };
