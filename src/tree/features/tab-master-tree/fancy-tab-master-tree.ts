@@ -287,7 +287,11 @@ export class FancyTabMasterTree {
     }
 
     public replaceTab(addedTabId: number, removedTabId: number): void {
-        throw new Error(`replaceTab Method not implemented. ${addedTabId} ${removedTabId}`);
+        const replacedTabNode = this.tree.getNodeByKey(`${removedTabId}`);
+        if (!replacedTabNode) return;
+        browser.tabs.get(addedTabId).then((tab) => {
+            TabNodeOperations.updatePartial(replacedTabNode, tab);
+        });
     }
 
     public removeWindow(windowId: number): void {
@@ -354,9 +358,15 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
     if (targetNode.data.nodeType === 'tab') {
         // 1. 如果TabNode是打开状态，直接激活
         if (!targetNode.data.closed) {
-            await browser.tabs.update(targetNode.data.id, { active: true });
-            await browser.windows.update(targetNode.data.windowId, { focused: true });
-            return;
+            try {
+                await browser.tabs.update(targetNode.data.id, { active: true });
+                await browser.windows.update(targetNode.data.windowId, { focused: true });
+                return;
+            } catch (error) {
+                location.reload();
+                log.error('db-click error: ', error);
+                return;
+            }
         }
         // 2. TabNode关闭
         const windowNode = TabNodeOperations.findWindowNode(targetNode);

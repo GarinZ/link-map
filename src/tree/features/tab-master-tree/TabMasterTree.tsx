@@ -47,6 +47,10 @@ const registerBrowserEventHandlers = (tmTree: FancyTabMasterTree) => {
     onMessage('add-window', (msg) => {
         tmTree.createWindow(msg.data);
     });
+    onMessage('replace-tab', (msg) => {
+        const { addedTabId, removedTabId } = msg.data;
+        tmTree.replaceTab(addedTabId, removedTabId);
+    });
     registerShortcuts(tmTree);
 };
 

@@ -2,6 +2,7 @@ import { onMessage } from '@garinz/webext-bridge';
 import log from 'loglevel';
 import browser from 'webextension-polyfill';
 
+import { setLogLevel } from '../config/log-config';
 import type { LocalStorageImportData } from '../import/App';
 import { getExtPageInfo, removeExtPageInfo, setExtPageInfo } from '../storage/ext-page-info';
 import { TabMasterDB } from '../storage/idb';
@@ -10,7 +11,7 @@ import type { ExportJsonData } from '../tree/features/settings/Settings';
 import { isContentScriptPage, sendMessageToExt } from './event-bus';
 
 try {
-    log.setLevel(__ENV__ === 'development' ? 'debug' : 'silent');
+    setLogLevel();
 
     async function syncTabsCountInBadge() {
         const allTabs = await browser.tabs.query({});
@@ -150,7 +151,8 @@ try {
     });
 
     browser.tabs.onReplaced.addListener((addedTabId, removedTabId) => {
-        log.debug(`Tab replaced, added tabId: ${addedTabId}`, `removed tabId: ${removedTabId}`);
+        log.debug('[bg]: replaced, tabId:', addedTabId);
+        sendMessageToExt('replace-tab', { addedTabId, removedTabId });
     });
     /**
      * detach tab的时候会触发这个事件
