@@ -241,5 +241,11 @@
     },
     "save": {
         "message": "保存"
+    },
+    "copySubtreeAsText": {
+        "message": "复制全部为txt"
+    },
+    "copySubtreeAsMarkdown": {
+        "message": "复制全部为Markdown"
     }
 }

@@ -241,5 +241,11 @@
     },
     "save": {
         "message": "Save"
+    },
+    "copySubtreeAsText": {
+        "message": "Copy Subtree as Text"
+    },
+    "copySubtreeAsMarkdown": {
+        "message": "Copy Subtree as Markdown"
     }
 }
