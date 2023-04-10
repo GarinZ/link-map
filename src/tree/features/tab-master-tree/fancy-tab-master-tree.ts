@@ -3,6 +3,7 @@ import log from 'loglevel';
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
+import { setPrevFocusWindowId } from '../../../storage/basic';
 import { TabMasterDB } from '../../../storage/idb';
 import { dataCheckAndSupply } from './nodes/data-check';
 import type { TreeData, TreeNode } from './nodes/nodes';
@@ -11,7 +12,7 @@ import type { TabData } from './nodes/tab-node-operations';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import { NodeUtils } from './nodes/utils';
 import type { WindowData } from './nodes/window-node-operations';
-import { WindowNodeOperations } from './nodes/window-node-operations';
+import { isCurrentWindow, WindowNodeOperations } from './nodes/window-node-operations';
 import { registerContextMenu } from './plugins/context-menu';
 import { DND5_CONFIG } from './plugins/dnd';
 import { EDIT_OPTIONS } from './plugins/edit';
@@ -302,11 +303,11 @@ export class FancyTabMasterTree {
     public async windowFocus(windowId: number): Promise<void> {
         // devtools的windowId为-1，不做处理
         if (windowId < 0) return;
-        // const windowNode = this.tree.getNodeByKey(`${windowId}`);
-        // if (!windowNode.data.isBackgroundPage) {
-        //     windowNode.scrollIntoView();
-        // }
-        await this.syncActiveTab(windowId);
+        const isExtWindow = await isCurrentWindow(windowId);
+        if (!isExtWindow) {
+            setPrevFocusWindowId(windowId);
+        }
+        this.syncActiveTab(windowId);
     }
 
     public toJsonObj(includeRoot = false): TreeNode<TreeData>[] {

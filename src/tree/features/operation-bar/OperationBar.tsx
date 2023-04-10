@@ -2,6 +2,7 @@ import { Tooltip } from 'antd';
 import React from 'react';
 import browser from 'webextension-polyfill';
 
+import { getPrevFocusWindowId } from '../../../storage/basic';
 import store from '../store';
 import type { WindowData } from '../tab-master-tree/nodes/window-node-operations';
 
@@ -24,6 +25,16 @@ const handleLocate = async () => {
         return;
     }
     const tabs = await browser.tabs.query({ active: true });
+    const prevFocusWindowId = await getPrevFocusWindowId();
+    if (prevFocusWindowId) {
+        const toActiveTabs = tabs.filter((tab) => tab.windowId === prevFocusWindowId);
+        if (toActiveTabs.length > 0) {
+            const activeNode = tree.getNodeByKey(toActiveTabs[0].id!.toString());
+            activeNode.makeVisible();
+            activeNode.setActive();
+            return;
+        }
+    }
     tabs.forEach((tab) => {
         const activeNode = tree.getNodeByKey(tab.id!.toString());
         if (activeNode.parent && (activeNode.parent.data as WindowData).isBackgroundPage) {

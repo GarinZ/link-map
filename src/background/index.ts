@@ -4,7 +4,12 @@ import browser from 'webextension-polyfill';
 
 import { setLogLevel } from '../config/log-config';
 import type { LocalStorageImportData } from '../import/App';
-import { getExtPageInfo, removeExtPageInfo, setExtPageInfo } from '../storage/ext-page-info';
+import {
+    getExtPageInfo,
+    removeExtPageInfo,
+    setExtPageInfo,
+    setPrevFocusWindowId,
+} from '../storage/basic';
 import { TabMasterDB } from '../storage/idb';
 import { setIsNewUser, setIsUpdate } from '../storage/user-journey';
 import type { ExportJsonData } from '../tree/features/settings/Settings';
@@ -89,7 +94,10 @@ try {
      * 将extIdPair更新到localStorage中
      * This Method Wouldn't Fire if popup has benn set
      */
-    browser.action.onClicked.addListener(focusOrCreateExtWindow);
+    browser.action.onClicked.addListener((tab) => {
+        setPrevFocusWindowId(tab.windowId!);
+        focusOrCreateExtWindow();
+    });
 
     // #### 浏览器Fire的事件
     browser.tabs.onCreated.addListener(async (tab) => {
