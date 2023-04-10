@@ -82,6 +82,8 @@ export class FancyTabMasterTree {
         mode: 'parent' | 'child' | 'firstChild' | 'after',
     ) => void;
 
+    static copySubtree: (node: Fancytree.FancytreeNode, mode: 'txt' | 'md') => void;
+
     constructor($container: JQuery, config: FancyTabMasterTreeConfig = DefaultConfig) {
         config = merge({}, DefaultConfig, config);
         const extensions = ['dnd5', 'filter'];
@@ -553,6 +555,11 @@ FancyTabMasterTree.insertTag = (
             break;
         }
     }
+};
+
+FancyTabMasterTree.copySubtree = (node: FancytreeNode, mode: 'txt' | 'md') => {
+    const text = mode === 'txt' ? NodeUtils.convertToText(node) : NodeUtils.convertToMarkdown(node);
+    navigator.clipboard.writeText(text);
 };
 
 function getOperationMode(targetNode: FancytreeNode, mode: OperationTarget = 'auto') {

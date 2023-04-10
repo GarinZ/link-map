@@ -64,6 +64,14 @@ export const registerContextMenu = () => {
                         name: browser.i18n.getMessage('ctxMenuCopyMarkDownLink'),
                         icon: () => 'iconfont icon-markdown context-menu-icon',
                     },
+                    copySubtreeAsText: {
+                        name: 'Copy Subtree as Text',
+                        icon: () => 'iconfont icon-URLguanli context-menu-icon',
+                    },
+                    copySubtreeAsMarkdown: {
+                        name: 'Copy Subtree as Markdown',
+                        icon: () => 'iconfont icon-markdown context-menu-icon',
+                    },
                 },
             },
             notes: {
@@ -138,6 +146,12 @@ export const registerContextMenu = () => {
                     break;
                 case 'copyMarkdownLink':
                     navigator.clipboard.writeText(`[${node.data.title}](${node.data.url})`);
+                    break;
+                case 'copySubtreeAsText':
+                    FancyTabMasterTree.copySubtree(node, 'txt');
+                    break;
+                case 'copySubtreeAsMarkdown':
+                    FancyTabMasterTree.copySubtree(node, 'md');
                     break;
                 case 'expandAll':
                     node.visit((node) => node.setExpanded(true), true);

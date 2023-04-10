@@ -59,4 +59,36 @@ export const NodeUtils = {
         const extraClasses = node.extraClasses ? node.extraClasses.split(' ') : [];
         node.extraClasses = extraClasses.filter((item) => !removeClasses.includes(item)).join(' ');
     },
+    convertToText(node: FancytreeNode, level = 0) {
+        const indent = '    '.repeat(level);
+        const { nodeType, alias, url, pendingUrl } = node.data;
+        let text = '';
+        if (nodeType === 'tab') {
+            text += `${indent}${node.title} (${url ?? pendingUrl})`;
+        } else if (nodeType === 'note') {
+            text += `${indent}${alias}`;
+        } else {
+            text += `${indent}${node.title}`;
+        }
+        const childrenText: string = node.children
+            ? node.children.map((child) => NodeUtils.convertToText(child, level + 1)).join('')
+            : '';
+        return `${text}\n${childrenText}`;
+    },
+    convertToMarkdown(node: FancytreeNode, level = 0) {
+        const indent = '  '.repeat(level);
+        const { nodeType, alias, url, pendingUrl } = node.data;
+        let text = '';
+        if (nodeType === 'tab') {
+            text += `${indent}- [${node.title}](${url ?? pendingUrl})`;
+        } else if (nodeType === 'note') {
+            text += `${indent}- ${alias}`;
+        } else {
+            text += `${indent}- ${node.title}`;
+        }
+        const childrenText: string = node.children
+            ? node.children.map((child) => NodeUtils.convertToMarkdown(child, level + 1)).join('')
+            : '';
+        return `${text}\n${childrenText}`;
+    },
 };
