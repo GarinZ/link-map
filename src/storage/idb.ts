@@ -22,8 +22,8 @@ export const DEFAULT_SETTING: Setting = {
     id: 1,
     theme: 'dark',
     display: 'popup',
-    autoScrollToActiveTab: true,
-    createNewTabByLevel: true,
+    autoScrollToActiveTab: false,
+    createNewTabByLevel: false,
 };
 
 export class TabMasterDB extends Dexie {
