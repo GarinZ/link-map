@@ -3,7 +3,6 @@ import log from 'loglevel';
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
-import { isNoTabIdError } from '../../../config/errors';
 import { TabMasterDB } from '../../../storage/idb';
 import { dataCheckAndSupply } from './nodes/data-check';
 import type { TreeData, TreeNode } from './nodes/nodes';
@@ -101,6 +100,7 @@ export class FancyTabMasterTree {
             click: config.enableEdit ? FancyTabMasterTree.onClick : undefined,
             dblclick: config.enableOperateBrowser
                 ? (event, data) => {
+                      log.debug('dbClick:', event.target);
                       if ($(event.originalEvent!.target!).hasClass('fancytree-expander')) {
                           return false;
                       }
@@ -354,18 +354,9 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
     if (targetNode.data.nodeType === 'tab') {
         // 1. 如果TabNode是打开状态，直接激活
         if (!targetNode.data.closed) {
-            try {
-                await browser.tabs.update(targetNode.data.id, { active: true });
-                await browser.windows.update(targetNode.data.windowId, { focused: true });
-                return;
-            } catch (error) {
-                // fixme: temp fix not response correctly when double-clicking.
-                if (isNoTabIdError(error as Error)) {
-                    location.reload();
-                    log.error(error);
-                    return;
-                }
-            }
+            await browser.tabs.update(targetNode.data.id, { active: true });
+            await browser.windows.update(targetNode.data.windowId, { focused: true });
+            return;
         }
         // 2. TabNode关闭
         const windowNode = TabNodeOperations.findWindowNode(targetNode);

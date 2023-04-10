@@ -1,74 +1,51 @@
-import log from 'loglevel';
+import { onMessage } from '@garinz/webext-bridge';
 import React, { useEffect, useState } from 'react';
-import browser from 'webextension-polyfill';
 
 import registerShortcuts from '../shortcuts/shortcuts';
 import Store from '../store';
 import type { FancyTabMasterTreeConfig } from './fancy-tab-master-tree';
 import { FancyTabMasterTree } from './fancy-tab-master-tree';
 import type { TreeData, TreeNode } from './nodes/nodes';
-import { TabNodeOperations } from './nodes/tab-node-operations';
 
 import './style.less';
 
 const registerBrowserEventHandlers = (tmTree: FancyTabMasterTree) => {
-    // #### 浏览器Fire的事件
-    browser.tabs.onCreated.addListener(async (tab) => {
-        tmTree.createTab(tab);
+    onMessage('add-tab', (msg) => {
+        tmTree.createTab(msg.data);
     });
-
-    browser.tabs.onRemoved.addListener(async (tabId, _removeInfo) => {
+    onMessage('remove-tab', (msg) => {
+        const { tabId } = msg.data;
         tmTree.removeTab(tabId);
     });
-
-    browser.tabs.onUpdated.addListener(async (_tabId, _changeInfo, tab) => {
-        tmTree.updateTab(tab);
+    onMessage('remove-window', (msg) => {
+        tmTree.removeWindow(msg.data.windowId);
     });
-
-    /**
-     * 只有同窗口tab前后顺序移动会影响触发这个方法
-     */
-    browser.tabs.onMoved.addListener((tabId, { windowId, fromIndex, toIndex }) => {
+    onMessage('move-tab', async (msg) => {
+        const { windowId, fromIndex, toIndex, tabId } = msg.data;
+        // 2. 移动元素
         tmTree.moveTab(windowId, tabId, fromIndex, toIndex);
     });
-
-    browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
-        tmTree.activeTab(tabId, windowId);
+    onMessage('update-tab', (msg) => {
+        tmTree.updateTab(msg.data);
     });
-    /**
-     * 如果没有window会先触发window的创建事件
-     */
-    browser.tabs.onAttached.addListener((tabId, { newPosition, newWindowId }) => {
-        tmTree.attachTab(newWindowId, tabId, newPosition);
+    onMessage('activated-tab', (msg) => {
+        const { windowId, tabId } = msg.data;
+        tmTree.activeTab(windowId, tabId);
     });
-
-    browser.tabs.onDetached.addListener((tabId) => {
+    onMessage('attach-tab', (msg) => {
+        const { tabId, windowId, newIndex } = msg.data;
+        tmTree.attachTab(windowId, tabId, newIndex);
+    });
+    onMessage('detach-tab', (msg) => {
+        const { tabId } = msg.data;
         tmTree.detachTab(tabId);
     });
-
-    browser.tabs.onReplaced.addListener((addedTabId, removedTabId) => {
-        const replacedTabNode = tmTree.tree.getNodeByKey(`${removedTabId}`);
-        if (!replacedTabNode) {
-            return;
-        }
-        browser.tabs.get(addedTabId).then((newTab) => {
-            TabNodeOperations.updatePartial(replacedTabNode, newTab);
-            log.debug('replacedTabNode', replacedTabNode);
-        });
-    });
-
-    browser.windows.onCreated.addListener(async (window) => {
-        tmTree.createWindow(window);
-    });
-    /**
-     * 最后一个tab合并到另一个window时会发这个Event
-     */
-    browser.windows.onRemoved.addListener(async (windowId) => {
-        tmTree.removeWindow(windowId);
-    });
-
-    browser.windows.onFocusChanged.addListener((windowId) => {
+    onMessage('window-focus', (msg) => {
+        const { windowId } = msg.data;
         tmTree.windowFocus(windowId);
+    });
+    onMessage('add-window', (msg) => {
+        tmTree.createWindow(msg.data);
     });
     registerShortcuts(tmTree);
 };
