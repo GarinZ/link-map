@@ -22,11 +22,11 @@ export const registerContextMenu = () => {
                 icon: () => 'iconfont icon-trash context-menu-icon',
                 items: {
                     deleteNode: {
-                        name: 'Delete Node',
+                        name: browser.i18n.getMessage('deleteNode'),
                         icon: () => 'iconfont icon-pointer context-menu-icon',
                     },
                     deleteSubTree: {
-                        name: 'Delete Subtree',
+                        name: browser.i18n.getMessage('deleteSubTree'),
                         icon: () => 'iconfont icon-node-multiple context-menu-icon',
                     },
                 },
@@ -36,11 +36,11 @@ export const registerContextMenu = () => {
                 icon: () => 'iconfont icon-roundclosefill context-menu-icon',
                 items: {
                     closeNode: {
-                        name: 'Close Node',
+                        name: browser.i18n.getMessage('closeNode'),
                         icon: () => 'iconfont icon-pointer context-menu-icon',
                     },
                     closeSubTree: {
-                        name: 'Close Subtree',
+                        name: browser.i18n.getMessage('closeSubTree'),
                         icon: () => 'iconfont icon-node-multiple context-menu-icon',
                     },
                 },

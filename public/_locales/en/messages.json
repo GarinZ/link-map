@@ -256,5 +256,17 @@
     },
     "createNewTabByLevel": {
         "message": "Create New Tab by Level"
+    },
+    "deleteNode": {
+        "message": "Delete Node"
+    },
+    "deleteSubtree": {
+        "message": "Delete Subtree"
+    },
+    "closeNode": {
+        "message": "Close Node"
+    },
+    "closeSubtree": {
+        "message": "Close Subtree"
     }
 }

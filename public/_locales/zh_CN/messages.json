@@ -256,5 +256,17 @@
     },
     "createNewTabByLevel": {
         "message": "根据层级创建新标签"
+    },
+    "deleteNode": {
+        "message": "删除节点"
+    },
+    "deleteSubtree": {
+        "message": "删除子树"
+    },
+    "closeNode": {
+        "message": "关闭节点"
+    },
+    "closeSubtree": {
+        "message": "关闭子树"
     }
 }
