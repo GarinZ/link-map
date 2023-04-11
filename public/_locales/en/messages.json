@@ -168,55 +168,49 @@
         "message": "Link Map feels stronger!"
     },
     "updateNoteContent": {
-        "message": "That's right Link Map has been updated again, this time with some additional features and optimizations based on your feedback, check it out (yes, the details are still in the top node)"
+        "message": "In the v1.0.0, there is some little improvements to give your more detail control of Link Map’s behavior. If you are interested, just checkout the top node in the tree."
     },
     "updateTutorialNode": {
-        "message": "New features in v1.0.7"
+        "message": "New features in v1.0.10"
     },
     "updateTutorialFeature1": {
-        "message": "Save: keep the node in the tree at all times"
+        "message": "Options: Just besides the “Expand All“ button"
     },
     "updateTutorialFeature1Desc1": {
-        "message": "Save ensures that tags are not deleted in the tree when it is closed"
+        "message": "Auto Scroll to Active Tab"
+    },
+    "updateTutorialFeature1Desc11": {
+        "message": "Enable: When switch tab, tree will autoscroll to active tab, and make it visible"
+    },
+    "updateTutorialFeature1Desc12": {
+        "message": "Disable: Tree won’t draw attention"
     },
     "updateTutorialFeature1Desc2": {
-        "message": "Save can be used using the right-click drop-down menu or shortcut keys"
+        "message": "Create New Tab by Level"
     },
-    "updateTutorialFeature1Desc3": {
-        "message": "To Save a batch of nodes, collapse first and then Save"
+    "updateTutorialFeature1Desc21": {
+        "message": "Enable: When create new empty tab, new tab created as the child of the opener(if opener is the last node)"
+    },
+    "updateTutorialFeature1Desc22": {
+        "message": "Disable: New tab will always create flatten as the last child of Window"
+    },
+    "updateTutorialFeature1Desc23": {
+        "message": "May confusing, try it"
     },
     "updateTutorialFeature2": {
-        "message": "Notes shortcut: use LinkMap like RoamResearch"
+        "message": "Copy All Subtree as TXT/Markdown: added in the context-menu"
     },
     "updateTutorialFeature2Desc1": {
-        "message": "Notes nodes can now be created via shortcuts"
-    },
-    "updateTutorialFeature2Desc2": {
-        "message": "Quickly record ideas while browsing the web, like RoamResearch"
+        "message": "It’s useful when putting your links to note-taking app"
     },
     "updateTutorialFeature3": {
-        "message": "Show the number of open tabs next to the LinkMap extension icon"
+        "message": "Optimization for 'Locate'"
     },
-    "updateTutorialFeature4": {
-        "message": "Expand/Collapse All: Make LinkMap more tidy"
+    "updateTutorialFeature3Desc1": {
+        "message": "Now it will only locate the active tab of the top window"
     },
-    "updateTutorialFeature4Desc1": {
-        "message": "Below the search box you can find use them"
-    },
-    "updateTutorialFeature4Desc2": {
-        "message": "In the right-click menu you can expand/collapse all for the current node only"
-    },
-    "updateTutorialFeature5": {
-        "message": "Some minor optimizations"
-    },
-    "updateTutorialFeature5Desc1": {
-        "message": "'New tabs' will now be created in the same level in the tree"
-    },
-    "updateTutorialFeature5Desc2": {
-        "message": "Some options have been added to the 'Delete/Close' in the right-click menu"
-    },
-    "updateTutorialFeature5Desc3": {
-        "message": "The theme has the 'auto' option to automatically switch between light/dark modes"
+    "updateTutorialFeature3Desc2": {
+        "message": "It still doesn't perform perfectly sometime, I will continue optimizing"
     },
     "reviewLinkMap": {
         "message": "Do you like Link Map or have any suggestions?"

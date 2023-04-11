@@ -34,9 +34,10 @@ try {
             await setIsNewUser(true);
         }
         if (
-            details.reason === 'update' &&
-            details.previousVersion !== '1.0.7' &&
-            browser.runtime.getManifest().version === '1.0.7'
+            details.reason === 'update'
+            // &&
+            // details.previousVersion !== '1.0.10' &&
+            // browser.runtime.getManifest().version === '1.0.10'
         ) {
             // chrome.runtime.getManifest().version
             await setIsUpdate(true);
