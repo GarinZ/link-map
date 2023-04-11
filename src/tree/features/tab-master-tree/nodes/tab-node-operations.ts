@@ -72,7 +72,12 @@ export const TabNodeOperations = {
             },
         };
     },
-    add(tree: Fancytree.Fancytree, newNode: TreeNode<TabData>, active: boolean): FancytreeNode {
+    add(
+        tree: Fancytree.Fancytree,
+        newNode: TreeNode<TabData>,
+        active: boolean,
+        createNewTabByLevel = false,
+    ): FancytreeNode {
         const { windowId, index, openerTabId, pendingUrl, url } = newNode.data;
         const windowNode = tree.getNodeByKey(`${windowId}`);
         // 1. 先根据index - 1找到前一个节点
@@ -81,7 +86,7 @@ export const TabNodeOperations = {
         );
         // 2. 如果index - 1不存在，说明是第一个节点，直接添加为windowNode的子节点
         let createdNode = null;
-        if (pendingUrl === NEW_TAB_URL || url === NEW_TAB_URL) {
+        if (!createNewTabByLevel && (pendingUrl === NEW_TAB_URL || url === NEW_TAB_URL)) {
             createdNode = windowNode.addChildren(newNode);
         } else if (prevNode === null) {
             createdNode = windowNode.addNode(newNode, 'firstChild');

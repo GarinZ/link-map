@@ -168,55 +168,49 @@
         "message": "Link Map感觉自己更强大了！"
     },
     "updateNoteContent": {
-        "message": "没错Link Map又更新了，这次根据大家的反馈增加了一些功能和优化，快看看吧（对，细节还是在最顶部的节点）"
+        "message": "在v1.0.0版本中，增加了一些小的改进，可以更细粒度的控制Link Map的行为。如果你感兴趣，只需查看树中的第一个节点来获取细节"
     },
     "updateTutorialNode": {
-        "message": "新功能！（v1.0.7）"
+        "message": "v1.0.10中的新功能"
     },
     "updateTutorialFeature1": {
-        "message": "保存：让节点一直保留在树中"
+        "message": "选项：就在'展开全部'按钮旁边"
     },
     "updateTutorialFeature1Desc1": {
-        "message": "保存可以保证标签不会在关闭时在树中被删除"
+        "message": "自动滚动到激活的标签"
+    },
+    "updateTutorialFeature1Desc11": {
+        "message": "启用：切换标签时，树将自动滚动到激活的标签节点，并使其可见"
+    },
+    "updateTutorialFeature1Desc12": {
+        "message": "禁用：树啥也不做，就那么呆着"
     },
     "updateTutorialFeature1Desc2": {
-        "message": "可以使用右键下拉菜单或快捷键使用保存"
+        "message": "根据层级创建新标签"
     },
-    "updateTutorialFeature1Desc3": {
-        "message": "收起节点时保存，就可以批量保存一批节点"
+    "updateTutorialFeature1Desc21": {
+        "message": "启用：如果从最后一个标签创建的空标签页，新标签页会作为子节点创建"
+    },
+    "updateTutorialFeature1Desc22": {
+        "message": "禁用：新标签将始终作为窗口的最后一个子节点创建"
+    },
+    "updateTutorialFeature1Desc23": {
+        "message": "我的描述可能会让你感到困惑，请尝试一下"
     },
     "updateTutorialFeature2": {
-        "message": "笔记快捷键：像RoamResearch一样使用LinkMap"
+        "message": "将子树复制为TXT/Markdown：功能在右键下拉菜单中"
     },
     "updateTutorialFeature2Desc1": {
-        "message": "现在可以通过快捷键创建笔记节点"
-    },
-    "updateTutorialFeature2Desc2": {
-        "message": "在浏览网页时可以快速记录想法，就像RoamResearch"
+        "message": "将链接复制到笔记应用程序中时很有用"
     },
     "updateTutorialFeature3": {
-        "message": "LinkMap扩展图标旁展示已打开标签数量"
+        "message": "'定位标签节点'优化"
     },
-    "updateTutorialFeature4": {
-        "message": "展开/收起全部：让LinkMap更加整洁"
+    "updateTutorialFeature3Desc1": {
+        "message": "现在它只会定位顶级窗口中处于激活状态的标签"
     },
-    "updateTutorialFeature4Desc1": {
-        "message": "在搜索框的下方你可以发现使用它们"
-    },
-    "updateTutorialFeature4Desc2": {
-        "message": "在右键菜单中可以只对当前节点展开/收起全部"
-    },
-    "updateTutorialFeature5": {
-        "message": "一些小优化"
-    },
-    "updateTutorialFeature5Desc1": {
-        "message": "“新标签”现在会在树中平级创建"
-    },
-    "updateTutorialFeature5Desc2": {
-        "message": "右键菜单中的“删除/关闭”增加了一些选项"
-    },
-    "updateTutorialFeature5Desc3": {
-        "message": "主题中可以选择“跟随系统”自动切换亮/暗模式"
+    "updateTutorialFeature3Desc2": {
+        "message": "它仍然不完美，有时会有问题，我将继续优化"
     },
     "reviewLinkMap": {
         "message": "Link Map有没有帮到你或者有什么想吐槽的？"
@@ -241,5 +235,32 @@
     },
     "save": {
         "message": "保存"
+    },
+    "copySubtreeAsText": {
+        "message": "复制全部为txt"
+    },
+    "copySubtreeAsMarkdown": {
+        "message": "复制全部为Markdown"
+    },
+    "options": {
+        "message": "选项"
+    },
+    "autoScrollToActiveTab": {
+        "message": "自动滚动到激活的标签"
+    },
+    "createNewTabByLevel": {
+        "message": "根据层级创建新标签"
+    },
+    "deleteNode": {
+        "message": "删除节点"
+    },
+    "deleteSubtree": {
+        "message": "删除子树"
+    },
+    "closeNode": {
+        "message": "关闭节点"
+    },
+    "closeSubtree": {
+        "message": "关闭子树"
     }
 }

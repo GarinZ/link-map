@@ -3,7 +3,9 @@ import log from 'loglevel';
 import type { Tabs, Windows } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
 
-import { TabMasterDB } from '../../../storage/idb';
+import { setPrevFocusWindowId } from '../../../storage/basic';
+import type { Setting } from '../../../storage/idb';
+import { DEFAULT_SETTING, TabMasterDB } from '../../../storage/idb';
 import { dataCheckAndSupply } from './nodes/data-check';
 import type { TreeData, TreeNode } from './nodes/nodes';
 import { NoteNodeOperations } from './nodes/note-node-operations';
@@ -11,7 +13,7 @@ import type { TabData } from './nodes/tab-node-operations';
 import { TabNodeOperations } from './nodes/tab-node-operations';
 import { NodeUtils } from './nodes/utils';
 import type { WindowData } from './nodes/window-node-operations';
-import { WindowNodeOperations } from './nodes/window-node-operations';
+import { isCurrentWindow, WindowNodeOperations } from './nodes/window-node-operations';
 import { registerContextMenu } from './plugins/context-menu';
 import { DND5_CONFIG } from './plugins/dnd';
 import { EDIT_OPTIONS } from './plugins/edit';
@@ -54,6 +56,7 @@ export class FancyTabMasterTree {
     tree: Fancytree.Fancytree;
     db?: TabMasterDB;
     enablePersist: boolean;
+    settings?: Setting;
     static closeNodes: (targetNode: FancytreeNode, mode?: OperationTarget) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
@@ -81,12 +84,19 @@ export class FancyTabMasterTree {
         mode: 'parent' | 'child' | 'firstChild' | 'after',
     ) => void;
 
-    constructor($container: JQuery, config: FancyTabMasterTreeConfig = DefaultConfig) {
+    static copySubtree: (node: Fancytree.FancytreeNode, mode: 'txt' | 'md') => void;
+
+    constructor(
+        $container: JQuery,
+        config: FancyTabMasterTreeConfig = DefaultConfig,
+        setting?: Setting,
+    ) {
         config = merge({}, DefaultConfig, config);
         const extensions = ['dnd5', 'filter'];
         if (config.enableEdit) {
             extensions.push('edit');
         }
+        this.settings = setting ?? DEFAULT_SETTING;
         $container.fancytree({
             active: true,
             extensions,
@@ -223,7 +233,13 @@ export class FancyTabMasterTree {
         const targetNode = this.tree.getNodeByKey(`${tab.id}`);
         if (targetNode) return targetNode;
         const newNodeData = TabNodeOperations.createData(tab);
-        return TabNodeOperations.add(this.tree, newNodeData, tab.active);
+        log.debug('createNewTabByLevel', this.settings?.createNewTabByLevel);
+        return TabNodeOperations.add(
+            this.tree,
+            newNodeData,
+            tab.active,
+            this.settings?.createNewTabByLevel,
+        );
     }
 
     public createWindow(window: Windows.Window): FancytreeNode {
@@ -237,7 +253,14 @@ export class FancyTabMasterTree {
         // devtools的windowId为-1，不做处理
         const tabNode = this.tree.getNodeByKey(`${tabId}`);
         if (windowId < 0 || !tabNode) return;
-        TabNodeOperations.updatePartial(this.tree.getNodeByKey(`${tabId}`), { active: true });
+        TabNodeOperations.updatePartial(tabNode, { active: true });
+        if (this.settings?.autoScrollToActiveTab) {
+            browser.windows.getCurrent().then((currentWindow) => {
+                if (currentWindow.id === windowId) return;
+                tabNode.makeVisible({ scrollIntoView: true });
+                tabNode.setActive(true);
+            });
+        }
     }
 
     public moveTab(_windowId: number, tabId: number, fromIndex: number, toIndex: number): void {
@@ -287,7 +310,11 @@ export class FancyTabMasterTree {
     }
 
     public replaceTab(addedTabId: number, removedTabId: number): void {
-        throw new Error(`replaceTab Method not implemented. ${addedTabId} ${removedTabId}`);
+        const replacedTabNode = this.tree.getNodeByKey(`${removedTabId}`);
+        if (!replacedTabNode) return;
+        browser.tabs.get(addedTabId).then((tab) => {
+            TabNodeOperations.updatePartial(replacedTabNode, tab);
+        });
     }
 
     public removeWindow(windowId: number): void {
@@ -298,11 +325,11 @@ export class FancyTabMasterTree {
     public async windowFocus(windowId: number): Promise<void> {
         // devtools的windowId为-1，不做处理
         if (windowId < 0) return;
-        // const windowNode = this.tree.getNodeByKey(`${windowId}`);
-        // if (!windowNode.data.isBackgroundPage) {
-        //     windowNode.scrollIntoView();
-        // }
-        await this.syncActiveTab(windowId);
+        const isExtWindow = await isCurrentWindow(windowId);
+        if (!isExtWindow) {
+            setPrevFocusWindowId(windowId);
+        }
+        this.syncActiveTab(windowId);
     }
 
     public toJsonObj(includeRoot = false): TreeNode<TreeData>[] {
@@ -354,9 +381,15 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
     if (targetNode.data.nodeType === 'tab') {
         // 1. 如果TabNode是打开状态，直接激活
         if (!targetNode.data.closed) {
-            await browser.tabs.update(targetNode.data.id, { active: true });
-            await browser.windows.update(targetNode.data.windowId, { focused: true });
-            return;
+            try {
+                await browser.tabs.update(targetNode.data.id, { active: true });
+                await browser.windows.update(targetNode.data.windowId, { focused: true });
+                return;
+            } catch (error) {
+                location.reload();
+                log.error('db-click error: ', error);
+                return;
+            }
         }
         // 2. TabNode关闭
         const windowNode = TabNodeOperations.findWindowNode(targetNode);
@@ -542,6 +575,11 @@ FancyTabMasterTree.insertTag = (
             break;
         }
     }
+};
+
+FancyTabMasterTree.copySubtree = (node: FancytreeNode, mode: 'txt' | 'md') => {
+    const text = mode === 'txt' ? NodeUtils.convertToText(node) : NodeUtils.convertToMarkdown(node);
+    navigator.clipboard.writeText(text);
 };
 
 function getOperationMode(targetNode: FancytreeNode, mode: OperationTarget = 'auto') {

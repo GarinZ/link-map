@@ -1,0 +1,37 @@
+.option-panel {
+    display: flex;
+    flex-direction: column;
+    color: var(--ctx-menu-font-color);
+    background-color: var(--ctx-menu-bg-color);
+
+    .option-panel-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0 10px 0 5px;
+        cursor: pointer;
+        border-radius: 5px;
+
+        &:hover {
+            background-color: var(--ctx-menu-hover-bg-color);
+        }
+
+        .option-panel-item-label {
+            flex: 1;
+            margin-left: 5px;
+            font-size: 12px;
+        }
+
+        .option-panel-item-icon {
+            font-size: 11px;
+        }
+    }
+}
+
+.options-panel-overlay {
+    .ant-popover-inner {
+        padding: 5px;
+        background-color: var(--ctx-menu-bg-color);
+        border: 1px solid var(--ctx-menu-border-color);
+    }
+}

@@ -25,6 +25,11 @@ export function isExtensionPages(window: Windows.Window) {
     return url.origin === new URL(browser.runtime.getURL('')).origin;
 }
 
+export async function isCurrentWindow(windowId: number) {
+    const currentWindow = await browser.windows.getCurrent();
+    return currentWindow.id === windowId;
+}
+
 export const generateWindowTitle = (windowType = 'normal') => {
     return `Window${windowType === 'normal' ? '' : `(${windowType})`}`;
 };

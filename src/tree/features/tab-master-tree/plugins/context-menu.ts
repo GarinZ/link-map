@@ -22,11 +22,11 @@ export const registerContextMenu = () => {
                 icon: () => 'iconfont icon-trash context-menu-icon',
                 items: {
                     deleteNode: {
-                        name: 'Delete Node',
+                        name: browser.i18n.getMessage('deleteNode'),
                         icon: () => 'iconfont icon-pointer context-menu-icon',
                     },
                     deleteSubTree: {
-                        name: 'Delete Subtree',
+                        name: browser.i18n.getMessage('deleteSubTree'),
                         icon: () => 'iconfont icon-node-multiple context-menu-icon',
                     },
                 },
@@ -36,11 +36,11 @@ export const registerContextMenu = () => {
                 icon: () => 'iconfont icon-roundclosefill context-menu-icon',
                 items: {
                     closeNode: {
-                        name: 'Close Node',
+                        name: browser.i18n.getMessage('closeNode'),
                         icon: () => 'iconfont icon-pointer context-menu-icon',
                     },
                     closeSubTree: {
-                        name: 'Close Subtree',
+                        name: browser.i18n.getMessage('closeSubTree'),
                         icon: () => 'iconfont icon-node-multiple context-menu-icon',
                     },
                 },
@@ -62,6 +62,14 @@ export const registerContextMenu = () => {
                     },
                     copyMarkdownLink: {
                         name: browser.i18n.getMessage('ctxMenuCopyMarkDownLink'),
+                        icon: () => 'iconfont icon-markdown context-menu-icon',
+                    },
+                    copySubtreeAsText: {
+                        name: browser.i18n.getMessage('copySubtreeAsText'),
+                        icon: () => 'iconfont icon-URLguanli context-menu-icon',
+                    },
+                    copySubtreeAsMarkdown: {
+                        name: browser.i18n.getMessage('copySubtreeAsMarkdown'),
                         icon: () => 'iconfont icon-markdown context-menu-icon',
                     },
                 },
@@ -138,6 +146,12 @@ export const registerContextMenu = () => {
                     break;
                 case 'copyMarkdownLink':
                     navigator.clipboard.writeText(`[${node.data.title}](${node.data.url})`);
+                    break;
+                case 'copySubtreeAsText':
+                    FancyTabMasterTree.copySubtree(node, 'txt');
+                    break;
+                case 'copySubtreeAsMarkdown':
+                    FancyTabMasterTree.copySubtree(node, 'md');
                     break;
                 case 'expandAll':
                     node.visit((node) => node.setExpanded(true), true);

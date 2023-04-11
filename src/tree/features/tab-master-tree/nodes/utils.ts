@@ -59,4 +59,30 @@ export const NodeUtils = {
         const extraClasses = node.extraClasses ? node.extraClasses.split(' ') : [];
         node.extraClasses = extraClasses.filter((item) => !removeClasses.includes(item)).join(' ');
     },
+    convertToText(node: FancytreeNode, level = 0) {
+        const indent = '    '.repeat(level);
+        const { nodeType, url, pendingUrl } = node.data;
+        let text = '';
+        text +=
+            nodeType === 'tab'
+                ? `${indent}${node.title} (${url ?? pendingUrl})`
+                : `${indent}${node.title}`;
+        const childrenText: string = node.children
+            ? node.children.map((child) => NodeUtils.convertToText(child, level + 1)).join('')
+            : '';
+        return `${text}\n${childrenText}`;
+    },
+    convertToMarkdown(node: FancytreeNode, level = 0) {
+        const indent = '  '.repeat(level);
+        const { nodeType, url, pendingUrl } = node.data;
+        let text = '';
+        text +=
+            nodeType === 'tab'
+                ? `${indent}- [${node.title}](${url ?? pendingUrl})`
+                : `${indent}- ${node.title}`;
+        const childrenText: string = node.children
+            ? node.children.map((child) => NodeUtils.convertToMarkdown(child, level + 1)).join('')
+            : '';
+        return `${text}\n${childrenText}`;
+    },
 };

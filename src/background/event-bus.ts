@@ -3,7 +3,7 @@ import { sendMessage } from '@garinz/webext-bridge';
 import type { JsonValue } from 'type-fest';
 import browser from 'webextension-polyfill';
 
-import { getExtPageInfo } from '../storage/ext-page-info';
+import { getExtPageInfo } from '../storage/basic';
 
 const EXT_HOME_PAGE_PATH = 'tree.html';
 

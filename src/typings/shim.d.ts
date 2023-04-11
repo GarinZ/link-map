@@ -34,12 +34,7 @@ declare module '@garinz/webext-bridge' {
         'add-window': Windows.Window;
         'remove-window': { windowId: number };
         'window-focus': { windowId: number };
-        // tree event
-        'focus-node': number;
-        'remove-node': {
-            windowId: number;
-            tabId: number;
-        };
+        'replace-tab': { addedTabId: number; removedTabId: number };
         'import-data': ExportJsonData;
         'import-tabOutliner-data': TabOutliner.ExportData;
         'tree-ready': { windowId: number; tabId: number };
