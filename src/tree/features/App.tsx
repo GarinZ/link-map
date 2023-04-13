@@ -41,7 +41,7 @@ const App: React.FC = () => {
     // init setting in memory from indexedDB
     useEffect(() => {
         store.db.getSetting().then((setting) => {
-            setting && setSetting(merge(DEFAULT_SETTING, setting));
+            setting && setSetting(merge({}, DEFAULT_SETTING, setting));
         });
     }, []);
 
