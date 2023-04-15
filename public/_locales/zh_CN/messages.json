@@ -168,7 +168,7 @@
         "message": "Link Map感觉自己更强大了！"
     },
     "updateNoteContent": {
-        "message": "在v1.0.0版本中，增加了一些小的改进，可以更细粒度的控制Link Map的行为。如果你感兴趣，只需查看树中的第一个节点来获取细节"
+        "message": "在v1.0.10版本中，增加了一些小的改进，可以更细粒度的控制Link Map的行为。如果你感兴趣，只需查看树中的第一个节点来获取细节"
     },
     "updateTutorialNode": {
         "message": "v1.0.10中的新功能"

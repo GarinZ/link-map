@@ -18,11 +18,12 @@ declare namespace JQueryUI {
 }
 
 interface JQuery {
-    fancytree(options?: Fancytree.FancytreeOptions): Fancytree.Fancytree;
+    fancytree(options?: Fancytree.FancytreeOptions): JQuery;
     fancytree(option?: string, ...rest: any[]): any;
 }
 
 declare namespace Fancytree {
+    import Widget = JQueryUI.Widget;
     type EditTriggerCancelKeys = 'esc' | 'tab' | 'click';
     type EditTriggerStartKey = 'f2' | 'mac+enter' | 'shift+click';
     type EditEvent = { type: 'beforeClose' | 'beforeEdit' | 'close' | 'edit' | 'save' };
@@ -53,11 +54,13 @@ declare namespace Fancytree {
 
     interface Fancytree {
         $div: JQuery;
-        widget: any; //JQueryUI.Widget;
+        widget: Widget; //JQueryUI.Widget;
         rootNode: FancytreeNode;
         $container: JQuery;
         focusNode: FancytreeNode;
         options: FancytreeOptions;
+
+        new (widget: Widget): Fancytree;
 
         /** Activate node with a given key and fire focus and
          * activate events. A previously activated node will be
@@ -317,6 +320,8 @@ declare namespace Fancytree {
         unselectable?: boolean | undefined;
         unselectableIgnore?: boolean | undefined;
         unselectableStatus?: boolean | undefined;
+
+        new (parent: FancytreeNode, data: NodeData): FancytreeNode;
 
         //#endregion
 
@@ -1244,5 +1249,35 @@ declare namespace Fancytree {
         unescapeHtml(s: string): string;
 
         warn(msg: string): void;
+        /** Expose class object as `$.ui.fancytree._FancytreeClass`.
+         * Useful to extend `$.ui.fancytree._FancytreeClass.prototype`.
+         * @type {Fancytree}
+         */
+        _FancytreeClass: Fancytree;
+        /** Expose class object as $.ui.fancytree._FancytreeNodeClass
+         * Useful to extend `$.ui.fancytree._FancytreeNodeClass.prototype`.
+         * @type {FancytreeNode}
+         */
+        _FancytreeNodeClass: FancytreeNode;
+        /** Create a new Fancytree instance on a target element.
+         *
+         * @param {Element | jQueryObject | string} el Target DOM element or selector
+         * @param {FancytreeOptions} [opts] Fancytree options
+         * @returns {Fancytree} new tree instance
+         * @example
+         * var tree = $.ui.fancytree.createTree("#tree", {
+         *     source: {url: "my/webservice"}
+         * }); // Create tree for this matching element
+         *
+         * @since 2.25
+         */
+        createTree(el: Element | JQuery, opts: FancytreeOptions): Fancytree;
+        /** Return a function that executes *fn* at most every *timeout* ms.
+         * @param {integer} timeout
+         * @param {function} fn
+         * @param {boolean} [invokeAsap=false]
+         * @param {any} [ctx]
+         */
+        debounce(timeout: number, fn: Function, invokeAsap?: boolean, ctx?: any): Function;
     }
 }

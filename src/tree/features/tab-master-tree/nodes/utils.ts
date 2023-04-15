@@ -61,12 +61,15 @@ export const NodeUtils = {
     },
     convertToText(node: FancytreeNode, level = 0) {
         const indent = '    '.repeat(level);
-        const { nodeType, url, pendingUrl } = node.data;
+        const { nodeType, url, pendingUrl, alias } = node.data;
         let text = '';
-        text +=
-            nodeType === 'tab'
-                ? `${indent}${node.title} (${url ?? pendingUrl})`
-                : `${indent}${node.title}`;
+        if (nodeType === 'tab') {
+            text += `${indent}${node.title} (${url ?? pendingUrl})`;
+        } else if (nodeType === 'note') {
+            text += `${indent}${alias}`;
+        } else {
+            text += `${indent}${node.title}`;
+        }
         const childrenText: string = node.children
             ? node.children.map((child) => NodeUtils.convertToText(child, level + 1)).join('')
             : '';
@@ -74,12 +77,15 @@ export const NodeUtils = {
     },
     convertToMarkdown(node: FancytreeNode, level = 0) {
         const indent = '  '.repeat(level);
-        const { nodeType, url, pendingUrl } = node.data;
+        const { nodeType, url, pendingUrl, alias } = node.data;
         let text = '';
-        text +=
-            nodeType === 'tab'
-                ? `${indent}- [${node.title}](${url ?? pendingUrl})`
-                : `${indent}- ${node.title}`;
+        if (nodeType === 'tab') {
+            text += `${indent}- [${node.title}](${url ?? pendingUrl})`;
+        } else if (nodeType === 'note') {
+            text += `${indent}- ${alias}`;
+        } else {
+            text += `${indent}- ${node.title}`;
+        }
         const childrenText: string = node.children
             ? node.children.map((child) => NodeUtils.convertToMarkdown(child, level + 1)).join('')
             : '';
