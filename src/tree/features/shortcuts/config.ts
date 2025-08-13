@@ -271,6 +271,50 @@ export const ShortcutMap: IShortcutMap = {
             FancyTabMasterTree.insertTag(activeNode, 'child');
         },
     },
+    moveNodeUp: {
+        name: 'Move Up',
+        key: ['alt+shift+up'],
+        type: 'Basic Operation',
+        index: 8,
+        callback: async (e, tmTree) => {
+            const activeNode = tmTree.tree.getActiveNode();
+            if (!activeNode) return;
+            e.preventDefault();
+            const prev = activeNode.getPrevSibling();
+            if (!prev) return;
+            activeNode.moveTo(prev, 'before');
+            activeNode.setActive();
+            if (activeNode.data.nodeType === 'tab') {
+                const windowNode = TabNodeOperations.findWindowNode(activeNode);
+                if (windowNode) {
+                    await syncTabOrderWithTree(windowNode);
+                    WindowNodeOperations.updateWindowStatus(windowNode);
+                }
+            }
+        },
+    },
+    moveNodeDown: {
+        name: 'Move Down',
+        key: ['alt+shift+down'],
+        type: 'Basic Operation',
+        index: 9,
+        callback: async (e, tmTree) => {
+            const activeNode = tmTree.tree.getActiveNode();
+            if (!activeNode) return;
+            e.preventDefault();
+            const next = activeNode.getNextSibling();
+            if (!next) return;
+            activeNode.moveTo(next, 'after');
+            activeNode.setActive();
+            if (activeNode.data.nodeType === 'tab') {
+                const windowNode = TabNodeOperations.findWindowNode(activeNode);
+                if (windowNode) {
+                    await syncTabOrderWithTree(windowNode);
+                    WindowNodeOperations.updateWindowStatus(windowNode);
+                }
+            }
+        },
+    },
 };
 
 function capitalizeFirstLetter(str: string) {
