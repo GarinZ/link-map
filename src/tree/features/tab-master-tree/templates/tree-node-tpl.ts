@@ -38,7 +38,7 @@ export class TreeNodeTpl {
     /** rendered mustache html */
     public html: string;
 
-    constructor(node: Fancytree.FancytreeNode, enableButtonGroup = true) {
+    constructor(node: Fancytree.FancytreeNode, _enableButtonGroup = true) {
         const { key, title, data } = node;
         const { closed, windowType, alias, nodeType, aliasWithHighlight, titleWithHighlight } =
             data;
@@ -52,7 +52,7 @@ export class TreeNodeTpl {
                 nodeType,
                 'titlePlain': data.title || title,
                 'aliasClass': alias ? 'alias' : '',
-                'buttonGroup?': enableButtonGroup && title !== 'pending', // pending节点不显示按钮组
+                'buttonGroup?': false, // remove inline button group; use context menu instead
                 'closedWindow?': closed && windowType, // closed window节点显示(closed)
                 'closedClass': closed ? 'closed' : '',
                 'titleAndAlis?': title && alias,

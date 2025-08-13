@@ -118,6 +118,27 @@ export class FancyTabMasterTree {
                       return false;
                   }
                 : undefined,
+            // detect triple click on title to start rename
+            createNode: (_evt, data) => {
+                const node = data.node;
+                const $title = $(node.span).find('span.fancytree-title .zt-node-title');
+                let lastClickTime = 0;
+                let clickCount = 0;
+                $title.on('click', (e) => {
+                    const now = Date.now();
+                    if (now - lastClickTime < 400) {
+                        clickCount += 1;
+                    } else {
+                        clickCount = 1;
+                    }
+                    lastClickTime = now;
+                    if (clickCount >= 3) {
+                        e.preventDefault();
+                        node.editStart();
+                        clickCount = 0;
+                    }
+                });
+            },
             defaultKey: (node) => `${node.data.id}`,
             debugLevel: 0,
             dnd5: config.dndConfig,
