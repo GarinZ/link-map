@@ -1,4 +1,4 @@
-import { escape } from 'lodash';
+// import { escape } from 'lodash';
 import log from 'loglevel';
 import Mustache from 'mustache';
 
@@ -47,8 +47,8 @@ export class TreeNodeTpl {
             TreeNodeTpl.TEMPLATE,
             {
                 key,
-                'title': titleWithHighlight ?? escape(title),
-                'alias': aliasWithHighlight ?? escape(alias),
+                'title': titleWithHighlight ?? title,
+                'alias': aliasWithHighlight ?? alias,
                 nodeType,
                 'aliasClass': alias ? 'alias' : '',
                 'buttonGroup?': enableButtonGroup && title !== 'pending', // pending节点不显示按钮组
