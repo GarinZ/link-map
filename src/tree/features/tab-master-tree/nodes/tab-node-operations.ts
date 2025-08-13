@@ -55,16 +55,19 @@ export const TabNodeOperations = {
         const pageUrl = tab.url ?? tab.pendingUrl ?? '';
         const fallbackExt = getFaviconUrl(pageUrl);
         const fallbackGoogle = getGoogleFaviconUrl(pageUrl);
-        const initialIcon = favIconUrl || fallbackExt || fallbackGoogle || '/icons/chrome_icon.svg';
-        // 1st failure -> try extension _favicon; 2nd failure -> google s2; finally -> default icon
-        const onErrorAttr = `this.onerror=null; if (this.src==='${initialIcon}' && '${fallbackExt}') { this.src='${fallbackExt}'; } else if (this.src==='${fallbackExt}' && '${fallbackGoogle}') { this.src='${fallbackGoogle}'; } else { this.src='/icons/chrome_icon.svg'; }`;
+        const srcList = [favIconUrl, fallbackExt, fallbackGoogle, '/icons/chrome_icon.svg'].filter(
+            (v) => !!v,
+        ) as string[];
+        const initialIcon = srcList[0];
 
         return {
             title: title || '',
             key: `${id}`,
             icon: {
                 // 使用img标签并提供错误兜底：优先tab.favIconUrl，其次Chrome _favicon 服务，最后本地默认图标
-                html: `<img class="fancytree-icon" src="${initialIcon}" onerror="${onErrorAttr}" alt="">`,
+                html: `<img class="fancytree-icon" src="${initialIcon}" data-fav-srcs="${srcList.join(
+                    '|',
+                )}" data-fav-index="0" alt="">`,
             },
             expanded: true,
             data: {
@@ -145,10 +148,14 @@ export const TabNodeOperations = {
             const pageUrl = toUpdateNode.data.url ?? toUpdateNode.data.pendingUrl ?? '';
             const fallbackExt = getFaviconUrl(pageUrl);
             const fallbackGoogle = getGoogleFaviconUrl(pageUrl);
-            const initialIcon = favIconUrl || fallbackExt || fallbackGoogle || '/icons/chrome_icon.svg';
-            const onErrorAttr = `this.onerror=null; if (this.src==='${initialIcon}' && '${fallbackExt}') { this.src='${fallbackExt}'; } else if (this.src==='${fallbackExt}' && '${fallbackGoogle}') { this.src='${fallbackGoogle}'; } else { this.src='/icons/chrome_icon.svg'; }`;
+            const srcList = [favIconUrl, fallbackExt, fallbackGoogle, '/icons/chrome_icon.svg'].filter(
+                (v) => !!v,
+            ) as string[];
+            const initialIcon = srcList[0];
             toUpdateNode.icon = {
-                html: `<img class=\"fancytree-icon\" src=\"${initialIcon}\" onerror=\"${onErrorAttr}\" alt=\"\">`,
+                html: `<img class=\"fancytree-icon\" src=\"${initialIcon}\" data-fav-srcs=\"${srcList.join(
+                    '|',
+                )}\" data-fav-index=\"0\" alt=\"\">`,
             } as any;
         }
         if (closed !== undefined) {

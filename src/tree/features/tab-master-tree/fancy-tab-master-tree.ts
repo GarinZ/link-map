@@ -105,6 +105,22 @@ export class FancyTabMasterTree {
                 const html = renderTitle(_eventData, data, config.enableEdit);
                 const $title = $(data.node.span).find('span.fancytree-title');
                 $title.html(html);
+                // Bind safe favicon fallback handler (no inline JS)
+                const $img = $(data.node.span).find('img.fancytree-icon');
+                $img.on('error', function onError() {
+                    const imgEl = this as HTMLImageElement;
+                    const list = (imgEl.getAttribute('data-fav-srcs') || '').split('|');
+                    let index = Number(imgEl.getAttribute('data-fav-index') || '0');
+                    if (Number.isNaN(index)) index = 0;
+                    const next = list[index + 1];
+                    if (next) {
+                        imgEl.setAttribute('data-fav-index', String(index + 1));
+                        imgEl.src = next;
+                    } else {
+                        // remove handler to avoid loops
+                        $img.off('error', onError);
+                    }
+                });
             },
             // renderTitle,
             click: config.enableEdit ? FancyTabMasterTree.onClick : undefined,
