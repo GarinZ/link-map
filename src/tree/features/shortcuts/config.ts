@@ -57,27 +57,19 @@ export const ShortcutMap: IShortcutMap = {
             const activeNode = tmTree.tree.getActiveNode();
             if (!activeNode) return;
             if (activeNode.data.nodeType === 'window') return;
-            // Prevent default focus change
             e.preventDefault();
-            // Find previous row as potential new parent
-            let prevRow: Fancytree.FancytreeNode | null = null;
-            tmTree.tree.visitRows(
-                (n) => {
-                    prevRow = n;
-                    return false;
-                },
-                { start: activeNode, includeSelf: false, reverse: true },
-            );
-            if (!prevRow) return;
-            // For tab nodes, enforce same window
+            const prevSibling = activeNode.getPrevSibling();
+            if (!prevSibling) return;
+            // For tab nodes, only indent under a tab in the same window
             if (
                 activeNode.data.nodeType === 'tab' &&
-                ((prevRow as any).data.nodeType !== 'tab' ||
-                    (prevRow as any).data.windowId !== activeNode.data.windowId)
+                (prevSibling.data.nodeType !== 'tab' ||
+                    prevSibling.data.windowId !== activeNode.data.windowId)
             ) {
                 return;
             }
-            activeNode.moveTo(prevRow as any, 'child');
+            activeNode.moveTo(prevSibling, 'child');
+            prevSibling.setExpanded(true);
             activeNode.setActive();
             // Sync browser tab order for tabs
             if (activeNode.data.nodeType === 'tab') {
