@@ -28,7 +28,7 @@ export class TreeNodeTpl {
             {{/alias}}
             {{#titleAndAlis?}}<span class="zt-node-splitter"> | </span>{{/titleAndAlis?}}
             {{#title}}
-            <span class="zt-node-title {{aliasClass}}" data-full-title="{{titlePlain}}">{{{title}}}{{#closedWindow?}}(closed){{/closedWindow?}}</span>
+            <span class="zt-node-title {{aliasClass}}" title="{{titlePlain}}">{{{title}}}{{#closedWindow?}}(closed){{/closedWindow?}}</span>
             {{/title}}
         {{#buttonGroup?}}
             {{> buttonGroup}}
