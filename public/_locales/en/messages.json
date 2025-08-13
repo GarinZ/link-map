@@ -242,6 +242,9 @@
     "copySubtreeAsMarkdown": {
         "message": "Copy Subtree as Markdown"
     },
+    "sortChildrenAZ": {
+        "message": "Sort Children (A→Z)"
+    },
     "options": {
         "message": "Options"
     },

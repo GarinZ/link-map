@@ -1,6 +1,8 @@
 import browser from 'webextension-polyfill';
 
 import { FancyTabMasterTree } from '../fancy-tab-master-tree';
+import { syncTabOrderWithTree } from './dnd';
+import { WindowNodeOperations } from '../nodes/window-node-operations';
 
 import 'jquery-contextmenu/dist/jquery.contextMenu.min.js';
 import 'jquery-contextmenu/dist/jquery.contextMenu.min.css';
@@ -100,6 +102,9 @@ export const registerContextMenu = () => {
                 name: browser.i18n.getMessage('collapseAll'),
                 icon: () => 'iconfont icon-collapse_all context-menu-icon',
             },
+            sortChildrenAZ: {
+                name: browser.i18n.getMessage('sortChildrenAZ') || 'Sort Children (A→Z)',
+            },
         },
         callback(itemKey: string, opt) {
             const node = $.ui.fancytree.getNode(opt.$trigger);
@@ -159,6 +164,31 @@ export const registerContextMenu = () => {
                 case 'collapseAll':
                     node.visit((node) => node.setExpanded(false), true);
                     break;
+                case 'sortChildrenAZ': {
+                    // Sort this node's subtree by title (A->Z), preserving structure
+                    const comparator = (a: Fancytree.FancytreeNode, b: Fancytree.FancytreeNode) => {
+                        const at = (a.title || '').toString();
+                        const bt = (b.title || '').toString();
+                        return at.localeCompare(bt, undefined, { sensitivity: 'base' });
+                    };
+                    node.sortChildren(comparator, true);
+                    // Sync Chrome tab order for affected windows
+                    const windowIdSet = new Set<number>();
+                    node.visit((n) => {
+                        if (n.data && n.data.nodeType === 'tab' && !n.data.closed) {
+                            windowIdSet.add(n.data.windowId);
+                        }
+                        return true;
+                    }, true);
+                    windowIdSet.forEach(async (wid) => {
+                        const wNode = node.tree.getNodeByKey(`${wid}`);
+                        if (wNode) {
+                            await syncTabOrderWithTree(wNode);
+                            WindowNodeOperations.updateWindowStatus(wNode);
+                        }
+                    });
+                    break;
+                }
             }
         },
     });
