@@ -100,8 +100,10 @@ export const TabMasterTree: React.FC<TabMasterTreeProps> = ({ source, onInit, ..
     useEffect(() => {
         if (tabMasterTree) {
             tabMasterTree.settings = setting;
+            // expose setting for template conditional button group
+            (window as any).linkMapSetting = setting;
         }
-    }, [setting.autoScrollToActiveTab, setting.createNewTabByLevel, tabMasterTree]);
+    }, [setting.autoScrollToActiveTab, setting.createNewTabByLevel, setting.showInlineActions, tabMasterTree]);
 
     useEffect(() => {
         if (source && tabMasterTree) {

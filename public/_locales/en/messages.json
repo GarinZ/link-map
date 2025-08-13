@@ -254,6 +254,9 @@
     "createNewTabByLevel": {
         "message": "Create New Tab by Level"
     },
+    "showInlineActions": {
+        "message": "Show Inline Actions"
+    },
     "deleteNode": {
         "message": "Delete Node"
     },

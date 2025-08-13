@@ -52,7 +52,7 @@ export class TreeNodeTpl {
                 nodeType,
                 'titlePlain': data.title || title,
                 'aliasClass': alias ? 'alias' : '',
-                'buttonGroup?': false, // remove inline button group; use context menu instead
+                'buttonGroup?': (window as any).linkMapSetting?.showInlineActions && title !== 'pending',
                 'closedWindow?': closed && windowType, // closed window节点显示(closed)
                 'closedClass': closed ? 'closed' : '',
                 'titleAndAlis?': title && alias,
