@@ -9,6 +9,8 @@ import {
     removeExtPageInfo,
     setExtPageInfo,
     setPrevFocusWindowId,
+    getExtWindowBounds,
+    setExtWindowBounds,
 } from '../storage/basic';
 import { TabMasterDB } from '../storage/idb';
 import { setIsNewUser, setIsUpdate } from '../storage/user-journey';
@@ -50,15 +52,17 @@ try {
     async function openNewExtWindow() {
         const displayInfos = await chrome.system.display.getInfo();
         const primaryDisplayInfo = displayInfos.find((item) => item.isPrimary);
-        const width = primaryDisplayInfo ? Math.floor(primaryDisplayInfo.workArea.width / 5) : 895;
-        const height = primaryDisplayInfo ? primaryDisplayInfo.workArea.height : 1050;
-        const left = primaryDisplayInfo ? primaryDisplayInfo.workArea.width - width : 0;
+        const saved = await getExtWindowBounds();
+        const width = saved?.width ?? (primaryDisplayInfo ? Math.floor(primaryDisplayInfo.workArea.width / 5) : 895);
+        const height = saved?.height ?? (primaryDisplayInfo ? primaryDisplayInfo.workArea.height : 1050);
+        const left = saved?.left ?? (primaryDisplayInfo ? primaryDisplayInfo.workArea.width - width : 0);
+        const top = saved?.top ?? 0;
         const extWindow = await browser.windows.create({
             url: 'tree.html',
             type: 'popup',
             width,
             height,
-            top: 0,
+            top,
             left,
             focused: true,
         });
@@ -66,6 +70,13 @@ try {
         await setExtPageInfo({
             windowId: extTab.windowId!,
             tabId: extTab.id!,
+        });
+        // Save initial bounds (creation may adjust values slightly)
+        await setExtWindowBounds({
+            left: extWindow.left!,
+            top: extWindow.top!,
+            width: extWindow.width!,
+            height: extWindow.height!,
         });
     }
 
@@ -183,6 +194,21 @@ try {
     browser.windows.onFocusChanged.addListener((windowId) => {
         log.debug('[bg]: window focus changed!');
         sendMessageToExt('window-focus', { windowId });
+    });
+
+    // Persist Link Map window bounds on move/resize (use chrome.* for wider typing support)
+    (chrome.windows as any).onBoundsChanged.addListener(async (win: chrome.windows.Window) => {
+        try {
+            const ext = await getExtPageInfo();
+            if (!ext || ext.windowId !== win.id) return;
+            if ((win as any).state && (win as any).state !== 'normal') return;
+            await setExtWindowBounds({
+                left: (win as any).left,
+                top: (win as any).top,
+                width: (win as any).width,
+                height: (win as any).height,
+            });
+        } catch {}
     });
 
     const createImportPage = async (importData: LocalStorageImportData) => {

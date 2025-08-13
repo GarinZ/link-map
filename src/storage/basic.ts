@@ -44,3 +44,27 @@ export const setPrevFocusWindowId = async (prevFocusWindowId: number): Promise<v
 export const removePrevFocusWindowId = () => {
     return storage.local.remove(PREV_FOCUS_WINDOW_ID);
 };
+
+// Persist Link Map window bounds
+const EXT_WINDOW_BOUNDS = 'extWindowBounds';
+export interface WindowBounds {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+}
+
+export const getExtWindowBounds = async (): Promise<WindowBounds | null> => {
+    const data = await storage.local.get(EXT_WINDOW_BOUNDS);
+    return isEmpty(data) ? null : (JSON.parse(data[EXT_WINDOW_BOUNDS]) as WindowBounds);
+};
+
+export const setExtWindowBounds = async (bounds: Partial<WindowBounds>): Promise<void> => {
+    const oldData = (await getExtWindowBounds()) ?? {};
+    return await storage.local.set({
+        [EXT_WINDOW_BOUNDS]: JSON.stringify({
+            ...oldData,
+            ...bounds,
+        }),
+    });
+};
