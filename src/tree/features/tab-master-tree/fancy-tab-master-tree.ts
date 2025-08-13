@@ -15,7 +15,7 @@ import { NodeUtils } from './nodes/utils';
 import type { WindowData } from './nodes/window-node-operations';
 import { isCurrentWindow, WindowNodeOperations } from './nodes/window-node-operations';
 import { registerContextMenu } from './plugins/context-menu';
-import { DND5_CONFIG } from './plugins/dnd';
+import { DND5_CONFIG, syncTabOrderWithTree } from './plugins/dnd';
 import { EDIT_OPTIONS } from './plugins/edit';
 import { clearHighLightFields, FILTER_OPTIONS } from './plugins/filter';
 import TreeNodeTpl, { TPL_CONSTANTS } from './templates/tree-node-tpl';
@@ -57,6 +57,14 @@ export class FancyTabMasterTree {
     db?: TabMasterDB;
     enablePersist: boolean;
     settings?: Setting;
+    private recentlyClosedHints: Array<{
+        windowId: number;
+        origin: string;
+        title?: string;
+        parentTabId?: number;
+        prevSiblingId?: number;
+        timestamp: number;
+    }> = [];
     static closeNodes: (targetNode: FancytreeNode, mode?: OperationTarget) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
@@ -271,6 +279,47 @@ export class FancyTabMasterTree {
         if (targetNode) return targetNode;
         const newNodeData = TabNodeOperations.createData(tab);
         log.debug('createNewTabByLevel', this.settings?.createNewTabByLevel);
+
+        // Try to restore previous nesting using a recent close hint
+        const windowNode = this.tree.getNodeByKey(`${tab.windowId}`);
+        const origin = safeGetOrigin(tab.url || tab.pendingUrl || '');
+        const now = Date.now();
+        // prune old hints (> 2 min)
+        this.recentlyClosedHints = this.recentlyClosedHints.filter(
+            (h) => now - h.timestamp < 120000,
+        );
+        const hintIndex = this.recentlyClosedHints.findIndex(
+            (h) => h.windowId === tab.windowId && h.origin === origin,
+        );
+        if (windowNode && hintIndex >= 0) {
+            const hint = this.recentlyClosedHints.splice(hintIndex, 1)[0];
+            let created: FancytreeNode | null = null;
+            if (hint.parentTabId) {
+                const parent = this.tree.getNodeByKey(`${hint.parentTabId}`);
+                if (parent) {
+                    created = parent.addNode(newNodeData, 'firstChild');
+                    parent.setExpanded(true);
+                }
+            }
+            if (!created && hint.prevSiblingId) {
+                const prev = this.tree.getNodeByKey(`${hint.prevSiblingId}`);
+                if (prev) {
+                    created = prev.addNode(newNodeData, 'after');
+                }
+            }
+            if (!created) {
+                created = TabNodeOperations.add(
+                    this.tree,
+                    newNodeData,
+                    tab.active,
+                    this.settings?.createNewTabByLevel,
+                );
+            }
+            // Ensure Chrome tab order matches tree when restoring nesting
+            syncTabOrderWithTree(windowNode);
+            return created;
+        }
+
         return TabNodeOperations.add(
             this.tree,
             newNodeData,
@@ -312,6 +361,37 @@ export class FancyTabMasterTree {
     public async removeTab(tabId: number): Promise<void> {
         const toRemoveNode = this.tree.getNodeByKey(`${tabId}`);
         if (!toRemoveNode) return;
+        // record a restore hint before removing
+        try {
+            const windowNode = TabNodeOperations.findWindowNode(toRemoveNode);
+            const origin = safeGetOrigin(
+                toRemoveNode.data.url || toRemoveNode.data.pendingUrl || '',
+            );
+            if (windowNode && origin) {
+                const parentTab = (function findParentTab(n: FancytreeNode): FancytreeNode | null {
+                    let p = n.getParent();
+                    while (p) {
+                        if (p.data && p.data.nodeType === 'tab') return p;
+                        p = p.getParent();
+                    }
+                    return null;
+                })(toRemoveNode);
+                const prevSibling = (function findPrevSibling(n: FancytreeNode) {
+                    let p = n.getPrevSibling();
+                    while (p && p.data && p.data.nodeType !== 'tab') p = p.getPrevSibling();
+                    return p;
+                })(toRemoveNode);
+                this.recentlyClosedHints.unshift({
+                    windowId: windowNode.data.id,
+                    origin,
+                    title: toRemoveNode.title,
+                    parentTabId: parentTab ? parentTab.data.id : undefined,
+                    prevSiblingId: prevSibling ? prevSibling.data.id : undefined,
+                    timestamp: Date.now(),
+                });
+                if (this.recentlyClosedHints.length > 200) this.recentlyClosedHints.pop();
+            }
+        } catch {}
         const windowNode = TabNodeOperations.findWindowNode(toRemoveNode);
         const hasRemove = TabNodeOperations.removeItem(toRemoveNode);
         if (!hasRemove) {
@@ -391,6 +471,14 @@ function renderTitle(
     return treeNode.html;
 }
 
+function safeGetOrigin(url: string): string {
+    try {
+        return new URL(url).origin;
+    } catch {
+        return '';
+    }
+}
+
 FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventData): boolean => {
     const target = $(event.originalEvent.target as Element);
     if (!target.attr(TYPE_ATTR)) return true;
@@ -450,6 +538,8 @@ FancyTabMasterTree.onDbClick = async (targetNode: FancytreeNode): Promise<void> 
             const newTab = await browser.tabs.create({ url, windowId: windowNode.data.id, index });
             TabNodeOperations.updatePartial(targetNode, { ...newTab, closed: false });
             WindowNodeOperations.updateWindowStatus(windowNode);
+            // Ensure Chrome tab order matches the tree after reopening
+            await syncTabOrderWithTree(windowNode);
         }
     } else if (targetNode.data.nodeType === 'window') {
         // 1. 如果WindowNode是打开状态，直接激活

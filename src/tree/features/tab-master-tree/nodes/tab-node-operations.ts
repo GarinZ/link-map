@@ -128,7 +128,7 @@ export const TabNodeOperations = {
     removeItem(toRemoveNode: FancytreeNode, force = false): boolean {
         // 1. 状态为closed的节点不做删除
         if (toRemoveNode && !force && !NodeUtils.canRemove(toRemoveNode)) return false;
-        // 2. 保留子元素：提升children作为siblings
+        // 2. 保留子元素：提升children作为siblings（保留结构以便恢复位置）
         NodeUtils.moveChildrenAsNextSiblings(toRemoveNode);
         // 3. 删除节点
         const windowNode = this.findWindowNode(toRemoveNode);
