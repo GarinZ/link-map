@@ -38,5 +38,6 @@ declare module '@garinz/webext-bridge' {
         'import-data': ExportJsonData;
         'import-tabOutliner-data': TabOutliner.ExportData;
         'tree-ready': { windowId: number; tabId: number };
+        'locate-active': null;
     }
 }

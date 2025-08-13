@@ -1,11 +1,13 @@
 import { onMessage } from '@garinz/webext-bridge';
 import React, { useContext, useEffect, useState } from 'react';
+import browser from 'webextension-polyfill';
 
 import { SettingContext } from '../../context';
 import registerShortcuts from '../shortcuts/shortcuts';
 import Store from '../store';
 import type { FancyTabMasterTreeConfig } from './fancy-tab-master-tree';
 import { FancyTabMasterTree } from './fancy-tab-master-tree';
+import { getPrevFocusWindowId } from '../../../storage/basic';
 import type { TreeData, TreeNode } from './nodes/nodes';
 
 import './style.less';
@@ -51,6 +53,19 @@ const registerBrowserEventHandlers = (tmTree: FancyTabMasterTree) => {
     onMessage('replace-tab', (msg) => {
         const { addedTabId, removedTabId } = msg.data;
         tmTree.replaceTab(addedTabId, removedTabId);
+    });
+    onMessage('locate-active', async () => {
+        // Locate currently active tab across windows (prioritize previously focused browser window)
+        const tabs = await browser.tabs.query({ active: true });
+        const prevFocusWindowId = await getPrevFocusWindowId();
+        const targetTab = prevFocusWindowId
+            ? tabs.find((t) => t.windowId === prevFocusWindowId) || tabs[0]
+            : tabs[0];
+        if (!targetTab) return;
+        const node = tmTree.tree.getNodeByKey(`${targetTab.id}`);
+        if (!node) return;
+        node.makeVisible({ scrollIntoView: true });
+        node.setActive(true);
     });
     registerShortcuts(tmTree);
 };

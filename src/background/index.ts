@@ -213,6 +213,12 @@ try {
     browser.commands.onCommand.addListener(async (command) => {
         if (command === 'openLinkMap') {
             await focusOrCreateExtWindow();
+            return;
+        }
+        if (command === 'locateActive') {
+            await focusOrCreateExtWindow();
+            // Trigger locate logic in the UI (tree listens for this)
+            sendMessageToExt('locate-active', {} as any);
         }
     });
 } catch (error) {
