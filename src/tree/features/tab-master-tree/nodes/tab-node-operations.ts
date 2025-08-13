@@ -76,28 +76,39 @@ export const TabNodeOperations = {
         tree: Fancytree.Fancytree,
         newNode: TreeNode<TabData>,
         active: boolean,
-        createNewTabByLevel = false,
+        _createNewTabByLevel = false,
     ): FancytreeNode {
         const { windowId, index, openerTabId, pendingUrl, url } = newNode.data;
         const windowNode = tree.getNodeByKey(`${windowId}`);
-        // 1. 先根据index - 1找到前一个节点
+        // 优先：如果存在openerTab，则总是作为其子节点插入；
+        // 否则，空白新标签优先作为当前激活标签的子节点
+        const openerNode = openerTabId ? tree.getNodeByKey(`${openerTabId}`) : null;
+        const isBlankNewTab = pendingUrl === NEW_TAB_URL || url === NEW_TAB_URL;
+        const activeNode = windowNode.findFirst(
+            (node) => node.data.nodeType === 'tab' && node.data.tabActive && !node.data.closed,
+        );
+        // 1. 先根据index - 1找到前一个节点（用于回退策略）
         const prevNode = windowNode.findFirst(
             (node) => node.data.index === index - 1 && !node.data.closed,
         );
-        // 2. 如果index - 1不存在，说明是第一个节点，直接添加为windowNode的子节点
+        // 2. 插入规则：opener > 其他启发式
         let createdNode = null;
-        if (!createNewTabByLevel && (pendingUrl === NEW_TAB_URL || url === NEW_TAB_URL)) {
-            createdNode = windowNode.addChildren(newNode);
+        if (openerNode) {
+            createdNode = openerNode.addNode(newNode, 'firstChild');
+        } else if (isBlankNewTab && activeNode) {
+            // 空白页：总是作为当前激活tab的子节点
+            createdNode = activeNode.addNode(newNode, 'firstChild');
         } else if (prevNode === null) {
+            // 第一个节点
             createdNode = windowNode.addNode(newNode, 'firstChild');
         } else if (prevNode.data.id === openerTabId) {
-            // 3.1 如果相等，说明是openerTab的子节点，直接添加为openerTab的子节点
+            // 作为打开者的子节点
             createdNode = prevNode.addNode(newNode, 'firstChild');
         } else if (!prevNode.data.openerTabId || prevNode.data.openerTabId === openerTabId) {
-            // 3.2 prevNode有openerTabId，但是不等于newTab的openerTabId，说明newTab是prevNode的兄弟节点
+            // 作为前一个节点的兄弟节点
             createdNode = prevNode.addNode(newNode, 'after');
         } else {
-            // 3.3 都不是则为新建
+            // 回退：作为窗口的子节点
             createdNode = windowNode.addChildren(newNode);
         }
         if (active) {
@@ -222,7 +233,6 @@ export const TabNodeOperations = {
             (!toMoveNode.data.dndMovedTime || Date.now() - toMoveNode.data.dndMovedTime > 1000)
         ) {
             log.debug('callback move executed');
-            NodeUtils.moveChildrenAsNextSiblings(toMoveNode);
             if (toIndex === 0) {
                 toMoveNode.moveTo(targetWindowNode, 'firstChild');
             } else {
@@ -252,6 +262,8 @@ export const TabNodeOperations = {
         const oldWindowId = toMoveNode.data.windowId;
         this.updatePartial(toMoveNode, { windowId: toWindowId });
         WindowNodeOperations.updateWindowStatus(targetWindowNode);
+        // 同步更新目标窗口下所有子tab的windowId，确保保持树的层级时，子节点也更新windowId
+        WindowNodeOperations.updateSubTabWindowId(targetWindowNode);
         // 2. 更新index和属性
         if (toWindowId) {
             const oldWindowNode = tree.getNodeByKey(`${oldWindowId}`);

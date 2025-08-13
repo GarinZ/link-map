@@ -1,7 +1,7 @@
 {
     "typescript.tsdk": "node_modules/typescript/lib",
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
+        "source.fixAll.eslint": "explicit"
     },
     // 使用vscode扩展prettier作为默认格式化工具
     "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc]": {
