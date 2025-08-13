@@ -52,14 +52,17 @@ export const TabNodeOperations = {
         if (windowId === undefined) throw new Error('windowId is required');
         if (id === undefined) throw new Error('id is required');
 
+        const pageUrl = tab.url ?? tab.pendingUrl ?? '';
+        const fallbackIcon = getFaviconUrl(pageUrl);
+        const initialIcon = favIconUrl || fallbackIcon || '/icons/chrome_icon.svg';
+        const onErrorFallback = favIconUrl ? fallbackIcon : '/icons/chrome_icon.svg';
+
         return {
             title: title || '',
             key: `${id}`,
             icon: {
-                // 直接写URL,会使用img标签渲染,导致childrenCounter不识别
-                html: `<img class="fancytree-icon" src="${
-                    favIconUrl || '/icons/chrome_icon.svg'
-                }" alt="">`,
+                // 使用img标签并提供错误兜底：优先tab.favIconUrl，其次Chrome _favicon 服务，最后本地默认图标
+                html: `<img class="fancytree-icon" src="${initialIcon}" onerror="this.onerror=null;this.src='${onErrorFallback}';" alt="">`,
             },
             expanded: true,
             data: {
@@ -136,7 +139,15 @@ export const TabNodeOperations = {
         toUpdateNode.data = { ...toUpdateNode.data, ...updateProps };
         if (id) toUpdateNode.key = `${id}`;
         if (title) toUpdateNode.setTitle(title);
-        if (favIconUrl) toUpdateNode.icon = favIconUrl;
+        if (favIconUrl !== undefined) {
+            const pageUrl = toUpdateNode.data.url ?? toUpdateNode.data.pendingUrl ?? '';
+            const fallbackIcon = getFaviconUrl(pageUrl);
+            const initialIcon = favIconUrl || fallbackIcon || '/icons/chrome_icon.svg';
+            const onErrorFallback = favIconUrl ? fallbackIcon : '/icons/chrome_icon.svg';
+            toUpdateNode.icon = {
+                html: `<img class=\"fancytree-icon\" src=\"${initialIcon}\" onerror=\"this.onerror=null;this.src='${onErrorFallback}';\" alt=\"\">`,
+            } as any;
+        }
         if (closed !== undefined) {
             closed ? toUpdateNode.addClass('closed') : toUpdateNode.removeClass('closed');
             toUpdateNode.renderTitle();
