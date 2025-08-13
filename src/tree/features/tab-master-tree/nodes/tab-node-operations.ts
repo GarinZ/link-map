@@ -3,7 +3,7 @@ import log from 'loglevel';
 import type { Tabs } from 'webextension-polyfill';
 
 import { getNewTabUrl } from '../../../../config/browser-adapter-config';
-import { getFaviconUrl } from '../../../../utils';
+import { getFaviconUrl, getGoogleFaviconUrl } from '../../../../utils';
 import type { TreeData, TreeNode } from './nodes';
 import { NodeUtils } from './utils';
 import { WindowNodeOperations } from './window-node-operations';
@@ -53,16 +53,18 @@ export const TabNodeOperations = {
         if (id === undefined) throw new Error('id is required');
 
         const pageUrl = tab.url ?? tab.pendingUrl ?? '';
-        const fallbackIcon = getFaviconUrl(pageUrl);
-        const initialIcon = favIconUrl || fallbackIcon || '/icons/chrome_icon.svg';
-        const onErrorFallback = favIconUrl ? fallbackIcon : '/icons/chrome_icon.svg';
+        const fallbackExt = getFaviconUrl(pageUrl);
+        const fallbackGoogle = getGoogleFaviconUrl(pageUrl);
+        const initialIcon = favIconUrl || fallbackExt || fallbackGoogle || '/icons/chrome_icon.svg';
+        // 1st failure -> try extension _favicon; 2nd failure -> google s2; finally -> default icon
+        const onErrorAttr = `this.onerror=null; if (this.src==='${initialIcon}' && '${fallbackExt}') { this.src='${fallbackExt}'; } else if (this.src==='${fallbackExt}' && '${fallbackGoogle}') { this.src='${fallbackGoogle}'; } else { this.src='/icons/chrome_icon.svg'; }`;
 
         return {
             title: title || '',
             key: `${id}`,
             icon: {
                 // 使用img标签并提供错误兜底：优先tab.favIconUrl，其次Chrome _favicon 服务，最后本地默认图标
-                html: `<img class="fancytree-icon" src="${initialIcon}" onerror="this.onerror=null;this.src='${onErrorFallback}';" alt="">`,
+                html: `<img class="fancytree-icon" src="${initialIcon}" onerror="${onErrorAttr}" alt="">`,
             },
             expanded: true,
             data: {
@@ -141,11 +143,12 @@ export const TabNodeOperations = {
         if (title) toUpdateNode.setTitle(title);
         if (favIconUrl !== undefined) {
             const pageUrl = toUpdateNode.data.url ?? toUpdateNode.data.pendingUrl ?? '';
-            const fallbackIcon = getFaviconUrl(pageUrl);
-            const initialIcon = favIconUrl || fallbackIcon || '/icons/chrome_icon.svg';
-            const onErrorFallback = favIconUrl ? fallbackIcon : '/icons/chrome_icon.svg';
+            const fallbackExt = getFaviconUrl(pageUrl);
+            const fallbackGoogle = getGoogleFaviconUrl(pageUrl);
+            const initialIcon = favIconUrl || fallbackExt || fallbackGoogle || '/icons/chrome_icon.svg';
+            const onErrorAttr = `this.onerror=null; if (this.src==='${initialIcon}' && '${fallbackExt}') { this.src='${fallbackExt}'; } else if (this.src==='${fallbackExt}' && '${fallbackGoogle}') { this.src='${fallbackGoogle}'; } else { this.src='/icons/chrome_icon.svg'; }`;
             toUpdateNode.icon = {
-                html: `<img class=\"fancytree-icon\" src=\"${initialIcon}\" onerror=\"this.onerror=null;this.src='${onErrorFallback}';\" alt=\"\">`,
+                html: `<img class=\"fancytree-icon\" src=\"${initialIcon}\" onerror=\"${onErrorAttr}\" alt=\"\">`,
             } as any;
         }
         if (closed !== undefined) {

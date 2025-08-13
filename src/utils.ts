@@ -46,3 +46,12 @@ export const getFaviconUrl = (url: string) => {
         '@@extension_id',
     )}/_favicon/?pageUrl=${url}&size=16`;
 };
+
+export const getGoogleFaviconUrl = (url: string, size = 16) => {
+    try {
+        const hostname = new URL(url).hostname;
+        return `https://www.google.com/s2/favicons?domain=${hostname}&sz=${size}`;
+    } catch {
+        return '/icons/chrome_icon.svg';
+    }
+};
