@@ -290,6 +290,32 @@ body {
         margin-left: 5px;
         font-size: var(--main-font-size);
         color: var(--title-color);
+            position: relative;
+
+            .zt-node-title[data-full-title] {
+                position: relative;
+            }
+
+            .zt-node-title[data-full-title]:hover::after {
+                content: attr(data-full-title);
+                position: absolute;
+                top: 100%;
+                left: 0;
+                z-index: 1000;
+                max-width: 600px;
+                white-space: normal;
+                padding: 6px 8px;
+                margin-top: 6px;
+                font-size: 12px;
+                color: var(--ctx-menu-font-color);
+                background: var(--ctx-menu-bg-color);
+                border: 1px solid var(--ctx-menu-border-color);
+                border-radius: 6px;
+                box-shadow: 0 1px #0000000d, 0 4px 10px rgb(0 0 0 / 30%);
+                pointer-events: none;
+                opacity: 0;
+                animation: tooltipFadeIn 0.3s forwards;
+            }
 
         .zt-node-title {
             display: inline-block;
@@ -329,6 +355,15 @@ body {
         span.zt-node-alias {
             vertical-align: middle;
         }
+    }
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }
 

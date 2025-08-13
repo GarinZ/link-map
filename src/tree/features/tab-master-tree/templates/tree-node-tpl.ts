@@ -28,7 +28,7 @@ export class TreeNodeTpl {
             {{/alias}}
             {{#titleAndAlis?}}<span class="zt-node-splitter"> | </span>{{/titleAndAlis?}}
             {{#title}}
-            <span class="zt-node-title {{aliasClass}}">{{{title}}}{{#closedWindow?}}(closed){{/closedWindow?}}</span>
+            <span class="zt-node-title {{aliasClass}}" data-full-title="{{titlePlain}}">{{{title}}}{{#closedWindow?}}(closed){{/closedWindow?}}</span>
             {{/title}}
         {{#buttonGroup?}}
             {{> buttonGroup}}
@@ -50,6 +50,7 @@ export class TreeNodeTpl {
                 'title': titleWithHighlight ?? title,
                 'alias': aliasWithHighlight ?? alias,
                 nodeType,
+                'titlePlain': data.title || title,
                 'aliasClass': alias ? 'alias' : '',
                 'buttonGroup?': enableButtonGroup && title !== 'pending', // pending节点不显示按钮组
                 'closedWindow?': closed && windowType, // closed window节点显示(closed)
