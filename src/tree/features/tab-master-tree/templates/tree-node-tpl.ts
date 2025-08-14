@@ -52,7 +52,7 @@ export class TreeNodeTpl {
                 nodeType,
                 'titlePlain': data.title || title,
                 'aliasClass': alias ? 'alias' : '',
-                'buttonGroup?': (window as any).linkMapSetting?.showInlineActions && title !== 'pending',
+                'buttonGroup?': false,
                 'closedWindow?': closed && windowType, // closed window节点显示(closed)
                 'closedClass': closed ? 'closed' : '',
                 'titleAndAlis?': title && alias,

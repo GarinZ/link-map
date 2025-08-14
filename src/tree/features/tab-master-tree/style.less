@@ -413,6 +413,46 @@ body {
     }
 }
 
+/* floating hover toolbar anchored to right edge */
+.zt-hover-toolbar {
+    position: fixed;
+    right: 12px;
+    display: none;
+    z-index: 1000;
+    box-sizing: border-box;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+    font-weight: normal;
+    line-height: 22px;
+    background-color: var(--button-group-bg-color);
+    border-radius: 3px;
+    box-shadow: 0 0 3px var(--button-group-shadow-color);
+    padding: 0 2px;
+
+    .zt-node-btn {
+        width: 22px;
+        height: 100%;
+        padding: 0 2px;
+        font-size: 12px;
+        color: var(--button-group-icon-color);
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        border-right: 1px solid var(--button-group-splitter-color);
+
+        &:hover {
+            color: var(--button-group-hover-color);
+            background-color: var(--button-group-hover-bg-color);
+        }
+
+        &:last-child {
+            border-right: none;
+        }
+    }
+}
+
 .edit-input {
     .fancytree-title {
         .fancytree-edit-input {

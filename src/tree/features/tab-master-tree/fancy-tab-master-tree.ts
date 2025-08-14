@@ -65,6 +65,9 @@ export class FancyTabMasterTree {
         prevSiblingId?: number;
         timestamp: number;
     }> = [];
+    private hoverToolbar?: HTMLDivElement;
+    private hoverToolbarHideTimer?: number;
+    private hoveredNode?: Fancytree.FancytreeNode;
     static closeNodes: (targetNode: FancytreeNode, mode?: OperationTarget) => void;
     static onClick: (event: JQueryEventObject, data: Fancytree.EventData) => boolean;
     static onDbClick: (targetNode: FancytreeNode) => Promise<void>;
@@ -129,6 +132,10 @@ export class FancyTabMasterTree {
                         $img.off('error', onError);
                     }
                 });
+                // Hover toolbar handlers
+                const spanEl = data.node.span as HTMLElement;
+                spanEl.addEventListener('mouseenter', () => this.showHoverToolbar(data.node));
+                spanEl.addEventListener('mouseleave', () => this.deferHideHoverToolbar());
             },
             // renderTitle,
             click: config.enableEdit ? FancyTabMasterTree.onClick : undefined,
@@ -173,6 +180,10 @@ export class FancyTabMasterTree {
             registerContextMenu();
         }
         this.tree = $.ui.fancytree.getTree('#tree');
+        // Create hover toolbar once
+        this.createHoverToolbar();
+        const treeContainer = document.querySelector('#tree');
+        treeContainer && treeContainer.addEventListener('scroll', () => this.hideHoverToolbar());
         this.enablePersist = config.enablePersist!;
         if (this.enablePersist) {
             this.db = new TabMasterDB();
@@ -459,6 +470,67 @@ export class FancyTabMasterTree {
         const activeTab = tabs[0];
         this.activeTab(windowId, activeTab.id!);
         return true;
+    }
+
+    private createHoverToolbar() {
+        if (this.hoverToolbar) return;
+        const el = document.createElement('div');
+        el.id = 'hover-toolbar';
+        el.className = 'zt-hover-toolbar';
+        el.innerHTML = `
+            <span class="iconfont icon-edit zt-node-btn edit-alias" aria-label="edit"></span>
+            <span class="iconfont icon-roundclosefill zt-node-btn close" aria-label="close"></span>
+            <span class="iconfont icon-trash zt-node-btn remove" aria-label="remove"></span>
+        `;
+        el.style.display = 'none';
+        document.body.appendChild(el);
+        el.addEventListener('mouseenter', () => {
+            if (this.hoverToolbarHideTimer) {
+                window.clearTimeout(this.hoverToolbarHideTimer);
+                this.hoverToolbarHideTimer = undefined;
+            }
+        });
+        el.addEventListener('mouseleave', () => this.hideHoverToolbar());
+        el.querySelector('.edit-alias')?.addEventListener('click', () => {
+            if (!this.hoveredNode) return;
+            this.hoveredNode.editStart();
+        });
+        el.querySelector('.close')?.addEventListener('click', () => {
+            if (!this.hoveredNode) return;
+            FancyTabMasterTree.closeNodes(this.hoveredNode);
+            this.hideHoverToolbar();
+        });
+        el.querySelector('.remove')?.addEventListener('click', () => {
+            if (!this.hoveredNode) return;
+            FancyTabMasterTree.removeNodes(this.hoveredNode);
+            this.hideHoverToolbar();
+        });
+        this.hoverToolbar = el as HTMLDivElement;
+    }
+
+    private showHoverToolbar(node: Fancytree.FancytreeNode) {
+        this.hoveredNode = node;
+        if (!this.hoverToolbar) return;
+        const rect = (node.span as HTMLElement).getBoundingClientRect();
+        this.hoverToolbar.style.display = 'flex';
+        this.hoverToolbar.style.position = 'fixed';
+        this.hoverToolbar.style.right = '12px';
+        this.hoverToolbar.style.top = `${Math.round(rect.top + rect.height / 2 - 11)}px`;
+    }
+
+    private deferHideHoverToolbar() {
+        if (this.hoverToolbarHideTimer) window.clearTimeout(this.hoverToolbarHideTimer);
+        this.hoverToolbarHideTimer = window.setTimeout(() => this.hideHoverToolbar(), 120);
+    }
+
+    private hideHoverToolbar() {
+        if (!this.hoverToolbar) return;
+        this.hoverToolbar.style.display = 'none';
+        this.hoveredNode = undefined;
+        if (this.hoverToolbarHideTimer) {
+            window.clearTimeout(this.hoverToolbarHideTimer);
+            this.hoverToolbarHideTimer = undefined;
+        }
     }
 }
 
