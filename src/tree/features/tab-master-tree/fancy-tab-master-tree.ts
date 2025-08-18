@@ -134,8 +134,20 @@ export class FancyTabMasterTree {
                 });
                 // Hover toolbar handlers
                 const spanEl = data.node.span as HTMLElement;
-                spanEl.addEventListener('mouseenter', () => this.showHoverToolbar(data.node));
-                spanEl.addEventListener('mouseleave', () => this.deferHideHoverToolbar());
+                spanEl.addEventListener('mouseenter', () => {
+                    // cancel any pending hide and show immediately
+                    if (this.hoverToolbarHideTimer) {
+                        window.clearTimeout(this.hoverToolbarHideTimer);
+                        this.hoverToolbarHideTimer = undefined;
+                    }
+                    this.showHoverToolbar(data.node);
+                });
+                spanEl.addEventListener('mouseleave', (evt) => {
+                    // If moving into the toolbar, don't hide
+                    const rel = (evt as MouseEvent).relatedTarget as Node | null;
+                    if (rel && this.hoverToolbar && this.hoverToolbar.contains(rel)) return;
+                    this.deferHideHoverToolbar(260);
+                });
             },
             // renderTitle,
             click: config.enableEdit ? FancyTabMasterTree.onClick : undefined,
@@ -490,7 +502,14 @@ export class FancyTabMasterTree {
                 this.hoverToolbarHideTimer = undefined;
             }
         });
-        el.addEventListener('mouseleave', () => this.hideHoverToolbar());
+        el.addEventListener('mouseleave', (evt) => {
+            // If moving back to the hovered node, keep visible
+            const rel = (evt as MouseEvent).relatedTarget as Node | null;
+            if (rel && this.hoveredNode && this.hoveredNode.span && (this.hoveredNode.span as HTMLElement).contains(rel)) {
+                return;
+            }
+            this.hideHoverToolbar();
+        });
         el.querySelector('.edit-alias')?.addEventListener('click', () => {
             if (!this.hoveredNode) return;
             this.hoveredNode.editStart();
@@ -518,9 +537,9 @@ export class FancyTabMasterTree {
         this.hoverToolbar.style.top = `${Math.round(rect.top + rect.height / 2 - 11)}px`;
     }
 
-    private deferHideHoverToolbar() {
+    private deferHideHoverToolbar(delayMs: number = 200) {
         if (this.hoverToolbarHideTimer) window.clearTimeout(this.hoverToolbarHideTimer);
-        this.hoverToolbarHideTimer = window.setTimeout(() => this.hideHoverToolbar(), 120);
+        this.hoverToolbarHideTimer = window.setTimeout(() => this.hideHoverToolbar(), delayMs);
     }
 
     private hideHoverToolbar() {
