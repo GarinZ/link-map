@@ -2,14 +2,14 @@ import { escape } from 'lodash';
 import log from 'loglevel';
 import type { Tabs } from 'webextension-polyfill';
 
-import { getNewTabUrl } from '../../../../config/browser-adapter-config';
+// import { getNewTabUrl } from '../../../../config/browser-adapter-config';
 import { getFaviconUrl, getGoogleFaviconUrl } from '../../../../utils';
 import type { TreeData, TreeNode } from './nodes';
 import { NodeUtils } from './utils';
 import { WindowNodeOperations } from './window-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
-const NEW_TAB_URL = getNewTabUrl();
+// const NEW_TAB_URL = getNewTabUrl();
 
 export interface TabData extends Tabs.Tab, TreeData {
     windowId: number;
@@ -85,12 +85,12 @@ export const TabNodeOperations = {
         active: boolean,
         _createNewTabByLevel = false,
     ): FancytreeNode {
-        const { windowId, index, openerTabId, pendingUrl, url } = newNode.data;
+        const { windowId, index, openerTabId } = newNode.data;
         const windowNode = tree.getNodeByKey(`${windowId}`);
         // 优先：如果存在openerTab，则总是作为其子节点插入；
         // 否则，空白新标签优先作为当前激活标签的子节点
         const openerNode = openerTabId ? tree.getNodeByKey(`${openerTabId}`) : null;
-        const isBlankNewTab = pendingUrl === NEW_TAB_URL || url === NEW_TAB_URL;
+        // const isBlankNewTab = pendingUrl === NEW_TAB_URL || url === NEW_TAB_URL;
         const activeNode = windowNode.findFirst(
             (node) => node.data.nodeType === 'tab' && node.data.tabActive && !node.data.closed,
         );
@@ -102,8 +102,8 @@ export const TabNodeOperations = {
         let createdNode = null;
         if (openerNode) {
             createdNode = openerNode.addNode(newNode, 'firstChild');
-        } else if (isBlankNewTab && activeNode) {
-            // 空白页：总是作为当前激活tab的子节点
+        } else if (activeNode) {
+            // 无显式opener：默认作为当前激活tab的子节点（包括外部打开的链接）
             createdNode = activeNode.addNode(newNode, 'firstChild');
         } else if (prevNode === null) {
             // 第一个节点
