@@ -167,6 +167,14 @@ try {
         }
     };
 
+    const closeFloatingModalOnBlur = async (focusedWindowId: number) => {
+        const extIdPair = await getExtPageInfo();
+        if (!extIdPair || focusedWindowId === extIdPair.windowId) {
+            return;
+        }
+        await closeFloatingModalIfOpen();
+    };
+
     const openLinkMap = async (windowId?: number, shouldToggleFloatingModal = false) => {
         const setting = await new TabMasterDB().getSetting();
         const shouldUseSidePanel = setting?.display === 'embedded-sidebar';
@@ -294,6 +302,7 @@ try {
 
     browser.windows.onFocusChanged.addListener(async (windowId) => {
         log.debug('[bg]: window focus changed!');
+        await closeFloatingModalOnBlur(windowId);
         if (windowId !== browser.windows.WINDOW_ID_NONE) {
             const [activeTab] = await browser.tabs.query({ active: true, windowId });
             if (

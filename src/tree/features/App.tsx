@@ -10,7 +10,6 @@ import Feedback from './feedback/Feedback';
 import Help from './help/Help';
 import OperationBar from './operation-bar/OperationBar';
 import { Search } from './search/Search';
-import Settings from './settings/Settings';
 import store from './store';
 import type { FancyTabMasterTree } from './tab-master-tree/fancy-tab-master-tree';
 import { TabMasterTree } from './tab-master-tree/TabMasterTree';
@@ -118,7 +117,6 @@ const App: React.FC = () => {
                 <div className={isFloatingModal ? 'floating-modal-shell' : undefined}>
                     <div id="header">
                         <Search />
-                        <Settings />
                     </div>
                     <OperationBar />
                     <TabMasterTree onInit={showNewThings} />

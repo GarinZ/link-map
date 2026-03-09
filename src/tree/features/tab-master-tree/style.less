@@ -37,19 +37,23 @@ body {
     }
 
     #header {
+        position: relative;
         top: 0;
         z-index: 9;
+        box-sizing: border-box;
         display: flex;
         align-items: center;
         justify-content: center;
         width: 100%;
         height: 60px;
+        padding: 0 15px;
         background: var(--header-bg-color);
         border-bottom: 1px solid var(--header-border-bottom-color);
 
         .search-input {
             flex: 1;
-            margin: 0 15px;
+            min-width: 0;
+            margin: 0;
         }
     }
 
@@ -164,10 +168,11 @@ body {
         .floating-modal-shell {
             position: relative;
             z-index: 1;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            width: min(1080px, 100%);
-            height: min(780px, 100%);
+            width: min(1080px, calc(100% - 48px));
+            height: min(780px, calc(100% - 48px));
             overflow: hidden;
             background: var(--main-bg-color);
             border: 1px solid var(--header-border-bottom-color);
@@ -176,14 +181,14 @@ body {
         }
 
         #header {
-            justify-content: space-between;
             height: 74px;
             padding: 0 24px;
 
             .search-input {
                 flex: 1;
+                min-width: 0;
                 max-width: none;
-                margin: 0 18px 0 0;
+                margin: 0;
             }
         }
 
@@ -197,9 +202,10 @@ body {
     body {
         #header {
             height: 52px;
+            padding: 0 10px;
 
             .search-input {
-                margin: 0 10px;
+                margin: 0;
             }
         }
 
@@ -225,7 +231,7 @@ body {
                 padding: 0 10px;
 
                 .search-input {
-                    margin-right: 10px;
+                    margin: 0;
                 }
             }
 

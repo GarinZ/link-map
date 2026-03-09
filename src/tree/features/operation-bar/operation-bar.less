@@ -1,7 +1,13 @@
 .operation-bar {
     display: flex;
+    align-items: center;
     padding: 5px;
     border-bottom: 1px solid var(--header-border-bottom-color);
+
+    .operation-bar-settings {
+        display: inline-flex;
+        margin-right: 5px;
+    }
 
     .operation-bar-item {
         width: 18px;
@@ -24,6 +30,10 @@
 @media (max-width: 420px) {
     .operation-bar {
         padding: 4px 6px;
+
+        .operation-bar-settings {
+            margin-right: 3px;
+        }
 
         .operation-bar-item {
             margin-right: 3px;

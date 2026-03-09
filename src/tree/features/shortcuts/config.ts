@@ -9,6 +9,8 @@ import { getOS } from '../../../utils';
 import { FancyTabMasterTree } from '../tab-master-tree/fancy-tab-master-tree';
 
 const DEFAULT_MESSAGE_DURATION = 0.5;
+const isFloatingModalMode = () =>
+    new URLSearchParams(window.location.search).get('display') === 'floating-modal';
 export type ShortcutTypes = 'Basic Operation' | 'Navigation' | 'Tag';
 export const shortcutTypesOrder = [
     {
@@ -112,6 +114,9 @@ export const ShortcutMap: IShortcutMap = {
                 FancyTabMasterTree.insertTag(activeNode, 'after');
             } else {
                 await FancyTabMasterTree.onDbClick(activeNode);
+                if (isFloatingModalMode()) {
+                    window.close();
+                }
             }
         },
     },

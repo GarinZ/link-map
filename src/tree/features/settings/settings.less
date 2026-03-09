@@ -3,7 +3,11 @@
 .settings-container {
     //flex: 1;
     .settings-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         width: 30px;
+        min-width: 30px;
         height: 30px;
         padding: 0;
         margin-right: 15px;
@@ -24,6 +28,22 @@
             color: var(--btn-font-color);
             background-color: var(--btn-hover-bg-color);
         }
+
+        .iconfont {
+            font-size: 16px;
+            line-height: 1;
+            color: inherit;
+        }
+    }
+}
+
+#header {
+    .settings-container {
+        flex: 0 0 auto;
+
+        .settings-btn {
+            margin-right: 0;
+        }
     }
 }
 
@@ -31,6 +51,14 @@
     .settings-container {
         .settings-btn {
             margin-right: 10px;
+        }
+    }
+
+    #header {
+        .settings-container {
+            .settings-btn {
+                margin-right: 0;
+            }
         }
     }
 }
@@ -41,7 +69,7 @@
 
         .settings-item-desc {
             margin-right: 10px;
-            font-size: 13px;
+            font-size: var(--control-font-size);
         }
     }
 
@@ -67,18 +95,19 @@
 
     .setting-head {
         margin-bottom: 10px;
-        font-size: 13px;
+        font-size: var(--control-font-size);
         color: var(--main-font-color);
     }
 
     .setting-item-btn {
         //width: 60px;
         height: 30px;
-        font-size: 12px;
+        font-size: var(--control-font-size);
     }
 
     .settings-item {
         margin-top: 10px;
+        font-size: var(--main-font-size);
     }
 }
 
@@ -86,6 +115,7 @@
     background-color: var(--select-bg-color);
 
     .ant-select-item {
+        font-size: var(--control-font-size);
         color: var(--select-font-color);
 
         &:hover {
