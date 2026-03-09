@@ -18,6 +18,30 @@ import { isContentScriptPage, sendMessageToExt } from './event-bus';
 try {
     setLogLevel();
 
+    async function getPrimaryTabForWindow(windowId?: number) {
+        if (windowId == null) {
+            return null;
+        }
+        const tabs = await browser.tabs.query({ windowId });
+        return tabs[0] ?? null;
+    }
+
+    async function storeExtPageInfo(window: browser.Windows.Window) {
+        const extTab = window.tabs?.[0] ?? (await getPrimaryTabForWindow(window.id));
+        if (!extTab?.id || !extTab.windowId) {
+            throw new Error('Failed to resolve Link Map tab for created window.');
+        }
+        await setExtPageInfo({
+            windowId: extTab.windowId,
+            tabId: extTab.id,
+        });
+    }
+
+    async function enableSidePanelByDefault() {
+        if (!chrome.sidePanel?.setPanelBehavior) return;
+        await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+    }
+
     async function syncTabsCountInBadge() {
         const allTabs = await browser.tabs.query({});
         await browser.action.setBadgeBackgroundColor({ color: '#2b2d31' });
@@ -43,8 +67,13 @@ try {
         }
         const db = new TabMasterDB();
         await db.initSetting();
+        await enableSidePanelByDefault();
         await syncTabsCountInBadge();
         await removeExtPageInfo();
+    });
+
+    browser.runtime.onStartup.addListener(async () => {
+        await enableSidePanelByDefault();
     });
 
     async function openNewExtWindow() {
@@ -62,11 +91,30 @@ try {
             left,
             focused: true,
         });
-        const extTab = extWindow.tabs![0];
-        await setExtPageInfo({
-            windowId: extTab.windowId!,
-            tabId: extTab.id!,
+        await storeExtPageInfo(extWindow);
+    }
+
+    async function openFloatingModalWindow() {
+        const displayInfos = await chrome.system.display.getInfo();
+        const primaryDisplayInfo = displayInfos.find((item) => item.isPrimary);
+        const workAreaWidth = primaryDisplayInfo?.workArea.width ?? 1440;
+        const workAreaHeight = primaryDisplayInfo?.workArea.height ?? 960;
+        const workAreaLeft = primaryDisplayInfo?.workArea.left ?? 0;
+        const workAreaTop = primaryDisplayInfo?.workArea.top ?? 0;
+        const width = Math.min(1120, Math.floor(workAreaWidth * 0.7));
+        const height = Math.min(820, Math.floor(workAreaHeight * 0.82));
+        const left = workAreaLeft + Math.max(0, Math.floor((workAreaWidth - width) / 2));
+        const top = workAreaTop + Math.max(0, Math.floor((workAreaHeight - height) / 2));
+        const extWindow = await browser.windows.create({
+            url: 'tree.html?display=floating-modal',
+            type: 'popup',
+            width,
+            height,
+            top,
+            left,
+            focused: true,
         });
+        await storeExtPageInfo(extWindow);
     }
 
     onMessage('tree-ready', async (msg) => {
@@ -74,19 +122,90 @@ try {
         await setExtPageInfo({ windowId, tabId });
     });
 
-    const focusOrCreateExtWindow = async () => {
+    const focusOrCreateExtWindow = async (
+        createExtWindow = openNewExtWindow,
+        shouldReuseWindow: (url?: string) => boolean = (url) =>
+            url === browser.runtime.getURL('tree.html'),
+    ) => {
         const extIdPair = await getExtPageInfo();
         if (extIdPair == null) {
-            await openNewExtWindow();
+            await createExtWindow();
         } else {
-            // 页面已打开，则窗口focused
             try {
+                const extTab = await browser.tabs.get(extIdPair.tabId);
+                if (!shouldReuseWindow(extTab.url)) {
+                    await createExtWindow();
+                    return;
+                }
+                // 页面已打开，则窗口focused
                 await browser.windows.update(extIdPair.windowId, { focused: true });
             } catch {
                 // 防止localStorage数据未清除，但是页面已经关闭的情况
-                await openNewExtWindow();
+                await createExtWindow();
             }
         }
+    };
+
+    const closeFloatingModalIfOpen = async () => {
+        const extIdPair = await getExtPageInfo();
+        if (extIdPair == null) {
+            return false;
+        }
+        try {
+            const extTab = await browser.tabs.get(extIdPair.tabId);
+            const isFloatingModal =
+                extTab.url === browser.runtime.getURL('tree.html?display=floating-modal');
+            if (!isFloatingModal) {
+                return false;
+            }
+            await browser.windows.remove(extIdPair.windowId);
+            await removeExtPageInfo();
+            return true;
+        } catch {
+            await removeExtPageInfo();
+            return false;
+        }
+    };
+
+    const closeFloatingModalOnBlur = async (focusedWindowId: number) => {
+        const extIdPair = await getExtPageInfo();
+        if (!extIdPair || focusedWindowId === extIdPair.windowId) {
+            return;
+        }
+        await closeFloatingModalIfOpen();
+    };
+
+    const openLinkMap = async (windowId?: number, shouldToggleFloatingModal = false) => {
+        const setting = await new TabMasterDB().getSetting();
+        const shouldUseSidePanel = setting?.display === 'embedded-sidebar';
+        const shouldUseFloatingModal = setting?.display === 'floating-modal';
+        if (shouldUseSidePanel && chrome.sidePanel?.open) {
+            try {
+                if (windowId) {
+                    await chrome.sidePanel.open({ windowId });
+                } else {
+                    const lastFocusedWindow = await browser.windows.getLastFocused();
+                    if (lastFocusedWindow.id) {
+                        await chrome.sidePanel.open({ windowId: lastFocusedWindow.id });
+                        return;
+                    }
+                }
+                return;
+            } catch (error) {
+                log.warn('Failed to open side panel, falling back to popup window.', error);
+            }
+        }
+        if (shouldUseFloatingModal) {
+            if (shouldToggleFloatingModal && (await closeFloatingModalIfOpen())) {
+                return;
+            }
+            await focusOrCreateExtWindow(
+                openFloatingModalWindow,
+                (url) => url === browser.runtime.getURL('tree.html?display=floating-modal'),
+            );
+            return;
+        }
+        await focusOrCreateExtWindow();
     };
 
     /**
@@ -96,7 +215,7 @@ try {
      */
     browser.action.onClicked.addListener((tab) => {
         setPrevFocusWindowId(tab.windowId!);
-        focusOrCreateExtWindow();
+        openLinkMap(tab.windowId);
     });
 
     // #### 浏览器Fire的事件
@@ -138,6 +257,7 @@ try {
 
     browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
         log.debug('[bg]: tab activated!');
+        setPrevFocusWindowId(windowId);
         sendMessageToExt('activated-tab', { windowId, tabId });
     });
     /**
@@ -180,8 +300,20 @@ try {
         sendMessageToExt('remove-window', { windowId });
     });
 
-    browser.windows.onFocusChanged.addListener((windowId) => {
+    browser.windows.onFocusChanged.addListener(async (windowId) => {
         log.debug('[bg]: window focus changed!');
+        await closeFloatingModalOnBlur(windowId);
+        if (windowId !== browser.windows.WINDOW_ID_NONE) {
+            const [activeTab] = await browser.tabs.query({ active: true, windowId });
+            if (
+                !activeTab ||
+                isContentScriptPage(activeTab.url) ||
+                isContentScriptPage(activeTab.pendingUrl)
+            ) {
+                return;
+            }
+            await setPrevFocusWindowId(windowId);
+        }
         sendMessageToExt('window-focus', { windowId });
     });
 
@@ -212,8 +344,12 @@ try {
 
     browser.commands.onCommand.addListener(async (command) => {
         if (command === 'openLinkMap') {
-            await focusOrCreateExtWindow();
+            await openLinkMap(undefined, true);
         }
+    });
+
+    enableSidePanelByDefault().catch((error) => {
+        log.warn('Failed to enable side panel action behavior.', error);
     });
 } catch (error) {
     log.error(error);

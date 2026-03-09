@@ -1,7 +1,9 @@
 @import url('../../../styles/common.less');
 
 .search-input {
+    box-sizing: border-box;
     display: flex;
+    width: 100%;
     height: 30px;
     padding: 0 8px;
     line-height: 30px;
@@ -22,7 +24,7 @@
         height: 30px;
         padding-left: 10px;
         margin: 0;
-        font-size: 12px;
+        font-size: var(--control-font-size);
         color: var(--search-input-font-color);
         background-color: transparent;
         border-style: none;
@@ -42,6 +44,54 @@
     }
 
     .search-shortcut-info {
+        font-size: var(--main-font-size);
         color: var(--search-input-placeholder-color);
+    }
+}
+
+.app.floating-modal {
+    .search-input {
+        height: 40px;
+        padding: 0 12px;
+        border-radius: 999px;
+
+        input.search {
+            height: 40px;
+            padding-left: 12px;
+            font-size: 14px;
+        }
+
+        i.icon-search {
+            font-size: 14px;
+        }
+    }
+}
+
+@media (max-width: 420px) {
+    .search-input {
+        height: 28px;
+        padding: 0 6px;
+
+        input.search {
+            padding-left: 8px;
+            font-size: 11px;
+        }
+
+        .search-shortcut-info {
+            display: none;
+        }
+    }
+
+    .app.floating-modal {
+        .search-input {
+            height: 34px;
+            padding: 0 10px;
+
+            input.search {
+                height: 34px;
+                padding-left: 10px;
+                font-size: 12px;
+            }
+        }
     }
 }

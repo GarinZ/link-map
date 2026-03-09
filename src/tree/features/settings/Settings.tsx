@@ -5,7 +5,7 @@ import log from 'loglevel';
 import { useContext, useState } from 'react';
 import browser from 'webextension-polyfill';
 
-import type { ThemeType } from '../../../storage/idb';
+import type { Setting, ThemeType } from '../../../storage/idb';
 import { downloadJsonWithExtensionAPI, getFormattedData } from '../../../utils';
 import { SettingContext } from '../../context';
 import Feedback from '../feedback/Feedback';
@@ -76,6 +76,11 @@ const Settings = () => {
         setSetting({ ...setting, theme: value });
     };
 
+    const handleDisplayChange = async (value: Setting['display']) => {
+        await store.db.updateSettingPartial({ display: value });
+        setSetting({ ...setting, display: value });
+    };
+
     return (
         <div className="settings-container">
             <div>
@@ -112,6 +117,32 @@ const Settings = () => {
                                 { value: 'light', label: browser.i18n.getMessage('themeLight') },
                                 { value: 'dark', label: browser.i18n.getMessage('themeDark') },
                                 { value: 'auto', label: browser.i18n.getMessage('themeAuto') },
+                            ]}
+                        />
+                    </div>
+                    <div className="settings-item">
+                        <span className="settings-item-desc">
+                            {browser.i18n.getMessage('displayMode')}:
+                        </span>
+                        <Select
+                            value={setting.display}
+                            style={{ width: 160 }}
+                            size={'small'}
+                            onChange={handleDisplayChange}
+                            popupClassName={'settings-select-popup'}
+                            options={[
+                                {
+                                    value: 'embedded-sidebar',
+                                    label: browser.i18n.getMessage('displayModeSidebar'),
+                                },
+                                {
+                                    value: 'floating-modal',
+                                    label: browser.i18n.getMessage('displayModeFloatingModal'),
+                                },
+                                {
+                                    value: 'popup',
+                                    label: browser.i18n.getMessage('displayModePopup'),
+                                },
                             ]}
                         />
                     </div>

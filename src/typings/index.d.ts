@@ -4,6 +4,24 @@ declare var __TARGET__: 'chrome' | 'edge';
 declare var __LOG_LEVEL__: string;
 declare var __VERSION__: string;
 
+declare namespace chrome {
+    interface SidePanelOpenOptions {
+        tabId?: number;
+        windowId?: number;
+    }
+
+    interface SidePanelPanelBehavior {
+        openPanelOnActionClick?: boolean;
+    }
+
+    interface SidePanelStatic {
+        open(options: SidePanelOpenOptions): Promise<void>;
+        setPanelBehavior(options: SidePanelPanelBehavior): Promise<void>;
+    }
+
+    const sidePanel: SidePanelStatic | undefined;
+}
+
 declare module '*.scss' {
     const exports: StyleSheetModule;
     export default exports;

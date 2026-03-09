@@ -27,6 +27,8 @@ import 'jquery.fancytree/dist/modules/jquery.fancytree.filter.js';
 import 'jquery.fancytree/dist/skin-xp/ui.fancytree.min.css';
 
 const { TYPE_ATTR, NODE_CLOSE, NODE_REMOVE, NODE_EDIT } = TPL_CONSTANTS;
+const isFloatingModalMode = () =>
+    new URLSearchParams(window.location.search).get('display') === 'floating-modal';
 
 type FancytreeNode = Fancytree.FancytreeNode;
 type OperationTarget = 'item' | 'all' | 'auto';
@@ -356,7 +358,19 @@ function renderTitle(
 
 FancyTabMasterTree.onClick = (event: JQueryEventObject, data: Fancytree.EventData): boolean => {
     const target = $(event.originalEvent.target as Element);
-    if (!target.attr(TYPE_ATTR)) return true;
+    if (!target.attr(TYPE_ATTR)) {
+        if (
+            isFloatingModalMode() &&
+            !target.hasClass('fancytree-expander') &&
+            data.node.data.nodeType !== 'note'
+        ) {
+            FancyTabMasterTree.onDbClick(data.node).then(() => {
+                window.close();
+            });
+            return false;
+        }
+        return true;
+    }
 
     switch (target.attr(TYPE_ATTR)) {
         case NODE_CLOSE:

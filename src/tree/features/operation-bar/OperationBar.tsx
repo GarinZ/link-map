@@ -3,6 +3,7 @@ import React from 'react';
 import browser from 'webextension-polyfill';
 
 import { getPrevFocusWindowId } from '../../../storage/basic';
+import Settings from '../settings/Settings';
 import store from '../store';
 import type { WindowData } from '../tab-master-tree/nodes/window-node-operations';
 import OptionPanel from './options-panel/OptionsPanel';
@@ -89,6 +90,16 @@ const OperationBar: React.FC = () => {
                     aria-hidden="true"
                 >
                     <i className={'iconfont icon-expand_all'} />
+                </div>
+            </Tooltip>
+            <Tooltip
+                title={browser.i18n.getMessage('settings')}
+                showArrow={false}
+                mouseEnterDelay={delay}
+                placement={'bottomLeft'}
+            >
+                <div className={'operation-bar-settings'}>
+                    <Settings />
                 </div>
             </Tooltip>
             <Tooltip
