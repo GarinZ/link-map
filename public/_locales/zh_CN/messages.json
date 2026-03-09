@@ -134,6 +134,18 @@
     "themeDark": {
         "message": "黑暗模式"
     },
+    "displayMode": {
+        "message": "打开方式"
+    },
+    "displayModeSidebar": {
+        "message": "Chrome 侧边栏"
+    },
+    "displayModeFloatingModal": {
+        "message": "悬浮弹窗"
+    },
+    "displayModePopup": {
+        "message": "弹出窗口"
+    },
     "commandTriggerLinkMap": {
         "message": "打开Link Map"
     },

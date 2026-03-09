@@ -13,7 +13,7 @@ export type ThemeType = 'light' | 'dark' | 'auto';
 export interface Setting {
     id: number;
     theme: ThemeType;
-    display: 'popup' | 'tab' | 'embedded-sidebar';
+    display: 'popup' | 'tab' | 'embedded-sidebar' | 'floating-modal';
     autoScrollToActiveTab: boolean;
     createNewTabByLevel: boolean;
 }
@@ -21,7 +21,7 @@ export interface Setting {
 export const DEFAULT_SETTING: Setting = {
     id: 1,
     theme: 'dark',
-    display: 'embedded-sidebar',
+    display: 'floating-modal',
     autoScrollToActiveTab: false,
     createNewTabByLevel: false,
 };
@@ -59,7 +59,7 @@ export class TabMasterDB extends Dexie {
             await this.setting.put(DEFAULT_SETTING);
             return;
         }
-        if (currentSetting.display === 'popup') {
+        if (currentSetting.display === 'popup' || currentSetting.display === 'embedded-sidebar') {
             await this.setting.update(1, { display: DEFAULT_SETTING.display });
         }
     }

@@ -134,6 +134,18 @@
     "themeDark": {
         "message": "Dark"
     },
+    "displayMode": {
+        "message": "Open As"
+    },
+    "displayModeSidebar": {
+        "message": "Chrome Sidebar"
+    },
+    "displayModeFloatingModal": {
+        "message": "Floating Modal"
+    },
+    "displayModePopup": {
+        "message": "Popup Window"
+    },
     "commandTriggerLinkMap": {
         "message": "Open Link Map"
     },

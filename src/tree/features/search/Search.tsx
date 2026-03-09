@@ -1,7 +1,7 @@
 import { escape } from 'lodash';
 import Mousetrap from 'mousetrap';
 import type { ChangeEvent, KeyboardEvent } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
 
 import { getDisplayName, ShortcutMap } from '../shortcuts/config';
@@ -63,6 +63,15 @@ Mousetrap.bind(ShortcutMap.search.key, (e) => {
 export const Search = () => {
     const [value, setValue] = useState('');
     const [focus, setFocus] = useState(false);
+    const shouldAutoFocus =
+        new URLSearchParams(window.location.search).get('display') === 'floating-modal';
+
+    useEffect(() => {
+        if (!shouldAutoFocus) {
+            return;
+        }
+        inputRef?.focus();
+    }, [shouldAutoFocus]);
 
     const onKeyUp = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e && e.keyCode === $.ui.keyCode.ESCAPE) {

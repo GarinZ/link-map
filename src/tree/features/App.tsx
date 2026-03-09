@@ -23,6 +23,10 @@ import Welcome from './tutorial/Welcome';
 
 import '../../styles/app.less';
 
+const closeFloatingModal = () => {
+    window.close();
+};
+
 const updateNotification = async (tmTree: FancyTabMasterTree) => {
     const isUpdate = await getIsUpdate();
     if (!isUpdate) return;
@@ -34,6 +38,8 @@ const updateNotification = async (tmTree: FancyTabMasterTree) => {
 const App: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [setting, setSetting] = useState(DEFAULT_SETTING);
+    const displayMode = new URLSearchParams(window.location.search).get('display');
+    const isFloatingModal = displayMode === 'floating-modal';
 
     // const matchMediaDark = window.matchMedia('(prefers-color-scheme: dark)');
     // const isDarkMode = matchMediaDark.matches;
@@ -62,6 +68,21 @@ const App: React.FC = () => {
         }
     }, [setting.theme]);
 
+    useEffect(() => {
+        if (!isFloatingModal) {
+            return;
+        }
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key !== 'Escape') {
+                return;
+            }
+            event.preventDefault();
+            window.close();
+        };
+        window.addEventListener('keydown', handleKeyDown, true);
+        return () => window.removeEventListener('keydown', handleKeyDown, true);
+    }, [isFloatingModal]);
+
     const handleCancel = () => {
         setIsModalOpen(false);
     };
@@ -85,19 +106,29 @@ const App: React.FC = () => {
 
     return (
         <SettingContext.Provider value={{ setting, setSetting }}>
-            <div className="app">
-                <div id="header">
-                    <Search />
-                    <Settings />
+            <div className={`app ${isFloatingModal ? 'floating-modal' : ''}`.trim()}>
+                {isFloatingModal ? (
+                    <button
+                        type="button"
+                        className="floating-modal-backdrop"
+                        aria-label="Close Link Map"
+                        onClick={closeFloatingModal}
+                    />
+                ) : null}
+                <div className={isFloatingModal ? 'floating-modal-shell' : undefined}>
+                    <div id="header">
+                        <Search />
+                        <Settings />
+                    </div>
+                    <OperationBar />
+                    <TabMasterTree onInit={showNewThings} />
+                    <div id="footer">
+                        <span className={'footer-item'}>
+                            <Feedback />
+                        </span>
+                    </div>
+                    <Help />
                 </div>
-                <OperationBar />
-                <TabMasterTree onInit={showNewThings} />
-                <div id="footer">
-                    <span className={'footer-item'}>
-                        <Feedback />
-                    </span>
-                </div>
-                <Help />
                 <Modal
                     title={`🎉 ${browser.i18n.getMessage('welcomeTitle')}`}
                     open={isModalOpen}

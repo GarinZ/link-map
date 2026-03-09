@@ -25,5 +25,5 @@ export async function sendMessageToExt<K extends DataTypeKey>(
 }
 
 export function isContentScriptPage(url?: string) {
-    return url === browser.runtime.getURL(EXT_HOME_PAGE_PATH);
+    return url?.startsWith(browser.runtime.getURL(EXT_HOME_PAGE_PATH)) ?? false;
 }

@@ -46,6 +46,24 @@
     }
 }
 
+.app.floating-modal {
+    .search-input {
+        height: 40px;
+        padding: 0 12px;
+        border-radius: 999px;
+
+        input.search {
+            height: 40px;
+            padding-left: 12px;
+            font-size: 14px;
+        }
+
+        i.icon-search {
+            font-size: 14px;
+        }
+    }
+}
+
 @media (max-width: 420px) {
     .search-input {
         height: 28px;
@@ -58,6 +76,19 @@
 
         .search-shortcut-info {
             display: none;
+        }
+    }
+
+    .app.floating-modal {
+        .search-input {
+            height: 34px;
+            padding: 0 10px;
+
+            input.search {
+                height: 34px;
+                padding-left: 10px;
+                font-size: 12px;
+            }
         }
     }
 }
