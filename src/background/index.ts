@@ -18,6 +18,11 @@ import { isContentScriptPage, sendMessageToExt } from './event-bus';
 try {
     setLogLevel();
 
+    async function enableSidePanelByDefault() {
+        if (!chrome.sidePanel?.setPanelBehavior) return;
+        await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+    }
+
     async function syncTabsCountInBadge() {
         const allTabs = await browser.tabs.query({});
         await browser.action.setBadgeBackgroundColor({ color: '#2b2d31' });
@@ -43,8 +48,13 @@ try {
         }
         const db = new TabMasterDB();
         await db.initSetting();
+        await enableSidePanelByDefault();
         await syncTabsCountInBadge();
         await removeExtPageInfo();
+    });
+
+    browser.runtime.onStartup.addListener(async () => {
+        await enableSidePanelByDefault();
     });
 
     async function openNewExtWindow() {
@@ -89,6 +99,28 @@ try {
         }
     };
 
+    const openLinkMap = async (windowId?: number) => {
+        const setting = await new TabMasterDB().getSetting();
+        const shouldUseSidePanel = setting?.display === 'embedded-sidebar';
+        if (shouldUseSidePanel && chrome.sidePanel?.open) {
+            try {
+                if (windowId) {
+                    await chrome.sidePanel.open({ windowId });
+                } else {
+                    const lastFocusedWindow = await browser.windows.getLastFocused();
+                    if (lastFocusedWindow.id) {
+                        await chrome.sidePanel.open({ windowId: lastFocusedWindow.id });
+                        return;
+                    }
+                }
+                return;
+            } catch (error) {
+                log.warn('Failed to open side panel, falling back to popup window.', error);
+            }
+        }
+        await focusOrCreateExtWindow();
+    };
+
     /**
      * 点击插件按钮：打开一个TreeView页面
      * 将extIdPair更新到localStorage中
@@ -96,7 +128,7 @@ try {
      */
     browser.action.onClicked.addListener((tab) => {
         setPrevFocusWindowId(tab.windowId!);
-        focusOrCreateExtWindow();
+        openLinkMap(tab.windowId);
     });
 
     // #### 浏览器Fire的事件
@@ -138,6 +170,7 @@ try {
 
     browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
         log.debug('[bg]: tab activated!');
+        setPrevFocusWindowId(windowId);
         sendMessageToExt('activated-tab', { windowId, tabId });
     });
     /**
@@ -180,8 +213,19 @@ try {
         sendMessageToExt('remove-window', { windowId });
     });
 
-    browser.windows.onFocusChanged.addListener((windowId) => {
+    browser.windows.onFocusChanged.addListener(async (windowId) => {
         log.debug('[bg]: window focus changed!');
+        if (windowId !== browser.windows.WINDOW_ID_NONE) {
+            const [activeTab] = await browser.tabs.query({ active: true, windowId });
+            if (
+                !activeTab ||
+                isContentScriptPage(activeTab.url) ||
+                isContentScriptPage(activeTab.pendingUrl)
+            ) {
+                return;
+            }
+            await setPrevFocusWindowId(windowId);
+        }
         sendMessageToExt('window-focus', { windowId });
     });
 
@@ -212,8 +256,12 @@ try {
 
     browser.commands.onCommand.addListener(async (command) => {
         if (command === 'openLinkMap') {
-            await focusOrCreateExtWindow();
+            await openLinkMap();
         }
+    });
+
+    enableSidePanelByDefault().catch((error) => {
+        log.warn('Failed to enable side panel action behavior.', error);
     });
 } catch (error) {
     log.error(error);

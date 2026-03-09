@@ -7,12 +7,12 @@ export const commandKeyMap = {
     openLinkMap: 'openLinkMap',
 };
 
-const manifest: Manifest.WebExtensionManifest = {
+const manifest: Manifest.WebExtensionManifest & { side_panel: { default_path: string } } = {
     name: pkg.displayName,
     version: pkg.version,
     description: '__MSG_extDesc__',
     manifest_version: 3,
-    minimum_chrome_version: pkg.browserslist.split(' ')[2],
+    minimum_chrome_version: '114',
     permissions: [
         'tabs',
         'storage',
@@ -20,6 +20,7 @@ const manifest: Manifest.WebExtensionManifest = {
         'windows',
         'downloads',
         'system.display',
+        'sidePanel' as Manifest.Permission,
         'favicon',
     ],
     content_security_policy: {
@@ -59,6 +60,9 @@ const manifest: Manifest.WebExtensionManifest = {
             '48': 'icons/x48.png',
             '128': 'icons/x128.png',
         },
+    },
+    side_panel: {
+        default_path: 'tree.html',
     },
     // 实现options页面后使用
     // options_ui: {

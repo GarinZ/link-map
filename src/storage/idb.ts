@@ -21,7 +21,7 @@ export interface Setting {
 export const DEFAULT_SETTING: Setting = {
     id: 1,
     theme: 'dark',
-    display: 'popup',
+    display: 'embedded-sidebar',
     autoScrollToActiveTab: false,
     createNewTabByLevel: false,
 };
@@ -57,6 +57,10 @@ export class TabMasterDB extends Dexie {
         const currentSetting = await this.getSetting();
         if (!currentSetting) {
             await this.setting.put(DEFAULT_SETTING);
+            return;
+        }
+        if (currentSetting.display === 'popup') {
+            await this.setting.update(1, { display: DEFAULT_SETTING.display });
         }
     }
 

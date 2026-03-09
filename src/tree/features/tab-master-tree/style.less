@@ -146,6 +146,26 @@ body {
     }
 }
 
+@media (max-width: 420px) {
+    body {
+        #header {
+            height: 52px;
+
+            .search-input {
+                margin: 0 10px;
+            }
+        }
+
+        ul.fancytree-container {
+            padding: 6px 0 36px 6px;
+        }
+
+        .tree-container {
+            height: calc(100% - 44px - 36px);
+        }
+    }
+}
+
 .search-result {
     #tree.fancytree-ext-filter-dimm span.fancytree-node {
         &.fancytree-submatch span.fancytree-title {
