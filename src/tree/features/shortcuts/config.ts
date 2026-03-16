@@ -7,6 +7,9 @@ import { getShortcutSettingUrl } from '../../../config/browser-adapter-config';
 import { commandKeyMap } from '../../../manifest';
 import { getOS } from '../../../utils';
 import { FancyTabMasterTree } from '../tab-master-tree/fancy-tab-master-tree';
+import { TabNodeOperations } from '../tab-master-tree/nodes/tab-node-operations';
+import { WindowNodeOperations } from '../tab-master-tree/nodes/window-node-operations';
+import { syncTabOrderWithTree } from '../tab-master-tree/plugins/dnd';
 
 const DEFAULT_MESSAGE_DURATION = 0.5;
 export type ShortcutTypes = 'Basic Operation' | 'Navigation' | 'Tag';
@@ -44,6 +47,66 @@ export const ShortcutMap: IShortcutMap = {
         key: [getOS() === 'MacOS' ? 'command+k' : 'ctrl+k'],
         type: 'Navigation',
         index: 0,
+    },
+    indentNode: {
+        name: 'Indent',
+        key: ['tab'],
+        type: 'Basic Operation',
+        index: 6,
+        callback: async (e, tmTree) => {
+            const activeNode = tmTree.tree.getActiveNode();
+            if (!activeNode) return;
+            if (activeNode.data.nodeType === 'window') return;
+            e.preventDefault();
+            const prevSibling = activeNode.getPrevSibling();
+            if (!prevSibling) return;
+            // For tab nodes, only indent under a tab in the same window
+            if (
+                activeNode.data.nodeType === 'tab' &&
+                (prevSibling.data.nodeType !== 'tab' ||
+                    prevSibling.data.windowId !== activeNode.data.windowId)
+            ) {
+                return;
+            }
+            activeNode.moveTo(prevSibling, 'child');
+            prevSibling.setExpanded(true);
+            activeNode.setActive();
+            // Sync browser tab order for tabs
+            if (activeNode.data.nodeType === 'tab') {
+                const windowNode = TabNodeOperations.findWindowNode(activeNode);
+                if (windowNode) {
+                    await syncTabOrderWithTree(windowNode);
+                    WindowNodeOperations.updateWindowStatus(windowNode);
+                }
+            }
+        },
+    },
+    outdentNode: {
+        name: 'Outdent',
+        key: ['shift+tab'],
+        type: 'Basic Operation',
+        index: 7,
+        callback: async (e, tmTree) => {
+            const activeNode = tmTree.tree.getActiveNode();
+            if (!activeNode) return;
+            if (activeNode.data.nodeType === 'window') return;
+            e.preventDefault();
+            const parent = activeNode.getParent();
+            if (!parent || parent.data.nodeType === 'root') return;
+            // Do not outdent beyond window root for tab nodes
+            if (activeNode.data.nodeType === 'tab' && parent.data.nodeType === 'window') {
+                return;
+            }
+            activeNode.moveTo(parent, 'after');
+            activeNode.setActive();
+            if (activeNode.data.nodeType === 'tab') {
+                const windowNode = TabNodeOperations.findWindowNode(activeNode);
+                if (windowNode) {
+                    await syncTabOrderWithTree(windowNode);
+                    WindowNodeOperations.updateWindowStatus(windowNode);
+                }
+            }
+        },
     },
     goToPreviousNode: {
         name: browser.i18n.getMessage('goToPreviousNode'),
@@ -206,6 +269,50 @@ export const ShortcutMap: IShortcutMap = {
             if (!activeNode) return;
             e.preventDefault();
             FancyTabMasterTree.insertTag(activeNode, 'child');
+        },
+    },
+    moveNodeUp: {
+        name: 'Move Up',
+        key: ['alt+shift+up'],
+        type: 'Basic Operation',
+        index: 8,
+        callback: async (e, tmTree) => {
+            const activeNode = tmTree.tree.getActiveNode();
+            if (!activeNode) return;
+            e.preventDefault();
+            const prev = activeNode.getPrevSibling();
+            if (!prev) return;
+            activeNode.moveTo(prev, 'before');
+            activeNode.setActive();
+            if (activeNode.data.nodeType === 'tab') {
+                const windowNode = TabNodeOperations.findWindowNode(activeNode);
+                if (windowNode) {
+                    await syncTabOrderWithTree(windowNode);
+                    WindowNodeOperations.updateWindowStatus(windowNode);
+                }
+            }
+        },
+    },
+    moveNodeDown: {
+        name: 'Move Down',
+        key: ['alt+shift+down'],
+        type: 'Basic Operation',
+        index: 9,
+        callback: async (e, tmTree) => {
+            const activeNode = tmTree.tree.getActiveNode();
+            if (!activeNode) return;
+            e.preventDefault();
+            const next = activeNode.getNextSibling();
+            if (!next) return;
+            activeNode.moveTo(next, 'after');
+            activeNode.setActive();
+            if (activeNode.data.nodeType === 'tab') {
+                const windowNode = TabNodeOperations.findWindowNode(activeNode);
+                if (windowNode) {
+                    await syncTabOrderWithTree(windowNode);
+                    WindowNodeOperations.updateWindowStatus(windowNode);
+                }
+            }
         },
     },
 };

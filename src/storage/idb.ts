@@ -16,6 +16,7 @@ export interface Setting {
     display: 'popup' | 'tab' | 'embedded-sidebar';
     autoScrollToActiveTab: boolean;
     createNewTabByLevel: boolean;
+    showInlineActions: boolean;
 }
 
 export const DEFAULT_SETTING: Setting = {
@@ -24,6 +25,7 @@ export const DEFAULT_SETTING: Setting = {
     display: 'popup',
     autoScrollToActiveTab: false,
     createNewTabByLevel: false,
+    showInlineActions: false,
 };
 
 export class TabMasterDB extends Dexie {

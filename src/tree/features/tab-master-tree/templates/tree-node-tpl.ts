@@ -1,4 +1,4 @@
-import { escape } from 'lodash';
+// import { escape } from 'lodash';
 import log from 'loglevel';
 import Mustache from 'mustache';
 
@@ -28,7 +28,7 @@ export class TreeNodeTpl {
             {{/alias}}
             {{#titleAndAlis?}}<span class="zt-node-splitter"> | </span>{{/titleAndAlis?}}
             {{#title}}
-            <span class="zt-node-title {{aliasClass}}">{{{title}}}{{#closedWindow?}}(closed){{/closedWindow?}}</span>
+            <span class="zt-node-title {{aliasClass}}" title="{{titlePlain}}">{{{title}}}{{#closedWindow?}}(closed){{/closedWindow?}}</span>
             {{/title}}
         {{#buttonGroup?}}
             {{> buttonGroup}}
@@ -38,7 +38,7 @@ export class TreeNodeTpl {
     /** rendered mustache html */
     public html: string;
 
-    constructor(node: Fancytree.FancytreeNode, enableButtonGroup = true) {
+    constructor(node: Fancytree.FancytreeNode, _enableButtonGroup = true) {
         const { key, title, data } = node;
         const { closed, windowType, alias, nodeType, aliasWithHighlight, titleWithHighlight } =
             data;
@@ -47,11 +47,12 @@ export class TreeNodeTpl {
             TreeNodeTpl.TEMPLATE,
             {
                 key,
-                'title': titleWithHighlight ?? escape(title),
-                'alias': aliasWithHighlight ?? escape(alias),
+                'title': titleWithHighlight ?? title,
+                'alias': aliasWithHighlight ?? alias,
                 nodeType,
+                'titlePlain': data.title || title,
                 'aliasClass': alias ? 'alias' : '',
-                'buttonGroup?': enableButtonGroup && title !== 'pending', // pending节点不显示按钮组
+                'buttonGroup?': false,
                 'closedWindow?': closed && windowType, // closed window节点显示(closed)
                 'closedClass': closed ? 'closed' : '',
                 'titleAndAlis?': title && alias,

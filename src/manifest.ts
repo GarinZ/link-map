@@ -5,6 +5,7 @@ import pkg from '../package.json';
 // command key enums
 export const commandKeyMap = {
     openLinkMap: 'openLinkMap',
+    locateActive: 'locateActive',
 };
 
 const manifest: Manifest.WebExtensionManifest = {
@@ -49,6 +50,13 @@ const manifest: Manifest.WebExtensionManifest = {
                 mac: 'Shift+Command+L',
             },
             description: '__MSG_commandTriggerLinkMap__',
+        },
+        [commandKeyMap.locateActive]: {
+            suggested_key: {
+                default: 'Shift+Ctrl+1',
+                mac: 'Shift+Command+1',
+            },
+            description: '__MSG_locate__',
         },
     },
     action: {

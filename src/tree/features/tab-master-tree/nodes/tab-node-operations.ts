@@ -2,14 +2,14 @@ import { escape } from 'lodash';
 import log from 'loglevel';
 import type { Tabs } from 'webextension-polyfill';
 
-import { getNewTabUrl } from '../../../../config/browser-adapter-config';
-import { getFaviconUrl } from '../../../../utils';
+// import { getNewTabUrl } from '../../../../config/browser-adapter-config';
+import { getFaviconUrl, getGoogleFaviconUrl } from '../../../../utils';
 import type { TreeData, TreeNode } from './nodes';
 import { NodeUtils } from './utils';
 import { WindowNodeOperations } from './window-node-operations';
 
 type FancytreeNode = Fancytree.FancytreeNode;
-const NEW_TAB_URL = getNewTabUrl();
+// const NEW_TAB_URL = getNewTabUrl();
 
 export interface TabData extends Tabs.Tab, TreeData {
     windowId: number;
@@ -49,18 +49,25 @@ export const TabNodeOperations = {
     },
     createData(tab: Tabs.Tab): TreeNode<TabData> {
         const { title, windowId, favIconUrl, id, active } = tab;
-        const escapedTitle = title ? escape(title) : '';
         if (windowId === undefined) throw new Error('windowId is required');
         if (id === undefined) throw new Error('id is required');
 
+        const pageUrl = tab.url ?? tab.pendingUrl ?? '';
+        const fallbackExt = getFaviconUrl(pageUrl);
+        const fallbackGoogle = getGoogleFaviconUrl(pageUrl);
+        const srcList = [favIconUrl, fallbackExt, fallbackGoogle, '/icons/chrome_icon.svg'].filter(
+            (v) => !!v,
+        ) as string[];
+        const initialIcon = srcList[0];
+
         return {
-            title: escapedTitle || '',
+            title: title || '',
             key: `${id}`,
             icon: {
-                // 直接写URL,会使用img标签渲染,导致childrenCounter不识别
-                html: `<img class="fancytree-icon" src="${
-                    favIconUrl || '/icons/chrome_icon.svg'
-                }" alt="">`,
+                // 使用img标签并提供错误兜底：优先tab.favIconUrl，其次Chrome _favicon 服务，最后本地默认图标
+                html: `<img class="fancytree-icon" src="${initialIcon}" data-fav-srcs="${srcList.join(
+                    '|',
+                )}" data-fav-index="0" alt="">`,
             },
             expanded: true,
             data: {
@@ -76,28 +83,39 @@ export const TabNodeOperations = {
         tree: Fancytree.Fancytree,
         newNode: TreeNode<TabData>,
         active: boolean,
-        createNewTabByLevel = false,
+        _createNewTabByLevel = false,
     ): FancytreeNode {
-        const { windowId, index, openerTabId, pendingUrl, url } = newNode.data;
+        const { windowId, index, openerTabId } = newNode.data;
         const windowNode = tree.getNodeByKey(`${windowId}`);
-        // 1. 先根据index - 1找到前一个节点
+        // 优先：如果存在openerTab，则总是作为其子节点插入；
+        // 否则，空白新标签优先作为当前激活标签的子节点
+        const openerNode = openerTabId ? tree.getNodeByKey(`${openerTabId}`) : null;
+        // const isBlankNewTab = pendingUrl === NEW_TAB_URL || url === NEW_TAB_URL;
+        const activeNode = windowNode.findFirst(
+            (node) => node.data.nodeType === 'tab' && node.data.tabActive && !node.data.closed,
+        );
+        // 1. 先根据index - 1找到前一个节点（用于回退策略）
         const prevNode = windowNode.findFirst(
             (node) => node.data.index === index - 1 && !node.data.closed,
         );
-        // 2. 如果index - 1不存在，说明是第一个节点，直接添加为windowNode的子节点
+        // 2. 插入规则：opener > 其他启发式
         let createdNode = null;
-        if (!createNewTabByLevel && (pendingUrl === NEW_TAB_URL || url === NEW_TAB_URL)) {
-            createdNode = windowNode.addChildren(newNode);
+        if (openerNode) {
+            createdNode = openerNode.addNode(newNode, 'firstChild');
+        } else if (activeNode) {
+            // 无显式opener：默认作为当前激活tab的子节点（包括外部打开的链接）
+            createdNode = activeNode.addNode(newNode, 'firstChild');
         } else if (prevNode === null) {
+            // 第一个节点
             createdNode = windowNode.addNode(newNode, 'firstChild');
         } else if (prevNode.data.id === openerTabId) {
-            // 3.1 如果相等，说明是openerTab的子节点，直接添加为openerTab的子节点
+            // 作为打开者的子节点
             createdNode = prevNode.addNode(newNode, 'firstChild');
         } else if (!prevNode.data.openerTabId || prevNode.data.openerTabId === openerTabId) {
-            // 3.2 prevNode有openerTabId，但是不等于newTab的openerTabId，说明newTab是prevNode的兄弟节点
+            // 作为前一个节点的兄弟节点
             createdNode = prevNode.addNode(newNode, 'after');
         } else {
-            // 3.3 都不是则为新建
+            // 回退：作为窗口的子节点
             createdNode = windowNode.addChildren(newNode);
         }
         if (active) {
@@ -110,7 +128,7 @@ export const TabNodeOperations = {
     removeItem(toRemoveNode: FancytreeNode, force = false): boolean {
         // 1. 状态为closed的节点不做删除
         if (toRemoveNode && !force && !NodeUtils.canRemove(toRemoveNode)) return false;
-        // 2. 保留子元素：提升children作为siblings
+        // 2. 保留子元素：提升children作为siblings（保留结构以便恢复位置）
         NodeUtils.moveChildrenAsNextSiblings(toRemoveNode);
         // 3. 删除节点
         const windowNode = this.findWindowNode(toRemoveNode);
@@ -125,8 +143,21 @@ export const TabNodeOperations = {
         const { title, favIconUrl, id, active, closed, save } = updateProps;
         toUpdateNode.data = { ...toUpdateNode.data, ...updateProps };
         if (id) toUpdateNode.key = `${id}`;
-        if (title) toUpdateNode.setTitle(escape(title));
-        if (favIconUrl) toUpdateNode.icon = favIconUrl;
+        if (title) toUpdateNode.setTitle(title);
+        if (favIconUrl !== undefined) {
+            const pageUrl = toUpdateNode.data.url ?? toUpdateNode.data.pendingUrl ?? '';
+            const fallbackExt = getFaviconUrl(pageUrl);
+            const fallbackGoogle = getGoogleFaviconUrl(pageUrl);
+            const srcList = [favIconUrl, fallbackExt, fallbackGoogle, '/icons/chrome_icon.svg'].filter(
+                (v) => !!v,
+            ) as string[];
+            const initialIcon = srcList[0];
+            toUpdateNode.icon = {
+                html: `<img class=\"fancytree-icon\" src=\"${initialIcon}\" data-fav-srcs=\"${srcList.join(
+                    '|',
+                )}\" data-fav-index=\"0\" alt=\"\">`,
+            } as any;
+        }
         if (closed !== undefined) {
             closed ? toUpdateNode.addClass('closed') : toUpdateNode.removeClass('closed');
             toUpdateNode.renderTitle();
@@ -222,7 +253,6 @@ export const TabNodeOperations = {
             (!toMoveNode.data.dndMovedTime || Date.now() - toMoveNode.data.dndMovedTime > 1000)
         ) {
             log.debug('callback move executed');
-            NodeUtils.moveChildrenAsNextSiblings(toMoveNode);
             if (toIndex === 0) {
                 toMoveNode.moveTo(targetWindowNode, 'firstChild');
             } else {
@@ -252,6 +282,8 @@ export const TabNodeOperations = {
         const oldWindowId = toMoveNode.data.windowId;
         this.updatePartial(toMoveNode, { windowId: toWindowId });
         WindowNodeOperations.updateWindowStatus(targetWindowNode);
+        // 同步更新目标窗口下所有子tab的windowId，确保保持树的层级时，子节点也更新windowId
+        WindowNodeOperations.updateSubTabWindowId(targetWindowNode);
         // 2. 更新index和属性
         if (toWindowId) {
             const oldWindowNode = tree.getNodeByKey(`${oldWindowId}`);

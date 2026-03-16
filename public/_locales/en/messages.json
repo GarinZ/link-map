@@ -242,6 +242,9 @@
     "copySubtreeAsMarkdown": {
         "message": "Copy Subtree as Markdown"
     },
+    "sortChildrenAZ": {
+        "message": "Sort Children (A→Z)"
+    },
     "options": {
         "message": "Options"
     },
@@ -250,6 +253,9 @@
     },
     "createNewTabByLevel": {
         "message": "Create New Tab by Level"
+    },
+    "showInlineActions": {
+        "message": "Show Inline Actions"
     },
     "deleteNode": {
         "message": "Delete Node"

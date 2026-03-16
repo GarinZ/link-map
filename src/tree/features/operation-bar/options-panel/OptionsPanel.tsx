@@ -8,7 +8,7 @@ import './option-panel.less';
 
 const OptionPanel: React.FC = () => {
     const { setting, setSetting } = useContext(SettingContext);
-    const { autoScrollToActiveTab, createNewTabByLevel } = setting;
+    const { autoScrollToActiveTab, createNewTabByLevel, showInlineActions } = setting;
 
     const handleAutoScrollToActiveTab = async () => {
         const newState = !autoScrollToActiveTab;
@@ -25,6 +25,15 @@ const OptionPanel: React.FC = () => {
         setSetting({
             ...setting,
             createNewTabByLevel: newState,
+        });
+    };
+
+    const handleShowInlineActions = async () => {
+        const newState = !showInlineActions;
+        await store.db.updateSettingPartial({ showInlineActions: newState });
+        setSetting({
+            ...setting,
+            showInlineActions: newState,
         });
     };
 
@@ -54,6 +63,15 @@ const OptionPanel: React.FC = () => {
                 />
                 <div className={'option-panel-item-label'}>
                     {browser.i18n.getMessage('createNewTabByLevel')}
+                </div>
+            </div>
+            <div className={'option-panel-item'} onClick={handleShowInlineActions} aria-hidden={true}>
+                <div
+                    className={'option-panel-item-check iconfont icon-check'}
+                    style={{ visibility: showInlineActions ? 'visible' : 'hidden' }}
+                />
+                <div className={'option-panel-item-label'}>
+                    {browser.i18n.getMessage('showInlineActions') || 'Show Inline Actions'}
                 </div>
             </div>
         </div>

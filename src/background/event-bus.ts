@@ -16,7 +16,7 @@ export async function sendMessageToExt<K extends DataTypeKey>(
         // 没有窗口打开：存储事件到indexedDB
         return;
     }
-    return sendMessage(messageId, message, {
+    return sendMessage(messageId, message as any, {
         context: 'content-script',
         tabId: extPageInfo.tabId,
     }).catch(() => {
